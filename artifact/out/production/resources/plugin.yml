@@ -1,0 +1,8 @@
+name: artifact
+version: '1.0-SNAPSHOT'
+main: io.github.itokagimaru.artifact.ArtifactMain
+api-version: '1.21'
+commands:
+  getNewArtifact:
+    description: /getnewartifact <seriesId> <slotId> <tier> でdawを入手できるよ
+    usage: /getnewartifact <seriesId> <slotId> <tier>

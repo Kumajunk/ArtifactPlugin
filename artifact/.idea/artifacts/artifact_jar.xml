@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="artifact:jar">
+    <output-path>E:/サーバー - コピー (2)/plugins</output-path>
+    <root id="archive" name="artifact.jar">
+      <element id="module-output" name="artifact.main" />
+      <element id="module-source" name="artifact.main" />
+    </root>
+  </artifact>
+</component>
