@@ -1,1 +1,2 @@
-# TowerSever-sPlagin
+# ArtifactPlugin
+マイクラにアーティファクトの要素を追加するプラグインだよ
