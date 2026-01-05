@@ -1,9 +1,9 @@
 package io.github.itokagimaru.artifact.Command;
 
-import io.github.itokagimaru.artifact.Artifact.Artifacts.ArtifactFactory.Factory;
-import io.github.itokagimaru.artifact.Artifact.Artifacts.Data.Series.Series;
-import io.github.itokagimaru.artifact.Artifact.Artifacts.Data.Slot.Slot;
-import io.github.itokagimaru.artifact.Artifact.Artifacts.Data.Tire.Tier;
+import io.github.itokagimaru.artifact.artifact.artifacts.factory.Factory;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.tire.Tier;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
