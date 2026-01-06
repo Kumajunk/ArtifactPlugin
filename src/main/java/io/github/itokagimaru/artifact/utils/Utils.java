@@ -22,45 +22,38 @@ public final class Utils {
 
     public static TextComponent parseLegacy(String legacy) {
         Map<Character, NamedTextColor> colors = Map.ofEntries(
-                Map.entry('0', NamedTextColor.BLACK),
-                Map.entry('1', NamedTextColor.DARK_BLUE),
-                Map.entry('2', NamedTextColor.DARK_GREEN),
-                Map.entry('3', NamedTextColor.DARK_AQUA),
-                Map.entry('4', NamedTextColor.DARK_RED),
-                Map.entry('5', NamedTextColor.DARK_PURPLE),
-                Map.entry('6', NamedTextColor.GOLD),
-                Map.entry('7', NamedTextColor.GRAY),
-                Map.entry('8', NamedTextColor.DARK_GRAY),
-                Map.entry('9', NamedTextColor.BLUE),
-                Map.entry('a', NamedTextColor.GREEN),
-                Map.entry('b', NamedTextColor.AQUA),
-                Map.entry('c', NamedTextColor.RED),
-                Map.entry('d', NamedTextColor.LIGHT_PURPLE),
-                Map.entry('e', NamedTextColor.YELLOW),
-                Map.entry('f', NamedTextColor.WHITE)
+                Map.entry('0', NamedTextColor.BLACK),       Map.entry('1', NamedTextColor.DARK_BLUE),
+                Map.entry('2', NamedTextColor.DARK_GREEN),  Map.entry('3', NamedTextColor.DARK_AQUA),
+                Map.entry('4', NamedTextColor.DARK_RED),    Map.entry('5', NamedTextColor.DARK_PURPLE),
+                Map.entry('6', NamedTextColor.GOLD),        Map.entry('7', NamedTextColor.GRAY),
+                Map.entry('8', NamedTextColor.DARK_GRAY),   Map.entry('9', NamedTextColor.BLUE),
+                Map.entry('a', NamedTextColor.GREEN),       Map.entry('b', NamedTextColor.AQUA),
+                Map.entry('c', NamedTextColor.RED),         Map.entry('d', NamedTextColor.LIGHT_PURPLE),
+                Map.entry('e', NamedTextColor.YELLOW),      Map.entry('f', NamedTextColor.WHITE)
         );
 
-        Map<Character, TextDecoration> decorationsMap = Map.of(
+        Map<Character, TextDecoration> decoMap = Map.of(
                 'l', TextDecoration.BOLD,
                 'm', TextDecoration.STRIKETHROUGH,
                 'n', TextDecoration.UNDERLINED,
                 'o', TextDecoration.ITALIC
         );
 
-        NamedTextColor color = null;
-        Set<TextDecoration> decorations = new HashSet<>();
-        List<Component> parts = new ArrayList<>();
-        StringBuilder buf = new StringBuilder();
+        final NamedTextColor[] colorHolder = { null };
+        final Set<TextDecoration> decorations = new HashSet<>();
+        final List<Component> parts = new ArrayList<>();
+        final StringBuilder buf = new StringBuilder();
 
         Runnable flush = () -> {
             if (buf.isEmpty()) return;
             Component comp = Component.text(buf.toString());
+            if (colorHolder[0] != null) {
+                comp = comp.color(colorHolder[0]);
+            }
             if (!decorations.isEmpty()) {
-                Map<TextDecoration, TextDecoration.State> map = new HashMap<>();
                 for (TextDecoration d : decorations) {
-                    map.put(d, TextDecoration.State.TRUE);
+                    comp = comp.decoration(d, true);
                 }
-                comp = comp.decorations(map);
             }
             parts.add(comp);
             buf.setLength(0);
@@ -68,24 +61,25 @@ public final class Utils {
 
         int i = 0;
         while (i < legacy.length()) {
-            char c = legacy.charAt(i);
-            if (c == '§' && i + 1 < legacy.length()) {
+            if (legacy.charAt(i) == '§' && i + 1 < legacy.length()) {
                 char code = Character.toLowerCase(legacy.charAt(i + 1));
+
                 if (colors.containsKey(code)) {
                     flush.run();
-                    color = colors.get(code);
+                    colorHolder[0] = colors.get(code);
                     decorations.clear();
-                } else if (decorationsMap.containsKey(code)) {
+                } else if (decoMap.containsKey(code)) {
                     flush.run();
-                    decorations.add(decorationsMap.get(code));
+                    decorations.add(decoMap.get(code));
                 } else if (code == 'r') {
                     flush.run();
-                    color = null;
+                    colorHolder[0] = null;
                     decorations.clear();
                 }
+                // マッチした場合は2文字進める
                 i += 2;
             } else {
-                buf.append(c);
+                buf.append(legacy.charAt(i));
                 i++;
             }
         }

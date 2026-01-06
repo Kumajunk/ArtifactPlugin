@@ -90,18 +90,24 @@ public class AuctionSearchMenu extends BaseGui {
             .addLore("")
             .addLore(getLevelDescription())
             .addLore("")
-            .addLore("§e左クリック: 最小値+5")
-            .addLore("§e右クリック: 最大値+5")
+            .addLore("§e左クリック: 最小値+1")
+            .addLore("§e右クリック: 最大値+1")
             .addLore("§eシフト+クリック: リセット")
             .setClickAction(ClickType.LEFT, player -> {
-                int min = filter.getLevelMin() != null ? filter.getLevelMin() + 5 : 0;
+                int min = filter.getLevelMin() != null ? filter.getLevelMin() + 1 : 0;
                 if (min > 30) min = 0;
+                if (filter.getLevelMax() != null && filter.getLevelMax() < min) {
+                    min = filter.getLevelMax();
+                };
                 filter.setLevelRange(min, filter.getLevelMax());
                 refresh(player);
             })
             .setClickAction(ClickType.RIGHT, player -> {
-                int max = filter.getLevelMax() != null ? filter.getLevelMax() + 5 : 10;
+                int max = filter.getLevelMax() != null ? filter.getLevelMax() + 1 : 5;
                 if (max > 30) max = 5;
+                if (filter.getLevelMin() != null && filter.getLevelMin() > max) {
+                    max = filter.getLevelMin();
+                }
                 filter.setLevelRange(filter.getLevelMin(), max);
                 refresh(player);
             })
@@ -137,11 +143,10 @@ public class AuctionSearchMenu extends BaseGui {
             .addLore("")
             .addLore(getRequiredSubEffectsDescription())
             .addLore("")
-            .addLore("§e左クリック: 効果を追加")
+            .addLore("§e左クリック: 効果を追加する")
             .addLore("§e右クリック: クリア")
             .setClickAction(ClickType.LEFT, player -> {
-                addRequiredSubEffect();
-                refresh(player);
+                new RequiredSubEffectMenu(manager, filter, sortOrder).open(player);
             })
             .setClickAction(ClickType.RIGHT, player -> {
                 filter.getRequiredSubEffects().clear();
@@ -159,8 +164,7 @@ public class AuctionSearchMenu extends BaseGui {
             .addLore("§e左クリック: 効果を追加")
             .addLore("§e右クリック: クリア")
             .setClickAction(ClickType.LEFT, player -> {
-                addExcludedSubEffect();
-                refresh(player);
+                new ExcludedSubEffectMenu(manager, filter, sortOrder).open(player);
             })
             .setClickAction(ClickType.RIGHT, player -> {
                 filter.getExcludedSubEffects().clear();
