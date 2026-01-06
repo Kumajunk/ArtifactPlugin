@@ -14,7 +14,7 @@ public class GetNewArtifact implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Only players can execute this command");
+            sender.sendMessage("Only players can execute this Command");
             return false;
         }
 
