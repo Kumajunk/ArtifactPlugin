@@ -2,9 +2,6 @@ package io.github.itokagimaru.artifact.auction.data;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffect;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffect;
 import io.github.itokagimaru.artifact.auction.model.AuctionListing;
 import io.github.itokagimaru.artifact.auction.model.AuctionType;
@@ -54,8 +51,8 @@ public class AuctionRepository {
         int subEffectCount = artifactJson.has("subEffectCount") ? artifactJson.get("subEffectCount").getAsInt() : 0;
 
         String sql = """
-            INSERT OR REPLACE INTO auction_listings 
-            (listing_id, seller_id, artifact_id, artifact_data, type, price, 
+            INSERT OR REPLACE INTO auction_listings
+            (listing_id, seller_id, artifact_id, artifact_data, type, price,
              current_bid, current_bidder_id, created_at, expires_at,
              series_id, slot_id, level, main_effect_id, main_effect_value, sub_effect_ids, sub_effect_count)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)

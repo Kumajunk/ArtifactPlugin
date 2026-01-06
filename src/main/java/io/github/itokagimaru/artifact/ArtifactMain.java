@@ -126,7 +126,7 @@ public final class ArtifactMain extends JavaPlugin {
             stashRepository.initTable();
 
             // Stashマネージャー初期化
-            stashManager = new StashManager(this, stashRepository);
+            stashManager = new StashManager(this, stashRepository, vaultAPI);
 
             // AuctionManagerとScheduler初期化（Stash連携後）
             auctionManager = new AuctionManager(this, auctionRepository, auctionConfig, vaultAPI, stashManager);

@@ -46,24 +46,32 @@ public class VaultAPI {
         return economy.getBalance(player);
     }
 
-    public void deposit(UUID uuid, double money) {
+    public boolean deposit(UUID uuid, double money) {
         OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
         EconomyResponse resp = economy.depositPlayer(player, money);
 
-        if (resp != null && resp.transactionSuccess() && player.isOnline()) {
-            String formatted = NumberFormat.getNumberInstance(Locale.US).format(money);
-            player.getPlayer().sendMessage(format("<yellow>[Vault] $<green>" + formatted + " <yellow>受取りました"));
+        if (resp != null && resp.transactionSuccess()) {
+            if (player.isOnline()) {
+                String formatted = NumberFormat.getNumberInstance(Locale.US).format(money);
+                player.getPlayer().sendMessage(format("<yellow>[Vault] $<green>" + formatted + " <yellow>受取りました"));
+            }
+            return true;
         }
+        return false;
     }
 
-    public void withdraw(UUID uuid, double money) {
+    public boolean withdraw(UUID uuid, double money) {
         OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
         EconomyResponse resp = economy.withdrawPlayer(player, money);
 
-        if (resp != null && resp.transactionSuccess() && player.isOnline()) {
-            String formatted = NumberFormat.getNumberInstance(Locale.US).format(money);
-            player.getPlayer().sendMessage(format("<yellow>[Vault] $<red>" + formatted + " <yellow>支払いました"));
+        if (resp != null && resp.transactionSuccess()) {
+            if (player.isOnline()) {
+                String formatted = NumberFormat.getNumberInstance(Locale.US).format(money);
+                player.getPlayer().sendMessage(format("<yellow>[Vault] $<red>" + formatted + " <yellow>支払いました"));
+            }
+            return true;
         }
+        return false;
     }
 
     private Component format(String text) {

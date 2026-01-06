@@ -2,7 +2,6 @@ package io.github.itokagimaru.artifact.auction;
 
 /**
  * オークション操作の結果を表すクラス
- * 
  * 成功/失敗とエラーメッセージ、成功時のデータを保持する。
  * 例外を使わずに結果を表現するためのResult型パターン。
  * 
@@ -50,13 +49,6 @@ public class Result<T> {
      */
     public boolean isSuccess() {
         return success;
-    }
-
-    /**
-     * 失敗かどうか
-     */
-    public boolean isFailure() {
-        return !success;
     }
 
     /**

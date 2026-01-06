@@ -4,7 +4,6 @@ import java.util.UUID;
 
 /**
  * オークション出品情報を表すデータクラス
- * 
  * 1つの出品に関するすべての情報を保持する。
  * アーティファクトデータはJSON形式でシリアライズして保存し、
  * クラス構造変更時の互換性を確保する。
@@ -12,22 +11,22 @@ import java.util.UUID;
 public class AuctionListing {
     
     /** 出品固有ID（主キー） */
-    private UUID listingId;
+    private final UUID listingId;
     
     /** 出品者のUUID */
-    private UUID sellerId;
+    private final UUID sellerId;
     
     /** アーティファクトのUUID（BaseArtifact.getUUID()） */
-    private UUID artifactId;
+    private final UUID artifactId;
     
     /** アーティファクトのシリアライズデータ（JSON形式） */
-    private String artifactData;
+    private final String artifactData;
     
     /** オークション種別（BIN / AUCTION） */
-    private AuctionType type;
+    private final AuctionType type;
     
     /** 出品価格（BIN）または開始価格（AUCTION） */
-    private long price;
+    private final long price;
     
     /** 現在の入札額（AUCTIONのみ使用、BINでは0） */
     private long currentBid;
@@ -36,10 +35,10 @@ public class AuctionListing {
     private UUID currentBidderId;
     
     /** 出品日時（Unix時間ミリ秒） */
-    private long createdAt;
+    private final long createdAt;
     
     /** 終了日時（Unix時間ミリ秒） */
-    private long expiresAt;
+    private final long expiresAt;
 
     /**
      * 新規出品を作成するコンストラクタ

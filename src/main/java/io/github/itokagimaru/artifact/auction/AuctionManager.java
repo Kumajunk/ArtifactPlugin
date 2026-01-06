@@ -15,6 +15,7 @@ import io.github.itokagimaru.artifact.auction.model.AuctionType;
 import io.github.itokagimaru.artifact.auction.search.AuctionSearchFilter;
 import io.github.itokagimaru.artifact.auction.search.SortOrder;
 import io.github.itokagimaru.artifact.utils.VaultAPI;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -176,7 +177,27 @@ public class AuctionManager {
             long sellerReceives = totalPrice - saleFee;
 
             // 出品者に入金
-            vaultAPI.deposit(listing.getSellerId(), sellerReceives);
+            boolean deposited = false;
+            if (Bukkit.getPlayer(listing.getSellerId()) != null) {
+                deposited = vaultAPI.deposit(listing.getSellerId(), sellerReceives);
+            }
+
+            if (!deposited) {
+                // オフラインまたは入金失敗時はStashへ
+                String artifactName = "商品";
+                try {
+                    JsonObject json = gson.fromJson(listing.getArtifactData(), JsonObject.class);
+                    if (json.has("seriesName")) {
+                        artifactName = json.get("seriesName").getAsString();
+                    }
+                } catch (Exception ignored) {}
+                
+                boolean stashed = stashManager.stashMoney(listing.getSellerId(), sellerReceives, "オークション売上: " + artifactName);
+                if (!stashed) {
+                    // Stash保存も失敗した場合は深刻なエラー（ロールバックすべきだが、ここではログ出力と購入者への返金を行う）
+                    throw new SQLException("売上金の保存に失敗しました");
+                }
+            }
 
             // アイテムを購入者に付与
             giveArtifactToPlayer(buyer, listing);
