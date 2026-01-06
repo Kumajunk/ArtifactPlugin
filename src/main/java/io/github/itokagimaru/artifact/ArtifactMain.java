@@ -32,15 +32,18 @@ public final class ArtifactMain extends JavaPlugin {
     private AuctionScheduler auctionScheduler;
     private VaultAPI vaultAPI;
 
-    // Stashシステム
-    private StashRepository stashRepository;
     private StashManager stashManager;
 
     @Override
     public void onEnable() {
         // データフォルダ作成
         if (!getDataFolder().exists()) {
-            getDataFolder().mkdirs();
+            boolean isSuccess = getDataFolder().mkdirs();
+            if (isSuccess) {
+                getSLF4JLogger().info("データフォルダを作成しました: {}", getDataFolder().getAbsolutePath());
+            } else {
+                getSLF4JLogger().warn("データフォルダの作成に失敗しました: {}", getDataFolder().getAbsolutePath());
+            }
         }
 
         // VaultAPI初期化
@@ -122,7 +125,8 @@ public final class ArtifactMain extends JavaPlugin {
     private void initStashSystem() {
         try {
             // Stashリポジトリ初期化
-            stashRepository = new StashRepository(this, auctionDatabase);
+            // Stashシステム
+            StashRepository stashRepository = new StashRepository(this, auctionDatabase);
             stashRepository.initTable();
 
             // Stashマネージャー初期化
@@ -170,19 +174,19 @@ public final class ArtifactMain extends JavaPlugin {
 
     // ========== Getter ==========
 
-    public AuctionManager getAuctionManager() {
-        return auctionManager;
-    }
-
-    public AuctionConfig getAuctionConfig() {
-        return auctionConfig;
-    }
-
-    public VaultAPI getVaultAPI() {
-        return vaultAPI;
-    }
-
-    public StashManager getStashManager() {
-        return stashManager;
-    }
+//    public AuctionManager getAuctionManager() {
+//        return auctionManager;
+//    }
+//
+//    public AuctionConfig getAuctionConfig() {
+//        return auctionConfig;
+//    }
+//
+//    public VaultAPI getVaultAPI() {
+//        return vaultAPI;
+//    }
+//
+//    public StashManager getStashManager() {
+//        return stashManager;
+//    }
 }

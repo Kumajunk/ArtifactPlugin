@@ -11,6 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.text.NumberFormat;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.UUID;
 
 public class VaultAPI {
@@ -53,7 +54,7 @@ public class VaultAPI {
         if (resp != null && resp.transactionSuccess()) {
             if (player.isOnline()) {
                 String formatted = NumberFormat.getNumberInstance(Locale.US).format(money);
-                player.getPlayer().sendMessage(format("<yellow>[Vault] $<green>" + formatted + " <yellow>受取りました"));
+                Objects.requireNonNull(player.getPlayer()).sendMessage(format("<yellow>[Vault] $<green>" + formatted + " <yellow>受取りました"));
             }
             return true;
         }
@@ -67,7 +68,7 @@ public class VaultAPI {
         if (resp != null && resp.transactionSuccess()) {
             if (player.isOnline()) {
                 String formatted = NumberFormat.getNumberInstance(Locale.US).format(money);
-                player.getPlayer().sendMessage(format("<yellow>[Vault] $<red>" + formatted + " <yellow>支払いました"));
+                Objects.requireNonNull(player.getPlayer()).sendMessage(format("<yellow>[Vault] $<red>" + formatted + " <yellow>支払いました"));
             }
             return true;
         }

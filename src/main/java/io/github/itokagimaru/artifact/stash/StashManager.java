@@ -9,7 +9,6 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffec
 import io.github.itokagimaru.artifact.artifact.artifacts.data.tire.Tier;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.ArtifactToItem;
 import io.github.itokagimaru.artifact.artifact.artifacts.series.Base.BaseArtifact;
-import io.github.itokagimaru.artifact.auction.model.AuctionListing;
 import io.github.itokagimaru.artifact.utils.VaultAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -25,7 +24,6 @@ import java.util.UUID;
 
 /**
  * InventoryStashのビジネスロジックを管理するクラス
- * 
  * プレイヤーがオフラインまたはインベントリ満杯の場合に
  * アイテムを一時保管し、後で取り出せるようにする。
  */
@@ -44,18 +42,18 @@ public class StashManager {
 
     /**
      * アーティファクトをプレイヤーに付与する（オフライン/満杯の場合はStashへ）
-     * 
-     * @param playerId プレイヤーUUID
+     *
+     * @param playerId     プレイヤーUUID
      * @param artifactData シリアライズされたアーティファクトデータ
-     * @param source アイテムの入手元
-     * @return Stashに保存された場合true
+     * @param source       アイテムの入手元
      */
-    public boolean giveOrStash(UUID playerId, String artifactData, String source) {
+    public void giveOrStash(UUID playerId, String artifactData, String source) {
         Player player = Bukkit.getPlayer(playerId);
         
         if (player == null || !player.isOnline()) {
             // オフラインの場合はStashに保存
-            return stashItem(playerId, artifactData, source);
+            stashItem(playerId, artifactData, source);
+            return;
         }
 
         // アーティファクトを復元
@@ -63,7 +61,8 @@ public class StashManager {
         if (artifact == null) {
             plugin.getLogger().severe("アーティファクト復元失敗: " + playerId);
             // 復元失敗でもStashに保存して後で再試行可能にする
-            return stashItem(playerId, artifactData, source);
+            stashItem(playerId, artifactData, source);
+            return;
         }
 
         // ItemStackを作成
@@ -74,23 +73,14 @@ public class StashManager {
 
         if (!overflow.isEmpty()) {
             // 満杯の場合はStashに保存
-            for (ItemStack overflowItem : overflow.values()) {
+            for (ItemStack ignored : overflow.values()) {
                 // オーバーフローしたアイテムをStashへ
                 stashItem(playerId, artifactData, source);
             }
             player.sendMessage("§e[Stash] §fインベントリが満杯のため、アイテムをStashに保管しました");
             player.sendMessage("§7/stash で取り出せます");
-            return true;
         }
 
-        return false;  // 直接インベントリに追加された
-    }
-
-    /**
-     * 出品データからアーティファクトをプレイヤーに付与
-     */
-    public boolean giveOrStash(UUID playerId, AuctionListing listing, String source) {
-        return giveOrStash(playerId, listing.getArtifactData(), source);
     }
 
     /**
@@ -234,7 +224,7 @@ public class StashManager {
             } else {
                 // インベントリ満杯などで取り出せなくなったら終了
                 // ただしお金の場合はインベントリ関係ないので続行すべきだが、今回はシンプルに中断
-                // break; 
+                break;
             }
         }
 
