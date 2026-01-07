@@ -444,7 +444,7 @@ public class AuctionManager {
 
         // Sub効果の値も保存
         StringBuilder subValues = new StringBuilder();
-        int[] values = artifact.getSubEffectsValue();
+        double[] values = artifact.getSubEffectsValue();
         for (int i = 0; i < values.length; i++) {
             if (i > 0) subValues.append(",");
             subValues.append(values[i]);
@@ -457,7 +457,7 @@ public class AuctionManager {
     /**
      * JSONからアーティファクトをデシリアライズする
      */
-    private BaseArtifact deserializeArtifact(String artifactData) {
+    public BaseArtifact deserializeArtifact(String artifactData) {
         try {
             JsonObject json = gson.fromJson(artifactData, JsonObject.class);
             
@@ -489,7 +489,7 @@ public class AuctionManager {
 
             // Sub効果を復元
             SubEffect.artifactSubEffect[] subEffects = new SubEffect.artifactSubEffect[4];
-            int[] subEffectValues = new int[4];
+            double[] subEffectValues = new double[4];
 
             if (json.has("subEffectIds") && json.has("subEffectValues")) {
                 String[] ids = json.get("subEffectIds").getAsString().split(",");
@@ -501,7 +501,7 @@ public class AuctionManager {
                             int subId = Integer.parseInt(ids[i].trim());
                             subEffects[i] = SubEffect.artifactSubEffect.fromId(subId);
                             if (i < vals.length && !vals[i].isEmpty()) {
-                                subEffectValues[i] = Integer.parseInt(vals[i].trim());
+                                subEffectValues[i] = Double.parseDouble(vals[i].trim());
                             }
                         } catch (NumberFormatException ignored) {}
                     }

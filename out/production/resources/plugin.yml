@@ -2,12 +2,29 @@ name: artifact
 version: '1.0-SNAPSHOT'
 main: io.github.itokagimaru.artifact.ArtifactMain
 api-version: '1.21'
+
+depend:
+  - Vault
+  - MythicMobs
+softdepend:
+  - Vault
+
 commands:
   getNewArtifact:
-    description: /getnewartifact <seriesId> <slotId> <tier> でdawを入手できるよ
+    description: 新しいアーティファクトを入手する
     usage: /getnewartifact <seriesId> <slotId> <tier>
-  testOfPDC:
-    description: /getnewartifact <seriesId> <slotId> <tier> でdawを入手できるよ
-    usage: /getnewartifact <seriesId> <slotId> <tier>
-depend:
-  - MythicMobs
+    permission: artifact.admin
+    
+  auction:
+    description: オークションシステムを開く
+    usage: /auction [search|sell|my|cancel|help]
+    aliases:
+      - ah
+      - market
+
+  stash:
+    description: 保管アイテムを確認・取り出す
+    usage: /stash [all|count]
+    aliases:
+      - storage
+      - mail

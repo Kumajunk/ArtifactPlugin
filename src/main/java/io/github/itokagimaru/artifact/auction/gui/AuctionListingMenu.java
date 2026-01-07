@@ -11,6 +11,7 @@ import io.github.itokagimaru.artifact.auction.model.AuctionType;
 import io.github.itokagimaru.artifact.auction.search.AuctionSearchFilter;
 import io.github.itokagimaru.artifact.auction.search.SortOrder;
 import io.github.itokagimaru.artifact.utils.BaseGui;
+import io.github.itokagimaru.artifact.utils.Utils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -139,11 +140,15 @@ public class AuctionListingMenu extends BaseGui {
             
             // Main効果
             int mainEffectId = json.has("mainEffectId") ? json.get("mainEffectId").getAsInt() : 0;
-            int mainEffectValue = json.has("mainEffectValue") ? json.get("mainEffectValue").getAsInt() : 0;
+            double mainEffectValue = json.has("mainEffectValue") ? json.get("mainEffectValue").getAsDouble() : 0;
             MainEffect.artifactMainEffect mainEffect = MainEffect.artifactMainEffect.fromId(mainEffectId);
             String mainEffectName = mainEffect != null ? mainEffect.getText : "Unknown";
-            lore.add("§6Main: §f" + mainEffectName + " §a+" + formatPercent(mainEffectValue));
-            
+            MainEffect.valueType valueType = mainEffect != null ? mainEffect.getAddType : null;
+            if (valueType != null && valueType == MainEffect.valueType.MULTIPLY){
+                lore.add("§f" + mainEffectName + " §a+" + formatPercent(mainEffectValue));
+            } else if (valueType != null) {
+                lore.add("§f" + mainEffectName + " §a+" + formatAdd(mainEffectValue));
+            }
             // Sub効果（簡略表示）
             if (json.has("subEffectCount")) {
                 int subCount = json.get("subEffectCount").getAsInt();
@@ -196,8 +201,12 @@ public class AuctionListingMenu extends BaseGui {
         };
     }
 
-    private String formatPercent(int value) {
-        return String.format("%.1f%%", value / 10.0);
+    private String formatPercent(double value) {
+        return String.format("%.1f%%", value * 100);
+    }
+
+    private String formatAdd(double value){
+        return String.format("%.1f",value);
     }
 
     private String formatPrice(long price) {

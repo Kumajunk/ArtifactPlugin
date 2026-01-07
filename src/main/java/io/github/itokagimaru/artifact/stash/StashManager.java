@@ -271,7 +271,7 @@ public class StashManager {
 
             // Sub効果を復元
             SubEffect.artifactSubEffect[] subEffects = new SubEffect.artifactSubEffect[4];
-            int[] subEffectValues = new int[4];
+            double[] subEffectValues = new double[4];
 
             if (json.has("subEffectIds") && json.has("subEffectValues")) {
                 String[] ids = json.get("subEffectIds").getAsString().split(",");
@@ -283,7 +283,7 @@ public class StashManager {
                             int subId = Integer.parseInt(ids[i].trim());
                             subEffects[i] = SubEffect.artifactSubEffect.fromId(subId);
                             if (i < vals.length && !vals[i].isEmpty()) {
-                                subEffectValues[i] = Integer.parseInt(vals[i].trim());
+                                subEffectValues[i] = Double.parseDouble(vals[i].trim());
                             }
                         } catch (NumberFormatException ignored) {}
                     }
