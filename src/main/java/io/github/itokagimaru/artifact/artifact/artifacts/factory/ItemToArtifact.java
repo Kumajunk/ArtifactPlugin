@@ -7,6 +7,7 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffec
 import io.github.itokagimaru.artifact.artifact.artifacts.data.tire.Tier;
 import io.github.itokagimaru.artifact.artifact.artifacts.series.Base.BaseArtifact;
 import io.github.itokagimaru.artifact.data.ItemData;
+import io.github.itokagimaru.artifact.utils.ByteArrayConverter;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -53,9 +54,9 @@ public class ItemToArtifact {
             int tierId = ItemData.TIER.get(item);
             int level = ItemData.LV.get(item);
             int mainEffectId = ItemData.MAIN_ID.get(item);
-            int mainEffectValue = ItemData.MAIN_VALUE.get(item);
+            double mainEffectValue = ByteArrayConverter.ByteToDouble(ItemData.MAIN_VALUE.get(item));
             int[] subEffectIds = ItemData.SUB_ID.get(item);
-            int[] subEffectValues = ItemData.SUB_VALUE.get(item);
+            double[] subEffectValues = ByteArrayConverter.ByteToDoubleArray(ItemData.SUB_VALUE.get(item));
 
             // シリーズからBaseArtifactを生成
             Series.artifactSeres series = Series.artifactSeres.fromId(seriesId);

@@ -79,7 +79,17 @@ public final class ArtifactMain extends JavaPlugin {
         stashLoginListener.setStashManager(stashManager);
         getServer().getPluginManager().registerEvents(stashLoginListener, this);
 
+        if (Bukkit.getPluginManager().getPlugin("MythicMobs") == null) {
+            getLogger().severe("MythicMobs not found!");
+            getServer().getPluginManager().disablePlugin(this);
+        } else{
+            getLogger().info("MythicMobs hooked!");
+        }
+
+
+
         getSLF4JLogger().info("アーティファクトプラグインを有効化しました");
+
     }
 
     @Override

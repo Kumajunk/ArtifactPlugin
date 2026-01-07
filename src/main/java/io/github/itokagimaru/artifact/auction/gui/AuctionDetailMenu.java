@@ -108,6 +108,7 @@ public class AuctionDetailMenu extends BaseGui {
     }
 
     private org.bukkit.inventory.ItemStack createDetailItem(AuctionListing listing, JsonObject json) {
+
         int slotId = json.has("slotId") ? json.get("slotId").getAsInt() : 0;
         Material material = getMaterialForSlot(slotId);
         
@@ -130,11 +131,16 @@ public class AuctionDetailMenu extends BaseGui {
             
             // Main効果
             int mainEffectId = json.has("mainEffectId") ? json.get("mainEffectId").getAsInt() : 0;
-            int mainEffectValue = json.has("mainEffectValue") ? json.get("mainEffectValue").getAsInt() : 0;
+            double mainEffectValue = json.has("mainEffectValue") ? json.get("mainEffectValue").getAsDouble() : 0;
             MainEffect.artifactMainEffect mainEffect = MainEffect.artifactMainEffect.fromId(mainEffectId);
             String mainEffectName = mainEffect != null ? mainEffect.getText : "Unknown";
             lore.add(Utils.parseLegacy("§6§lMain効果"));
-            lore.add(Utils.parseLegacy("§f" + mainEffectName + " §a+" + formatPercent(mainEffectValue)));
+            if (mainEffect.getAddType == MainEffect.valueType.MULTIPLY){
+                lore.add(Utils.parseLegacy("§f" + mainEffectName + " §a+" + formatPercent(mainEffectValue)));
+            } else {
+                lore.add(Utils.parseLegacy("§f" + mainEffectName + " §a+" + formatAdd(mainEffectValue)));
+            }
+
             lore.add(Utils.parseLegacy(""));
             
             // Sub効果
@@ -147,7 +153,7 @@ public class AuctionDetailMenu extends BaseGui {
                     if (!subIds[i].isEmpty()) {
                         try {
                             int subId = Integer.parseInt(subIds[i].trim());
-                            int subValue = Integer.parseInt(subValues[i].trim());
+                            double subValue = Double.parseDouble(subValues[i].trim());
                             SubEffect.artifactSubEffect subEffect = SubEffect.artifactSubEffect.fromId(subId);
                             if (subEffect != null) {
                                 lore.add(Utils.parseLegacy("§f" + subEffect.getText + " §a+" + formatPercent(subValue)));
@@ -262,8 +268,12 @@ public class AuctionDetailMenu extends BaseGui {
         };
     }
 
-    private String formatPercent(int value) {
-        return String.format("%.1f%%", value / 10.0);
+    private String formatPercent(double value) {
+        return String.format("%.1f%%", value * 100);
+    }
+
+    private String formatAdd(double value){
+        return String.format("%.1f",value);
     }
 
     private String formatPrice(long price) {

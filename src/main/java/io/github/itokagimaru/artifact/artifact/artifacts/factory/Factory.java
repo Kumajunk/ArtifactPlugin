@@ -32,7 +32,7 @@ public class Factory {
         return table.get(r);
     }
 
-    public int getMainEffectValue(MainEffect.artifactMainEffect mainEffect){
+    public double getMainEffectValue(MainEffect.artifactMainEffect mainEffect){
         return MainEffectTable.mainEffectInitialValue.get(mainEffect);
     }
 
@@ -59,14 +59,14 @@ public class Factory {
         return subEffects;
     }
 
-    public int[] getSubEffectsValue(SubEffect.artifactSubEffect[] subEffects){
-        int[] subEffectsValue = new int[subEffects.length];
+    public double[] getSubEffectsValue(SubEffect.artifactSubEffect[] subEffects){
+        double[] subEffectsValue = new double[subEffects.length];
         Random rand = new Random();
         SubEffect.artifactSubEffect subEffect;
         for (int i = 0; i < subEffectsValue.length; i++){
             subEffect = subEffects[i];
             if (subEffect == null) continue;
-            List<Integer> table = SubEffectTable.subEffectValueTable.get(subEffect);
+            List<Double> table = SubEffectTable.subEffectValueTable.get(subEffect);
             int r = rand.nextInt(table.size());
             subEffectsValue[i] = table.get(r);
         }
@@ -90,9 +90,9 @@ public class Factory {
 
     public BaseArtifact makeNewArtifactData(Series.artifactSeres seres, Slot.artifactSlot slot, Tier.artifactTier tier){
         MainEffect.artifactMainEffect mainEffect = getRandMainEffect(seres, slot);
-        int mainEffectValue = getMainEffectValue(mainEffect);
+        double mainEffectValue = getMainEffectValue(mainEffect);
         SubEffect.artifactSubEffect[] subEffects = getRandSubEffects(seres);
-        int[] subEffectsValue = getSubEffectsValue(subEffects);
+        double[] subEffectsValue = getSubEffectsValue(subEffects);
         BaseArtifact artifact = seres.getArtifactType();
         artifact.setStatus(slot, tier, 0, mainEffect, mainEffectValue, subEffects, subEffectsValue);
         return artifact;

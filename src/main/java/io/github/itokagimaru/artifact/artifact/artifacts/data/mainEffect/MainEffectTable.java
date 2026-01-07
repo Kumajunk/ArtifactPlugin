@@ -29,33 +29,33 @@ public class MainEffectTable {
     }
 
 
-    public static HashMap<MainEffect.artifactMainEffect,Integer> mainEffectInitialValue = new HashMap<>();
+    public static HashMap<MainEffect.artifactMainEffect,Double> mainEffectInitialValue = new HashMap<>();
     static {//各ステータスの初期値のテーブル
-        mainEffectInitialValue.put(MainEffect.artifactMainEffect.HP,50);
-        mainEffectInitialValue.put(MainEffect.artifactMainEffect.ATK,100);
-        mainEffectInitialValue.put(MainEffect.artifactMainEffect.DEF,30);
-        mainEffectInitialValue.put(MainEffect.artifactMainEffect.VIT,30);
-        mainEffectInitialValue.put(MainEffect.artifactMainEffect.LUK,50);
-        mainEffectInitialValue.put(MainEffect.artifactMainEffect.CRI,30);
-        mainEffectInitialValue.put(MainEffect.artifactMainEffect.CRIDMG,60);
-        mainEffectInitialValue.put(MainEffect.artifactMainEffect.FIRE_DMG_BONUS,50);
-        mainEffectInitialValue.put(MainEffect.artifactMainEffect.WATER_DMG_BONUS,50);
-        mainEffectInitialValue.put(MainEffect.artifactMainEffect.NATURE_DMG_BONUS,50);
+        mainEffectInitialValue.put(MainEffect.artifactMainEffect.HP,0.05);
+        mainEffectInitialValue.put(MainEffect.artifactMainEffect.ATK,0.1);
+        mainEffectInitialValue.put(MainEffect.artifactMainEffect.DEF,0.3);
+        mainEffectInitialValue.put(MainEffect.artifactMainEffect.VIT,0.03);
+        mainEffectInitialValue.put(MainEffect.artifactMainEffect.LUK,5.0);
+        mainEffectInitialValue.put(MainEffect.artifactMainEffect.CRI,0.03);
+        mainEffectInitialValue.put(MainEffect.artifactMainEffect.CRIDMG,0.06);
+        mainEffectInitialValue.put(MainEffect.artifactMainEffect.FIRE_DMG_BONUS,0.05);
+        mainEffectInitialValue.put(MainEffect.artifactMainEffect.WATER_DMG_BONUS,0.05);
+        mainEffectInitialValue.put(MainEffect.artifactMainEffect.NATURE_DMG_BONUS,0.05);
     }
 
 
-    public static HashMap<MainEffect.artifactMainEffect, Integer> mainEffectBaseGrowthRate = new HashMap<>();
+    public static HashMap<MainEffect.artifactMainEffect, Double> mainEffectBaseGrowthRate = new HashMap<>();
     static {
-        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.HP,25);
-        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.ATK,40);
-        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.DEF,15);
-        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.VIT,10);
-        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.LUK,10);
-        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.CRI,10);
-        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.CRIDMG,20);
-        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.FIRE_DMG_BONUS,15);
-        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.WATER_DMG_BONUS,15);
-        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.NATURE_DMG_BONUS,15);
+        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.HP,0.025);
+        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.ATK,0.04);
+        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.DEF,0.03);
+        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.VIT,0.01);
+        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.LUK,1.0);
+        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.CRI,0.01);
+        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.CRIDMG,0.02);
+        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.FIRE_DMG_BONUS,0.015);
+        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.WATER_DMG_BONUS,0.015);
+        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.NATURE_DMG_BONUS,0.015);
     }
 
     static Double[] mainEffectExceptionGrowthRate = new Double[30];
@@ -63,7 +63,7 @@ public class MainEffectTable {
         Arrays.fill(mainEffectExceptionGrowthRate,1.0);
         for(int i = 0;i<mainEffectExceptionGrowthRate.length;i++){
             if(i < 5 || i > mainEffectExceptionGrowthRate.length -5){
-                mainEffectExceptionGrowthRate[i] = 1.5;
+                mainEffectExceptionGrowthRate[i] = 1.5;//最初と最後の5回に1.5倍ボーナス
             }
         }
     }

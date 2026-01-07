@@ -1,8 +1,10 @@
 package io.github.itokagimaru.artifact.artifact.artifacts.factory;
 
 import io.github.itokagimaru.artifact.artifact.artifacts.data.exceptionStatus.ExceptionStatus;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffect;
 import io.github.itokagimaru.artifact.artifact.artifacts.series.Base.BaseArtifact;
 import io.github.itokagimaru.artifact.data.ItemData;
+import io.github.itokagimaru.artifact.utils.ByteArrayConverter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -23,11 +25,11 @@ public class ArtifactToItem {
         ItemData.SERIES_ID.set(stack, artifact.getSeries().getId);
         ItemData.LV.set(stack, artifact.getLv());
         ItemData.MAIN_ID.set(stack, artifact.getMainEffect().getId);
-        ItemData.MAIN_VALUE.set(stack, artifact.getMainEffectValue());
+        ItemData.MAIN_VALUE.set(stack, ByteArrayConverter.toByte(artifact.getMainEffectValue()));
 
 
         int[] subEffects = new int[4];
-        int[] subEffectsValue = new int[4];
+        double[] subEffectsValue = new double[4];
         Arrays.fill(subEffects, -1);
         Arrays.fill(subEffectsValue, 0);
         int i = 0;
@@ -38,7 +40,7 @@ public class ArtifactToItem {
             i++;
         }
         ItemData.SUB_ID.set(stack, subEffects);
-        ItemData.SUB_VALUE.set(stack, subEffectsValue);
+        ItemData.SUB_VALUE.set(stack, ByteArrayConverter.toByte(subEffectsValue));
 
         stack.editMeta(itemMeta -> {
             itemMeta.setMaxStackSize(1);
@@ -61,13 +63,13 @@ public class ArtifactToItem {
                 Component.text("Cut: ").color(NamedTextColor.GRAY).append(Component.text(artifact.getSlot().getSlotName).color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD)).decoration(TextDecoration.ITALIC, false),
                 Component.text("-------------------------").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
                 Component.text("MainEffect").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
-                Component.text(artifact.getMainEffect().getText).color(NamedTextColor.GRAY).decorate(TextDecoration.BOLD).append(Component.text(" +").color(NamedTextColor.WHITE).append(Component.text((double) artifact.getMainEffectValue() / 10).color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD).append(Component.text("%").color(NamedTextColor.WHITE)))).decoration(TextDecoration.ITALIC, false),
+                Component.text(artifact.getMainEffect().getText).color(NamedTextColor.GRAY).decorate(TextDecoration.BOLD).append(Component.text(" +").color(NamedTextColor.WHITE).append(Component.text((double) artifact.getMainEffectValue() *getRate(artifact.getMainEffect().getAddType)).color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD).append(Component.text(artifact.getMainEffect().getAddTypeText).color(NamedTextColor.WHITE)))).decoration(TextDecoration.ITALIC, false),
                 Component.text("-------------------------").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
                 Component.text("SubEffect").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false)
         ));
         for (int i = 0; i < artifact.getSubEffects().length; i++){
             if (artifact.getSubEffects()[i] == null) continue;
-            lore.addLast(Component.text(artifact.getSubEffects()[i].getText).color(NamedTextColor.GRAY).append(Component.text(" +").color(NamedTextColor.WHITE).append(Component.text((double) artifact.getSubEffectsValue()[i]/10).color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD).append(Component.text("%").color(NamedTextColor.WHITE)))).decoration(TextDecoration.ITALIC, false));
+            lore.addLast(Component.text(artifact.getSubEffects()[i].getText).color(NamedTextColor.GRAY).append(Component.text(" +").color(NamedTextColor.WHITE).append(Component.text((double) artifact.getSubEffectsValue()[i]*100).color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD).append(Component.text("%").color(NamedTextColor.WHITE)))).decoration(TextDecoration.ITALIC, false));
         }
         lore.addLast(Component.text("-------------------------").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false));
         lore.addAll(artifact.getFlavorText());
@@ -78,5 +80,12 @@ public class ArtifactToItem {
             }
         }
         return lore;
+    }
+
+    private static int getRate(MainEffect.valueType valType){
+        if (valType == MainEffect.valueType.MULTIPLY){
+            return 100;
+        }
+        return 1;
     }
 }

@@ -22,14 +22,14 @@ public class BaseArtifact {
     protected Tier.artifactTier tire;
     protected int lv;
     protected MainEffect.artifactMainEffect mainEffect;
-    protected int mainEffectValue;//mainEffectVal*10^-1=text%
+    protected double mainEffectValue;//mainEffectVal*10^-1=text%
     protected SubEffect.artifactSubEffect[] subEffects;
-    protected int[] subEffectsValue;
+    protected double[] subEffectsValue;
     protected Slot.artifactSlot slot;
     protected List<Component> flavorText;
     protected ExceptionStatus.artifactExceptionStatus[] exStatus;
 
-    public void setStatus(Slot.artifactSlot slot, Tier.artifactTier tire, int lv, MainEffect.artifactMainEffect mainEffect, int mainEffectValue, SubEffect.artifactSubEffect[] subEffects, int[] subEffectsValue){
+    public void setStatus(Slot.artifactSlot slot, Tier.artifactTier tire, int lv, MainEffect.artifactMainEffect mainEffect, double mainEffectValue, SubEffect.artifactSubEffect[] subEffects, double[] subEffectsValue){
         this.slot = slot;
         this.tire = tire;
         this.lv = lv;
@@ -61,13 +61,13 @@ public class BaseArtifact {
     public MainEffect.artifactMainEffect getMainEffect(){
         return mainEffect;
     }
-    public int getMainEffectValue(){
+    public double getMainEffectValue(){
         return mainEffectValue;
     }
     public SubEffect.artifactSubEffect[] getSubEffects(){
         return subEffects;
     }
-    public int[] getSubEffectsValue(){
+    public double[] getSubEffectsValue(){
         return subEffectsValue;
     }
     public String getSeriesName(){
