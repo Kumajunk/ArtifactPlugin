@@ -2,6 +2,7 @@ package io.github.itokagimaru.artifact.data;
 
 import io.papermc.paper.persistence.PersistentDataContainerView;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -36,6 +37,9 @@ public abstract class UsefulKey<C> {
     public C get(ItemStack stack) {
         return get(stack.getPersistentDataContainer());
     }
+    public C get(Entity entity){
+        return get(entity.getPersistentDataContainer());
+    }
 
     /// PDCの値を設定します。
     /// @param dataContainer 対象のデータコンテナ
@@ -50,7 +54,10 @@ public abstract class UsefulKey<C> {
     public void set(ItemStack stack, C newValue) {
         stack.editPersistentDataContainer(p -> set(p, newValue));
     }
+    public void set(Entity entity, C newValue){
+        set(entity.getPersistentDataContainer(), newValue);
 
+    }
     /// PDCの値を編集します。
     /// @param dataContainer 対象のデータコンテナ
     /// @param applyFunc 編集操作のファンクション

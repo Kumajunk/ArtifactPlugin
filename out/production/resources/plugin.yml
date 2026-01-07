@@ -6,3 +6,8 @@ commands:
   getNewArtifact:
     description: /getnewartifact <seriesId> <slotId> <tier> でdawを入手できるよ
     usage: /getnewartifact <seriesId> <slotId> <tier>
+  testOfPDC:
+    description: /getnewartifact <seriesId> <slotId> <tier> でdawを入手できるよ
+    usage: /getnewartifact <seriesId> <slotId> <tier>
+depend:
+  - MythicMobs
