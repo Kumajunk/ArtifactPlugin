@@ -1,0 +1,42 @@
+# オークション設定ファイル
+# 各値はサーバー管理者が自由に変更可能
+
+# 出品設定
+listing:
+  # プレイヤーごとの最大出品数
+  max-per-player: 10
+  
+  # デフォルト出品期間（時間）
+  default-duration: 48
+  
+  # 最大出品期間（時間）= 7日
+  max-duration: 168
+  
+  # キャンセル可能期間（時間）= 1日
+  # 出品からこの時間以内のみキャンセル可能
+  cancel-window: 24
+
+# 手数料設定
+fees:
+  # 出品時手数料（割合）
+  # 例: 0.05 = 5%
+  listing-fee: 0.05
+  
+  # 成立時手数料（割合）
+  # 例: 0.10 = 10%
+  sale-fee: 0.10
+
+# オークション設定
+auction:
+  # 最小入札増加額
+  min-bid-increment: 100
+  
+  # 入札時の残高ロック方式
+  # true: 入札時に残高から即座にロック
+  # false: 落札時に残高から引き落とし
+  lock-bid-amount: true
+
+# データベース設定
+database:
+  # SQLiteファイル名
+  filename: "auction.db"
