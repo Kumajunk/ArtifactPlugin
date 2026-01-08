@@ -54,7 +54,7 @@ public class AuctionCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if (!manager.getAllowedWorlds().contains(player.getWorld().getName()) || !player.hasPermission("artifact.admin")) {
+        if (!manager.getAllowedWorlds().contains(player.getWorld().getName()) && !player.hasPermission("artifact.admin")) {
             player.sendMessage("§cこのワールドではオークションコマンドを使用できません");
             return true;
         }
