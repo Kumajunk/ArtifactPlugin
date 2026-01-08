@@ -481,7 +481,7 @@ public class AuctionManager {
             int tierId = json.has("tierId") ? json.get("tierId").getAsInt() : 0;
             int level = json.has("level") ? json.get("level").getAsInt() : 0;
             int mainEffectId = json.has("mainEffectId") ? json.get("mainEffectId").getAsInt() : 0;
-            int mainEffectValue = json.has("mainEffectValue") ? json.get("mainEffectValue").getAsInt() : 0;
+            double mainEffectValue = json.has("mainEffectValue") ? json.get("mainEffectValue").getAsDouble() : 0;
 
             Slot.artifactSlot slot = Slot.artifactSlot.fromId(slotId);
             Tier.artifactTier tier = Tier.artifactTier.fromId(tierId);
