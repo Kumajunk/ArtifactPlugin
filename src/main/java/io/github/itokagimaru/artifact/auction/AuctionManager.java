@@ -419,4 +419,12 @@ public class AuctionManager {
     public void giveArtifactToPlayerOrStash(UUID playerId, AuctionListing listing, String source) {
         stashManager.giveOrStash(playerId, listing.getArtifactData(), source);
     }
+
+    public List<String> getAllowedWorlds() {
+        return config.getAllowedWorlds();
+    }
+
+    public AuctionConfig getConfig() {
+        return config;
+    }
 }

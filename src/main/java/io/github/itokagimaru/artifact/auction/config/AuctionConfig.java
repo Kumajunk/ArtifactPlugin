@@ -9,10 +9,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * オークション設定を管理するクラス
- * 
  * auction_config.yml から設定を読み込み、
  * 各種設定値を提供する。
  */
@@ -32,6 +32,7 @@ public class AuctionConfig {
     private long minBidIncrement;
     private boolean lockBidAmount;
     private String databaseFilename;
+    private List<String> allowedWorlds;
 
     /**
      * コンストラクタ
@@ -81,6 +82,10 @@ public class AuctionConfig {
         minBidIncrement = config.getLong("auction.min-bid-increment", 100);
         lockBidAmount = config.getBoolean("auction.lock-bid-amount", true);
         databaseFilename = config.getString("database.filename", "auction.db");
+        allowedWorlds = config.getStringList("auction.allowed-worlds");
+        if (allowedWorlds.isEmpty()) {
+            allowedWorlds.add("world");
+        }
     }
 
     /**
@@ -205,5 +210,9 @@ public class AuctionConfig {
      */
     public long calculateSaleFee(long price) {
         return Math.round(price * saleFee);
+    }
+
+    public List<String> getAllowedWorlds() {
+        return allowedWorlds;
     }
 }

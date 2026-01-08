@@ -36,6 +36,10 @@ auction:
   # false: 落札時に残高から引き落とし
   lock-bid-amount: true
 
+  # コマンドが実装可能なワールド
+  allowed-worlds:
+    - "world"
+
 # データベース設定
 database:
   # SQLiteファイル名
