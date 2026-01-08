@@ -2,14 +2,11 @@ package io.github.itokagimaru.artifact.auction;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffect;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffect;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.tire.Tier;
+import io.github.itokagimaru.artifact.artifact.JsonConverter;
 import io.github.itokagimaru.artifact.artifact.artifacts.series.Base.BaseArtifact;
 import io.github.itokagimaru.artifact.auction.config.AuctionConfig;
 import io.github.itokagimaru.artifact.auction.data.AuctionRepository;
+import io.github.itokagimaru.artifact.auction.event.AuctionSoldEvent;
 import io.github.itokagimaru.artifact.auction.model.AuctionListing;
 import io.github.itokagimaru.artifact.auction.model.AuctionType;
 import io.github.itokagimaru.artifact.auction.search.AuctionSearchFilter;
@@ -23,6 +20,7 @@ import io.github.itokagimaru.artifact.stash.StashManager;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -102,7 +100,7 @@ public class AuctionManager {
         }
 
         // アーティファクトをシリアライズ
-        String artifactData = serializeArtifact(artifact);
+        String artifactData = JsonConverter.serializeArtifact(artifact);
 
         // 出品手数料を徴収
         vaultAPI.withdraw(sellerId, listingFee);
@@ -204,6 +202,14 @@ public class AuctionManager {
 
             // 出品を削除
             repository.delete(listingId);
+
+            AuctionSoldEvent event = new AuctionSoldEvent(
+                listing.getSellerId(),
+                Objects.requireNonNull(JsonConverter.deserializeArtifact(listing.getArtifactData())).getSeriesName(),
+                totalPrice
+            );
+
+            Bukkit.getServer().getPluginManager().callEvent(event);
 
             plugin.getLogger().info("BIN purchase completed: " + listingId + " purchased by " + buyer.getName());
             return Result.success();
@@ -392,7 +398,7 @@ public class AuctionManager {
      * @param listing 出品
      */
     public void giveArtifactToPlayer(Player player, AuctionListing listing) {
-        BaseArtifact artifact = deserializeArtifact(listing.getArtifactData());
+        BaseArtifact artifact = JsonConverter.deserializeArtifact(listing.getArtifactData());
         if (artifact == null) {
             player.sendMessage("§cアイテムの復元に失敗しました。管理者に連絡してください。");
             plugin.getLogger().severe("Artifact restoration failed: " + listing.getListingId());
@@ -409,111 +415,8 @@ public class AuctionManager {
      * @param listing 出品
      * @param source 入手元
      */
+    @SuppressWarnings("unused") //コマンドによる補填用(実装予定)
     public void giveArtifactToPlayerOrStash(UUID playerId, AuctionListing listing, String source) {
         stashManager.giveOrStash(playerId, listing.getArtifactData(), source);
-    }
-
-    // ========== シリアライズ/デシリアライズ ==========
-
-    /**
-     * アーティファクトをJSON形式でシリアライズする
-     */
-    private String serializeArtifact(BaseArtifact artifact) {
-        JsonObject json = new JsonObject();
-        json.addProperty("uuid", artifact.getUUID().toString());
-        json.addProperty("seriesId", artifact.getSeries().getId);
-        json.addProperty("seriesName", artifact.getSeriesName());
-        json.addProperty("slotId", artifact.getSlot().getId);
-        json.addProperty("tierId", artifact.getTier().getId);
-        json.addProperty("level", artifact.getLv());
-        json.addProperty("mainEffectId", artifact.getMainEffect().getId);
-        json.addProperty("mainEffectValue", artifact.getMainEffectValue());
-        
-        // Sub効果のIDを配列として保存
-        StringBuilder subIds = new StringBuilder();
-        int count = 0;
-        for (var subEffect : artifact.getSubEffects()) {
-            if (subEffect != null) {
-                if (count > 0) subIds.append(",");
-                subIds.append(subEffect.getId);
-                count++;
-            }
-        }
-        json.addProperty("subEffectIds", subIds.toString());
-        json.addProperty("subEffectCount", count);
-
-        // Sub効果の値も保存
-        StringBuilder subValues = new StringBuilder();
-        double[] values = artifact.getSubEffectsValue();
-        for (int i = 0; i < values.length; i++) {
-            if (i > 0) subValues.append(",");
-            subValues.append(values[i]);
-        }
-        json.addProperty("subEffectValues", subValues.toString());
-
-        return gson.toJson(json);
-    }
-
-    /**
-     * JSONからアーティファクトをデシリアライズする
-     */
-    public BaseArtifact deserializeArtifact(String artifactData) {
-        try {
-            JsonObject json = gson.fromJson(artifactData, JsonObject.class);
-            
-            int seriesId = json.has("seriesId") ? json.get("seriesId").getAsInt() : 0;
-            Series.artifactSeres series = Series.artifactSeres.fromId(seriesId);
-            if (series == null) return null;
-
-            BaseArtifact artifact = series.getArtifactType();
-            if (artifact == null) return null;
-
-            // UUIDを設定
-            String uuidStr = json.has("uuid") ? json.get("uuid").getAsString() : UUID.randomUUID().toString();
-            try {
-                var uuidField = BaseArtifact.class.getDeclaredField("artifactId");
-                uuidField.setAccessible(true);
-                uuidField.set(artifact, UUID.fromString(uuidStr));
-            } catch (Exception ignored) {}
-
-            // ステータスを設定
-            int slotId = json.has("slotId") ? json.get("slotId").getAsInt() : 0;
-            int tierId = json.has("tierId") ? json.get("tierId").getAsInt() : 0;
-            int level = json.has("level") ? json.get("level").getAsInt() : 0;
-            int mainEffectId = json.has("mainEffectId") ? json.get("mainEffectId").getAsInt() : 0;
-            double mainEffectValue = json.has("mainEffectValue") ? json.get("mainEffectValue").getAsDouble() : 0;
-
-            Slot.artifactSlot slot = Slot.artifactSlot.fromId(slotId);
-            Tier.artifactTier tier = Tier.artifactTier.fromId(tierId);
-            MainEffect.artifactMainEffect mainEffect = MainEffect.artifactMainEffect.fromId(mainEffectId);
-
-            // Sub効果を復元
-            SubEffect.artifactSubEffect[] subEffects = new SubEffect.artifactSubEffect[4];
-            double[] subEffectValues = new double[4];
-
-            if (json.has("subEffectIds") && json.has("subEffectValues")) {
-                String[] ids = json.get("subEffectIds").getAsString().split(",");
-                String[] vals = json.get("subEffectValues").getAsString().split(",");
-                
-                for (int i = 0; i < ids.length && i < 4; i++) {
-                    if (!ids[i].isEmpty()) {
-                        try {
-                            int subId = Integer.parseInt(ids[i].trim());
-                            subEffects[i] = SubEffect.artifactSubEffect.fromId(subId);
-                            if (i < vals.length && !vals[i].isEmpty()) {
-                                subEffectValues[i] = Double.parseDouble(vals[i].trim());
-                            }
-                        } catch (NumberFormatException ignored) {}
-                    }
-                }
-            }
-
-            artifact.setStatus(slot, tier, level, mainEffect, mainEffectValue, subEffects, subEffectValues);
-            return artifact;
-
-        } catch (Exception e) {
-            plugin.getLogger().severe("Artifact deserialization error: " + e.getMessage());
-            return null;
-        }
     }
 }

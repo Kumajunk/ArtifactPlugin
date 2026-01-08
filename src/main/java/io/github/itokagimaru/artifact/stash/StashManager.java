@@ -2,11 +2,7 @@ package io.github.itokagimaru.artifact.stash;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffect;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffect;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.tire.Tier;
+import io.github.itokagimaru.artifact.artifact.JsonConverter;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.ArtifactToItem;
 import io.github.itokagimaru.artifact.artifact.artifacts.series.Base.BaseArtifact;
 import io.github.itokagimaru.artifact.utils.VaultAPI;
@@ -21,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+
+import static io.github.itokagimaru.artifact.artifact.JsonConverter.deserializeArtifact;
 
 /**
  * InventoryStashのビジネスロジックを管理するクラス
@@ -57,7 +55,7 @@ public class StashManager {
         }
 
         // アーティファクトを復元
-        BaseArtifact artifact = deserializeArtifact(artifactData);
+        BaseArtifact artifact = JsonConverter.deserializeArtifact(artifactData);
         if (artifact == null) {
             plugin.getLogger().severe("アーティファクト復元失敗: " + playerId);
             // 復元失敗でもStashに保存して後で再試行可能にする
@@ -229,74 +227,5 @@ public class StashManager {
         }
 
         return successCount;
-    }
-
-    /**
-     * JSONからアーティファクトをデシリアライズする
-     */
-    private BaseArtifact deserializeArtifact(String artifactData) {
-        try {
-            JsonObject json = gson.fromJson(artifactData, JsonObject.class);
-            
-            // お金データの場合はnullを返す
-            if (json.has("isMoney") && json.get("isMoney").getAsBoolean()) {
-                return null; 
-            }
-
-            int seriesId = json.has("seriesId") ? json.get("seriesId").getAsInt() : 0;
-            Series.artifactSeres series = Series.artifactSeres.fromId(seriesId);
-            if (series == null) return null;
-
-            BaseArtifact artifact = series.getArtifactType();
-            if (artifact == null) return null;
-
-            // UUIDを設定
-            String uuidStr = json.has("uuid") ? json.get("uuid").getAsString() : UUID.randomUUID().toString();
-            try {
-                var uuidField = BaseArtifact.class.getDeclaredField("artifactId");
-                uuidField.setAccessible(true);
-                uuidField.set(artifact, UUID.fromString(uuidStr));
-            } catch (Exception ignored) {}
-
-            // ステータスを設定
-            int slotId = json.has("slotId") ? json.get("slotId").getAsInt() : 0;
-            int tierId = json.has("tierId") ? json.get("tierId").getAsInt() : 0;
-            int level = json.has("level") ? json.get("level").getAsInt() : 0;
-            int mainEffectId = json.has("mainEffectId") ? json.get("mainEffectId").getAsInt() : 0;
-            int mainEffectValue = json.has("mainEffectValue") ? json.get("mainEffectValue").getAsInt() : 0;
-
-            Slot.artifactSlot slot = Slot.artifactSlot.fromId(slotId);
-            Tier.artifactTier tier = Tier.artifactTier.fromId(tierId);
-            MainEffect.artifactMainEffect mainEffect = MainEffect.artifactMainEffect.fromId(mainEffectId);
-
-            // Sub効果を復元
-            SubEffect.artifactSubEffect[] subEffects = new SubEffect.artifactSubEffect[4];
-            double[] subEffectValues = new double[4];
-
-            if (json.has("subEffectIds") && json.has("subEffectValues")) {
-                String[] ids = json.get("subEffectIds").getAsString().split(",");
-                String[] vals = json.get("subEffectValues").getAsString().split(",");
-                
-                for (int i = 0; i < ids.length && i < 4; i++) {
-                    if (!ids[i].isEmpty()) {
-                        try {
-                            int subId = Integer.parseInt(ids[i].trim());
-                            subEffects[i] = SubEffect.artifactSubEffect.fromId(subId);
-                            if (i < vals.length && !vals[i].isEmpty()) {
-                                subEffectValues[i] = Double.parseDouble(vals[i].trim());
-                            }
-                        } catch (NumberFormatException ignored) {}
-                    }
-                }
-            }
-
-            artifact.setStatus(slot, tier, level, mainEffect, mainEffectValue, subEffects, subEffectValues);
-            return artifact;
-
-        } catch (Exception e) {
-            // お金データの場合はJSONパース後ここに来る可能性もあるが、isMoneyチェックで弾く
-            // plugin.getLogger().severe("アーティファクトデシリアライズエラー: " + e.getMessage());
-            return null;
-        }
     }
 }
