@@ -9,6 +9,14 @@ depend:
 softdepend:
   - Vault
 
+permissons:
+  artifact.admin:
+    default: op
+  artifact.auction.use:
+    default: true
+  artifact.stash.use:
+    default: true
+
 commands:
   getNewArtifact:
     description: 新しいアーティファクトを入手する
@@ -18,6 +26,7 @@ commands:
   auction:
     description: オークションシステムを開く
     usage: /auction [search|sell|my|cancel|help]
+    permission: artifact.auction.use
     aliases:
       - ah
       - market
@@ -25,6 +34,7 @@ commands:
   stash:
     description: 保管アイテムを確認・取り出す
     usage: /stash [all|count]
+    permission: artifact.stash.use
     aliases:
       - storage
       - mail
