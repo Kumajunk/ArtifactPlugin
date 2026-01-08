@@ -1,27 +1,27 @@
 package io.github.itokagimaru.artifact.auction.data;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import io.github.itokagimaru.artifact.auction.config.AuctionConfig;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * SQLiteデータベースの接続管理とテーブル作成を行うクラス
- * シングルトンパターンではなく、プラグインのライフサイクルに合わせて管理。
+ * MySQLデータベースの接続管理とテーブル作成を行うクラス
+ * HikariCPを使用してコネクションプールを管理する。
  */
 public class AuctionDatabase {
-    
+
     private final JavaPlugin plugin;
     private final AuctionConfig config;
-    private Connection connection;
+    private HikariDataSource dataSource;
 
     /**
      * コンストラクタ
-     * 
+     *
      * @param plugin プラグインインスタンス
      * @param config オークション設定
      */
@@ -32,82 +32,95 @@ public class AuctionDatabase {
 
     /**
      * データベースに接続する
-     * 
-     * @throws SQLException 接続失敗時
+     * HikariCPのコネクションプールを初期化する。
      */
-    public void connect() throws SQLException {
-        if (connection != null && !connection.isClosed()) {
-            return;
-        }
+    public void connect() {
+        HikariConfig hikariConfig = new HikariConfig();
 
-        File dataFolder = plugin.getDataFolder();
-        if (!dataFolder.exists()) {
-            dataFolder.mkdirs();
-        }
+        // MySQL JDBC URL
+        String jdbcUrl = "jdbc:mysql://" + config.getHost() + ":" + config.getPort() + "/" + config.getDatabase();
+        hikariConfig.setJdbcUrl(jdbcUrl);
+        hikariConfig.setUsername(config.getUsername());
+        hikariConfig.setPassword(config.getPassword());
 
-        String url = "jdbc:sqlite:" + new File(dataFolder, config.getDatabaseFilename()).getAbsolutePath();
-        connection = DriverManager.getConnection(url);
-        
-        plugin.getLogger().info("Connected to SQLite database: " + config.getDatabaseFilename());
+        // コネクションプール設定
+        hikariConfig.setMaximumPoolSize(10);
+        hikariConfig.setMinimumIdle(2);
+        hikariConfig.setConnectionTimeout(30000);
+        hikariConfig.setIdleTimeout(600000);
+        hikariConfig.setMaxLifetime(1800000);
+
+        // MySQL最適化設定
+        hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
+        hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
+        hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        hikariConfig.addDataSourceProperty("useServerPrepStmts", "true");
+        hikariConfig.addDataSourceProperty("useLocalSessionState", "true");
+        hikariConfig.addDataSourceProperty("rewriteBatchedStatements", "true");
+        hikariConfig.addDataSourceProperty("cacheResultSetMetadata", "true");
+        hikariConfig.addDataSourceProperty("cacheServerConfiguration", "true");
+        hikariConfig.addDataSourceProperty("elideSetAutoCommits", "true");
+        hikariConfig.addDataSourceProperty("maintainTimeStats", "false");
+
+        // プールの識別名
+        hikariConfig.setPoolName("ArtifactPlugin-HikariPool");
+
+        dataSource = new HikariDataSource(hikariConfig);
+        plugin.getLogger().info("MySQL database connection pool initialized");
     }
 
     /**
      * テーブルを初期化する
-     * 
+     *
      * @throws SQLException テーブル作成失敗時
      */
     public void initTables() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            throw new SQLException("データベースに接続されていません");
-        }
+        try (Connection connection = getConnection();
+             Statement statement = connection.createStatement()) {
 
-        try (Statement statement = connection.createStatement()) {
-            // 出品テーブル
+            // 出品テーブル（MySQL構文）
             statement.execute("""
                 CREATE TABLE IF NOT EXISTS auction_listings (
-                    listing_id TEXT PRIMARY KEY,
-                    seller_id TEXT NOT NULL,
-                    artifact_id TEXT NOT NULL UNIQUE,
+                    listing_id VARCHAR(36) PRIMARY KEY,
+                    seller_id VARCHAR(36) NOT NULL,
+                    artifact_id VARCHAR(36) NOT NULL UNIQUE,
                     artifact_data TEXT NOT NULL,
-                    type TEXT NOT NULL,
-                    price INTEGER NOT NULL,
-                    current_bid INTEGER DEFAULT 0,
-                    current_bidder_id TEXT,
-                    created_at INTEGER NOT NULL,
-                    expires_at INTEGER NOT NULL,
+                    type VARCHAR(20) NOT NULL,
+                    price BIGINT NOT NULL,
+                    current_bid BIGINT DEFAULT 0,
+                    current_bidder_id VARCHAR(36),
+                    created_at BIGINT NOT NULL,
+                    expires_at BIGINT NOT NULL,
                     -- 検索用のインデックスカラム（artifact_dataからパース）
-                    series_id INTEGER,
-                    slot_id INTEGER,
-                    level INTEGER,
-                    main_effect_id INTEGER,
-                    main_effect_value INTEGER,
+                    series_id INT,
+                    slot_id INT,
+                    level INT,
+                    main_effect_id INT,
+                    main_effect_value INT,
                     sub_effect_ids TEXT,
-                    sub_effect_count INTEGER
-                )
+                    sub_effect_count INT,
+                    INDEX idx_seller (seller_id),
+                    INDEX idx_expires (expires_at),
+                    INDEX idx_series (series_id),
+                    INDEX idx_slot (slot_id),
+                    INDEX idx_level (level),
+                    INDEX idx_price (price),
+                    INDEX idx_type (type)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             """);
 
-            // インデックス作成
-            statement.execute("CREATE INDEX IF NOT EXISTS idx_seller ON auction_listings(seller_id)");
-            statement.execute("CREATE INDEX IF NOT EXISTS idx_expires ON auction_listings(expires_at)");
-            statement.execute("CREATE INDEX IF NOT EXISTS idx_series ON auction_listings(series_id)");
-            statement.execute("CREATE INDEX IF NOT EXISTS idx_slot ON auction_listings(slot_id)");
-            statement.execute("CREATE INDEX IF NOT EXISTS idx_level ON auction_listings(level)");
-            statement.execute("CREATE INDEX IF NOT EXISTS idx_price ON auction_listings(price)");
-            statement.execute("CREATE INDEX IF NOT EXISTS idx_type ON auction_listings(type)");
-
-            // 入札履歴テーブル
+            // 入札履歴テーブル（MySQL構文）
             statement.execute("""
                 CREATE TABLE IF NOT EXISTS bid_history (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    listing_id TEXT NOT NULL,
-                    bidder_id TEXT NOT NULL,
-                    bid_amount INTEGER NOT NULL,
-                    bid_time INTEGER NOT NULL,
-                    FOREIGN KEY (listing_id) REFERENCES auction_listings(listing_id)
-                )
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    listing_id VARCHAR(36) NOT NULL,
+                    bidder_id VARCHAR(36) NOT NULL,
+                    bid_amount BIGINT NOT NULL,
+                    bid_time BIGINT NOT NULL,
+                    INDEX idx_bid_listing (listing_id),
+                    FOREIGN KEY (listing_id) REFERENCES auction_listings(listing_id) ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             """);
-
-            statement.execute("CREATE INDEX IF NOT EXISTS idx_bid_listing ON bid_history(listing_id)");
 
             plugin.getLogger().info("Auction tables initialized");
         }
@@ -115,28 +128,35 @@ public class AuctionDatabase {
 
     /**
      * データベース接続を取得
-     * 
+     * コネクションプールから接続を取得する。
+     *
      * @return Connection オブジェクト
-     * @throws SQLException 接続が閉じている場合
+     * @throws SQLException DataSourceが初期化されていない場合、または接続取得失敗時
      */
     public Connection getConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            connect();
+        if (dataSource == null) {
+            throw new SQLException("DataSource is not initialized. Call connect() first.");
         }
-        return connection;
+        return dataSource.getConnection();
     }
 
     /**
      * データベース接続を閉じる
+     * コネクションプールをシャットダウンする。
      */
     public void close() {
-        if (connection != null) {
-            try {
-                connection.close();
-                plugin.getLogger().info("SQLite database connection closed");
-            } catch (SQLException e) {
-                plugin.getLogger().severe("Failed to close database connection: " + e.getMessage());
-            }
+        if (dataSource != null && !dataSource.isClosed()) {
+            dataSource.close();
+            plugin.getLogger().info("MySQL database connection pool closed");
         }
+    }
+
+    /**
+     * コネクションプールが有効かどうかを確認する
+     *
+     * @return プールが有効な場合true
+     */
+    public boolean isConnected() {
+        return dataSource != null && !dataSource.isClosed();
     }
 }

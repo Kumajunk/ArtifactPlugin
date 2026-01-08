@@ -32,6 +32,11 @@ public class AuctionConfig {
     private long minBidIncrement;
     private boolean lockBidAmount;
     private String databaseFilename;
+    private String host;
+    private int port;
+    private String database;
+    private String username;
+    private String password;
     private List<String> allowedWorlds;
 
     /**
@@ -82,6 +87,12 @@ public class AuctionConfig {
         minBidIncrement = config.getLong("auction.min-bid-increment", 100);
         lockBidAmount = config.getBoolean("auction.lock-bid-amount", true);
         databaseFilename = config.getString("database.filename", "auction.db");
+        // databaseセクションから値を読み込む
+        host = config.getString("database.host", "localhost");
+        port = config.getInt("database.port", 3306);
+        database = config.getString("database.database", "artifact_auction");
+        username = config.getString("database.username", "root");
+        password = config.getString("database.password", "");
         allowedWorlds = config.getStringList("auction.allowed-worlds");
         if (allowedWorlds.isEmpty()) {
             allowedWorlds.add("world");
@@ -210,6 +221,26 @@ public class AuctionConfig {
      */
     public long calculateSaleFee(long price) {
         return Math.round(price * saleFee);
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public String getDatabase() {
+        return database;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public List<String> getAllowedWorlds() {

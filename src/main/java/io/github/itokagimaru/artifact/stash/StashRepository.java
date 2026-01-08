@@ -27,24 +27,18 @@ public class StashRepository {
     public void initTable() throws SQLException {
         String sql = """
             CREATE TABLE IF NOT EXISTS inventory_stash (
-                id TEXT PRIMARY KEY,
-                player_id TEXT NOT NULL,
+                id VARCHAR(36) PRIMARY KEY,
+                player_id VARCHAR(36) NOT NULL,
                 item_data TEXT NOT NULL,
-                source TEXT NOT NULL,
-                created_at INTEGER NOT NULL
-            )
+                source VARCHAR(255) NOT NULL,
+                created_at BIGINT NOT NULL,
+                INDEX idx_stash_player (player_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         """;
 
         try (Connection conn = database.getConnection();
              Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
-        }
-
-        // インデックス作成
-        String indexSql = "CREATE INDEX IF NOT EXISTS idx_stash_player ON inventory_stash(player_id)";
-        try (Connection conn = database.getConnection();
-             Statement stmt = conn.createStatement()) {
-            stmt.execute(indexSql);
         }
     }
 
