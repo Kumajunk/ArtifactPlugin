@@ -1,5 +1,6 @@
 package io.github.itokagimaru.artifact;
 
+import io.github.itokagimaru.artifact.Command.ArtifactCommand;
 import io.github.itokagimaru.artifact.auction.AuctionManager;
 import io.github.itokagimaru.artifact.auction.AuctionScheduler;
 import io.github.itokagimaru.artifact.auction.config.AuctionConfig;
@@ -33,8 +34,9 @@ public final class ArtifactMain extends JavaPlugin {
     private AuctionScheduler auctionScheduler;
     private VaultAPI vaultAPI;
     public static JavaPlugin plugin;
+    private static ArtifactMain instance;
 
-    private StashManager stashManager;
+    private static StashManager stashManager;
 
     @Override
     public void onEnable() {
@@ -49,6 +51,7 @@ public final class ArtifactMain extends JavaPlugin {
         }
 
         plugin = this;
+        instance = this;
 
         // VaultAPI初期化
         vaultAPI = new VaultAPI(this);
@@ -64,7 +67,12 @@ public final class ArtifactMain extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BaseGui.GuiListener(), this);
 
         // コマンド登録
-        registerCommand("getNewArtifact", new GetNewArtifact());
+        GetNewArtifact getNewArtifact = new GetNewArtifact();
+        registerCommandWithTabCompleter("getNewArtifact", getNewArtifact, getNewArtifact);
+
+        // アーティファクトコマンド登録
+        ArtifactCommand artifactCommand = new ArtifactCommand();
+        registerCommandWithTabCompleter("artifact", artifactCommand, artifactCommand);
         
         // オークションコマンド登録
         AuctionCommand auctionCommand = new AuctionCommand();
@@ -162,18 +170,6 @@ public final class ArtifactMain extends JavaPlugin {
     }
 
     /**
-     * コマンドを登録する
-     */
-    private void registerCommand(String name, CommandExecutor executor) {
-        PluginCommand command = getCommand(name);
-        if (command == null) {
-            getSLF4JLogger().warn("コマンド {} が見つかりませんでした", name);
-            return;
-        }
-        command.setExecutor(executor);
-    }
-
-    /**
      * コマンドとTabCompleterを登録する
      */
     private void registerCommandWithTabCompleter(String name, CommandExecutor executor, TabCompleter tabCompleter) {
@@ -186,21 +182,11 @@ public final class ArtifactMain extends JavaPlugin {
         command.setTabCompleter(tabCompleter);
     }
 
-    // ========== Getter ==========
+    public static ArtifactMain getInstance() { // 追加
+        return instance;
+    }
 
-//    public AuctionManager getAuctionManager() {
-//        return auctionManager;
-//    }
-//
-//    public AuctionConfig getAuctionConfig() {
-//        return auctionConfig;
-//    }
-//
-//    public VaultAPI getVaultAPI() {
-//        return vaultAPI;
-//    }
-//
-//    public StashManager getStashManager() {
-//        return stashManager;
-//    }
+    public static StashManager getStashManager() {
+        return stashManager;
+    }
 }

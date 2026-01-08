@@ -16,6 +16,8 @@ permissons:
     default: true
   artifact.stash.use:
     default: true
+  artifact.use:
+    default: true
 
 commands:
   getNewArtifact:
@@ -38,3 +40,10 @@ commands:
     aliases:
       - storage
       - mail
+
+  artifact:
+    description: アーティファクトに関するコマンド
+    usage: /artifact [equip|help]
+    permission: artifact.use
+    aliases:
+      - aft
