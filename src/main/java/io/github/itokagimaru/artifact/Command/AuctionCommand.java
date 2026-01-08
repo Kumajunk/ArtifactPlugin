@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 
 /**
  * オークションコマンドを処理するクラス
- * 
  * /auction - メインメニュー表示
  * /auction search - 検索画面
  * /auction sell - 出品画面
@@ -55,6 +54,11 @@ public class AuctionCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if (manager.getAllowedWorlds().contains(player.getWorld().getName())) {
+            player.sendMessage("§cこのワールドではオークションコマンドを使用できません");
+            return true;
+        }
+
         // サブコマンドなし → メインメニュー
         if (args.length == 0) {
             new AuctionMainMenu(manager).open(player);
@@ -64,15 +68,9 @@ public class AuctionCommand implements CommandExecutor, TabCompleter {
         String subCommand = args[0].toLowerCase();
 
         switch (subCommand) {
-            case "search" -> {
-                new AuctionSearchMenu(manager).open(player);
-            }
-            case "sell" -> {
-                new AuctionSellMenu(manager).open(player);
-            }
-            case "my", "mine", "list" -> {
-                new AuctionMyListingsMenu(manager).open(player);
-            }
+            case "search" -> new AuctionSearchMenu(manager).open(player);
+            case "sell" -> new AuctionSellMenu(manager).open(player);
+            case "my", "mine", "list" -> new AuctionMyListingsMenu(manager).open(player);
             case "cancel" -> {
                 if (args.length < 2) {
                     player.sendMessage("§c使用方法: /auction cancel <出品ID>");
@@ -80,20 +78,17 @@ public class AuctionCommand implements CommandExecutor, TabCompleter {
                 }
                 handleCancel(player, args[1]);
             }
-            case "help" -> {
-                sendHelp(player);
-            }
+            case "help" -> sendHelp(player);
             case "reload" -> {
                 if (player.hasPermission("artifact.admin")) {
                     player.sendMessage("§a設定をリロードしました");
-                    // config.reload() を呼び出す
+                    manager.getConfig().reload();
+                    manager.getConfig().save();
                 } else {
                     player.sendMessage("§cこのコマンドを使用する権限がありません");
                 }
             }
-            default -> {
-                player.sendMessage("§c不明なサブコマンドです。/auction help でヘルプを表示");
-            }
+            default -> player.sendMessage("§c不明なサブコマンドです。/auction help でヘルプを表示");
         }
 
         return true;
