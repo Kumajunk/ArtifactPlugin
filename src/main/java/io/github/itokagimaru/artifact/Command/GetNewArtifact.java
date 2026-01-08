@@ -8,9 +8,13 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-public class GetNewArtifact implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.List;
+
+public class GetNewArtifact implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
@@ -62,5 +66,28 @@ public class GetNewArtifact implements CommandExecutor {
         if (Series.artifactSeres.fromId(argsInt[0]) == null || Slot.artifactSlot.fromId(argsInt[1]) == null || Tier.artifactTier.fromId(argsInt[2]) == null) return false;
         player.give(factory.makeNewArtifact(Series.artifactSeres.fromId(argsInt[0]), Slot.artifactSlot.fromId(argsInt[1]), Tier.artifactTier.fromId(argsInt[2])));
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        List<String> list = new ArrayList<>();
+        switch (args.length){
+            case 1 -> {
+                for (Series.artifactSeres seres : Series.artifactSeres.values()){
+                    list.add(String.valueOf(seres.getId));
+                }
+            }
+            case 2 -> {
+                for (Slot.artifactSlot slot : Slot.artifactSlot.values()){
+                    list.add(String.valueOf(slot.getId));
+                }
+            }
+            case 3 -> {
+                for (Tier.artifactTier tier : Tier.artifactTier.values()) {
+                    list.add(String.valueOf(tier.getId));
+                }
+            }
+        }
+        return list;
     }
 }
