@@ -51,14 +51,30 @@ public class AuctionRepository {
         int subEffectCount = artifactJson.has("subEffectCount") ? artifactJson.get("subEffectCount").getAsInt() : 0;
 
         String sql = """
-            INSERT OR REPLACE INTO auction_listings
+            INSERT INTO auction_listings
             (listing_id, seller_id, artifact_id, artifact_data, type, price,
              current_bid, current_bidder_id, created_at, expires_at,
              series_id, slot_id, level, main_effect_id, main_effect_value, sub_effect_ids, sub_effect_count)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+                seller_id = VALUES(seller_id),
+                artifact_data = VALUES(artifact_data),
+                type = VALUES(type),
+                price = VALUES(price),
+                current_bid = VALUES(current_bid),
+                current_bidder_id = VALUES(current_bidder_id),
+                expires_at = VALUES(expires_at),
+                series_id = VALUES(series_id),
+                slot_id = VALUES(slot_id),
+                level = VALUES(level),
+                main_effect_id = VALUES(main_effect_id),
+                main_effect_value = VALUES(main_effect_value),
+                sub_effect_ids = VALUES(sub_effect_ids),
+                sub_effect_count = VALUES(sub_effect_count)
         """;
 
-        try (PreparedStatement stmt = database.getConnection().prepareStatement(sql)) {
+        try (Connection conn = database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, listing.getListingId().toString());
             stmt.setString(2, listing.getSellerId().toString());
             stmt.setString(3, listing.getArtifactId().toString());
@@ -90,7 +106,8 @@ public class AuctionRepository {
     public Optional<AuctionListing> findById(UUID listingId) {
         String sql = "SELECT * FROM auction_listings WHERE listing_id = ?";
 
-        try (PreparedStatement stmt = database.getConnection().prepareStatement(sql)) {
+        try (Connection conn = database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, listingId.toString());
 
             try (ResultSet rs = stmt.executeQuery()) {
@@ -115,7 +132,8 @@ public class AuctionRepository {
         String sql = "SELECT * FROM auction_listings WHERE seller_id = ? ORDER BY created_at DESC";
         List<AuctionListing> results = new ArrayList<>();
 
-        try (PreparedStatement stmt = database.getConnection().prepareStatement(sql)) {
+        try (Connection conn = database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, sellerId.toString());
 
             try (ResultSet rs = stmt.executeQuery()) {
@@ -139,7 +157,8 @@ public class AuctionRepository {
     public Optional<AuctionListing> findByArtifactId(UUID artifactId) {
         String sql = "SELECT * FROM auction_listings WHERE artifact_id = ?";
 
-        try (PreparedStatement stmt = database.getConnection().prepareStatement(sql)) {
+        try (Connection conn = database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, artifactId.toString());
 
             try (ResultSet rs = stmt.executeQuery()) {
@@ -163,7 +182,8 @@ public class AuctionRepository {
         String sql = "SELECT * FROM auction_listings WHERE expires_at <= ?";
         List<AuctionListing> results = new ArrayList<>();
 
-        try (PreparedStatement stmt = database.getConnection().prepareStatement(sql)) {
+        try (Connection conn = database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, System.currentTimeMillis());
 
             try (ResultSet rs = stmt.executeQuery()) {
@@ -277,7 +297,8 @@ public class AuctionRepository {
 
         List<AuctionListing> results = new ArrayList<>();
 
-        try (PreparedStatement stmt = database.getConnection().prepareStatement(sql.toString())) {
+        try (Connection conn = database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
             for (int i = 0; i < params.size(); i++) {
                 stmt.setObject(i + 1, params.get(i));
             }
@@ -303,14 +324,16 @@ public class AuctionRepository {
     public void delete(UUID listingId) throws SQLException {
         String sql = "DELETE FROM auction_listings WHERE listing_id = ?";
 
-        try (PreparedStatement stmt = database.getConnection().prepareStatement(sql)) {
+        try (Connection conn = database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, listingId.toString());
             stmt.executeUpdate();
         }
 
         // 入札履歴も削除
         String bidSql = "DELETE FROM bid_history WHERE listing_id = ?";
-        try (PreparedStatement stmt = database.getConnection().prepareStatement(bidSql)) {
+        try (Connection conn = database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(bidSql)) {
             stmt.setString(1, listingId.toString());
             stmt.executeUpdate();
         }
@@ -325,7 +348,8 @@ public class AuctionRepository {
     public int countBySeller(UUID sellerId) {
         String sql = "SELECT COUNT(*) FROM auction_listings WHERE seller_id = ?";
 
-        try (PreparedStatement stmt = database.getConnection().prepareStatement(sql)) {
+        try (Connection conn = database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, sellerId.toString());
 
             try (ResultSet rs = stmt.executeQuery()) {
@@ -350,7 +374,8 @@ public class AuctionRepository {
     public void recordBid(UUID listingId, UUID bidderId, long bidAmount) throws SQLException {
         String sql = "INSERT INTO bid_history (listing_id, bidder_id, bid_amount, bid_time) VALUES (?, ?, ?, ?)";
 
-        try (PreparedStatement stmt = database.getConnection().prepareStatement(sql)) {
+        try (Connection conn = database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, listingId.toString());
             stmt.setString(2, bidderId.toString());
             stmt.setLong(3, bidAmount);

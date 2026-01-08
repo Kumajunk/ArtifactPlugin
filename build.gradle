@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id("xyz.jpenilla.run-paper") version "2.3.1"
+    id("com.gradleup.shadow") version "9.0.0-beta4"
 }
 
 group = 'io.github.itokagimaru'
@@ -20,6 +21,8 @@ dependencies {
     compileOnly files("libs/MythicMobs-5.11.1.jar")
 
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
+    implementation("com.zaxxer:HikariCP:5.1.0")
+    implementation("com.mysql:mysql-connector-j:9.5.0")
 }
 
 tasks {
@@ -28,6 +31,20 @@ tasks {
         // This is the only required configuration besides applying the plugin.
         // Your plugin's jar (or shadowJar if present) will be used automatically.
         minecraftVersion("1.21.8")
+    }
+
+    shadowJar {
+        // HikariCPとMySQLドライバーをリロケート（パッケージ競合を避けるため）
+        relocate("com.zaxxer.hikari", "io.github.itokagimaru.artifact.libs.hikari")
+        relocate("com.mysql", "io.github.itokagimaru.artifact.libs.mysql")
+        
+        // 出力ファイル名を設定
+        archiveClassifier.set("")
+    }
+
+    // 通常のjarタスクの代わりにshadowJarを使用
+    build {
+        dependsOn(shadowJar)
     }
 }
 
