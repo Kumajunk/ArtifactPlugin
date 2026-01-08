@@ -7,7 +7,6 @@ import io.github.itokagimaru.artifact.auction.data.AuctionDatabase;
 import io.github.itokagimaru.artifact.auction.data.AuctionRepository;
 import io.github.itokagimaru.artifact.Command.AuctionCommand;
 import io.github.itokagimaru.artifact.Command.GetNewArtifact;
-import io.github.itokagimaru.artifact.Command.TestOfPDC;
 import org.bukkit.Bukkit;
 import io.github.itokagimaru.artifact.stash.StashCommand;
 import io.github.itokagimaru.artifact.stash.StashLoginListener;
@@ -33,6 +32,7 @@ public final class ArtifactMain extends JavaPlugin {
     private AuctionManager auctionManager;
     private AuctionScheduler auctionScheduler;
     private VaultAPI vaultAPI;
+    public static JavaPlugin plugin;
 
     private StashManager stashManager;
 
@@ -47,6 +47,8 @@ public final class ArtifactMain extends JavaPlugin {
                 getSLF4JLogger().warn("データフォルダの作成に失敗しました: {}", getDataFolder().getAbsolutePath());
             }
         }
+
+        plugin = this;
 
         // VaultAPI初期化
         vaultAPI = new VaultAPI(this);

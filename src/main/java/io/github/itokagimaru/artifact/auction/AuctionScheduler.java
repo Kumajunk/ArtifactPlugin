@@ -17,7 +17,6 @@ import java.util.UUID;
 
 /**
  * オークションの定期処理を管理するスケジューラークラス
- * 
  * 期限切れオークションの処理、落札、返金などを定期的に実行する。
  */
 public class AuctionScheduler {
@@ -31,7 +30,7 @@ public class AuctionScheduler {
     private BukkitTask task;
 
     // 実行間隔（tick） 20tick = 1秒、1200tick = 1分
-    private static final long CHECK_INTERVAL_TICKS = 1200L;
+    private static final long CHECK_INTERVAL_TICKS = 20L;
 
     /**
      * コンストラクタ
