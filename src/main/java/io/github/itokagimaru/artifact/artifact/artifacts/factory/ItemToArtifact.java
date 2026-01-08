@@ -4,7 +4,7 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEff
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffect;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.tire.Tier;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.tier.Tier;
 import io.github.itokagimaru.artifact.artifact.artifacts.series.Base.BaseArtifact;
 import io.github.itokagimaru.artifact.data.ItemData;
 import io.github.itokagimaru.artifact.utils.ByteArrayConverter;

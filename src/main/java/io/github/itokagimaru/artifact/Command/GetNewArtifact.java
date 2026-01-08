@@ -3,7 +3,7 @@ package io.github.itokagimaru.artifact.Command;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.Factory;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.tire.Tier;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.tier.Tier;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
