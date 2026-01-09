@@ -112,9 +112,13 @@ public class ArtifactEnhanceMenu extends BaseGui {
             }
         }
 
+        BaseArtifact aft = ItemToArtifact.convert(enhanceTarget).orElse(null);
+        int lvl = aft != null ? aft.getLv() : 0;
+        double successProb = 1 - ((1 - 0.6) / (30 - 1.0)) * lvl;
         setItem(EXECUTE_BUTTON, new ItemBuilder()
                 .setMaterial(Material.ANVIL)
                 .setName("§a強化を実行する")
+                .addLore("§7確率: %s".formatted(String.format("%.2f", successProb * 100))+"%")
                 .setClickAction(ClickType.LEFT, player -> {
                     if (enhanceTarget == null) {
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
