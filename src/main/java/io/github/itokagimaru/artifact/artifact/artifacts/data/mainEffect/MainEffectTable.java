@@ -58,7 +58,7 @@ public class MainEffectTable {
         mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.NATURE_DMG_BONUS,0.015);
     }
 
-    static Double[] mainEffectExceptionGrowthRate = new Double[30];
+    public static Double[] mainEffectExceptionGrowthRate = new Double[30];
     static {//成長率にボーナスつける時にどうぞ
         Arrays.fill(mainEffectExceptionGrowthRate,1.0);
         for(int i = 0;i<mainEffectExceptionGrowthRate.length;i++){

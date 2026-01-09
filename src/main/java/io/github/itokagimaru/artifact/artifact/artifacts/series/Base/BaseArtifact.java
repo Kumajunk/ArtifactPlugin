@@ -2,17 +2,16 @@ package io.github.itokagimaru.artifact.artifact.artifacts.series.Base;
 
 import io.github.itokagimaru.artifact.artifact.artifacts.data.exceptionStatus.ExceptionStatus;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffect;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffectTable;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffect;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.tire.Tier;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffectTable;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.tier.Tier;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class BaseArtifact {
     protected UUID artifactId;
@@ -85,5 +84,81 @@ public class BaseArtifact {
 
     public static void fourSetEffect(Player player){
 
+    }
+
+    public void performEnhance(){
+        if (this.exStatus != null) {
+            for (ExceptionStatus.artifactExceptionStatus status : this.exStatus) {
+                if (status == ExceptionStatus.artifactExceptionStatus.CANNOT_ENHANCE) {
+                    return;
+                }
+            }
+        }
+
+        if (this.lv >= 30) {
+            return;
+        }
+
+        this.lv++;
+
+        Double baseGrowth = MainEffectTable.mainEffectBaseGrowthRate.get(this.mainEffect);
+        if (baseGrowth != null) {
+            // MainEffectTable 内の mainEffectExceptionGrowthRate (1.5倍ボーナス等) を適用
+            // lv は 1 から始まるため、配列のインデックスは lv - 1 を使用する
+            double multiplier = MainEffectTable.mainEffectExceptionGrowthRate[this.lv - 1];
+
+            this.mainEffectValue += baseGrowth * multiplier;
+            this.mainEffectValue = Math.round(this.mainEffectValue * 10000.0) / 10000.0;
+        }
+
+        Random random = new Random();
+        if (this.lv <= 2) {
+            int emptyIndex = -1;
+            for (int i = 0; i < this.subEffects.length; i++) {
+                if (this.subEffects[i] == null) {
+                    emptyIndex = i;
+                    break;
+                }
+            }
+
+            if (emptyIndex != -1) {
+                List<SubEffect.artifactSubEffect> available = new ArrayList<>();
+                for (SubEffect.artifactSubEffect type : SubEffect.artifactSubEffect.values()) {
+                    boolean alreadyHas = false;
+                    for (SubEffect.artifactSubEffect current : this.subEffects) {
+                        if (type == current) {
+                            alreadyHas = true;
+                            break;
+                        }
+                    }
+                    if (!alreadyHas) available.add(type);
+                }
+
+                if (!available.isEmpty()) {
+                    SubEffect.artifactSubEffect newEffect = available.get(random.nextInt(available.size()));
+                    List<Double> values = SubEffectTable.subEffectValueTable.get(newEffect);
+                    if (values != null && !values.isEmpty()) {
+                        this.subEffects[emptyIndex] = newEffect;
+                        double newValue = values.get(random.nextInt(values.size()));
+                        this.subEffectsValue[emptyIndex] = Math.round(newValue * 10000.0) / 10000.0;
+                    }
+                }
+            }
+        } else {
+            List<Integer> existingIndices = new ArrayList<>();
+            for (int i = 0; i < this.subEffects.length; i++) {
+                if (this.subEffects[i] != null) existingIndices.add(i);
+            }
+
+            if (!existingIndices.isEmpty()) {
+                int targetIndex = existingIndices.get(random.nextInt(existingIndices.size()));
+                SubEffect.artifactSubEffect effect = this.subEffects[targetIndex];
+                List<Double> values = SubEffectTable.subEffectValueTable.get(effect);
+                if (values != null && !values.isEmpty()) {
+                    this.subEffectsValue[targetIndex] += values.get(random.nextInt(values.size()));
+                    this.subEffectsValue[targetIndex] = Math.round(this.subEffectsValue[targetIndex] * 10000.0) / 10000.0;
+                }
+            }
+        }
     }
 }

@@ -20,43 +20,31 @@ public class BaseGui {
 
     private final Inventory inventory;
     private final Map<Integer, Map<ClickType, GuiAction>> actions = new HashMap<>();
+    private final Set<Integer> returnSlots = new HashSet<>();
+    private boolean returnItemsOnClose = false;
 
     public BaseGui(int size, String title) {
         this.inventory = Bukkit.createInventory(null, size, Utils.parseLegacy(title));
+    }
+
+    public void setReturnItemsOnClose(boolean returnItemsOnClose) {
+        this.returnItemsOnClose = returnItemsOnClose;
     }
 
     public interface GuiAction {
         void run(Player player);
     }
 
-    /**
-     * プレイヤーインベントリのクリックを処理するハンドラー
-     */
     public interface PlayerInventoryClickHandler {
-        /**
-         * プレイヤーインベントリのアイテムがクリックされた時に呼び出される
-         * @param player クリックしたプレイヤー
-         * @param slot クリックされたスロット番号
-         * @param item クリックされたアイテム
-         * @param clickType クリックの種類
-         */
         void onClick(Player player, int slot, ItemStack item, ClickType clickType);
     }
 
     private PlayerInventoryClickHandler playerInventoryClickHandler;
 
-    /**
-     * プレイヤーインベントリのクリックハンドラーを設定する
-     * @param handler クリックハンドラー
-     */
     public void setPlayerInventoryClickHandler(PlayerInventoryClickHandler handler) {
         this.playerInventoryClickHandler = handler;
     }
 
-    /**
-     * プレイヤーインベントリのクリックハンドラーを取得する
-     * @return クリックハンドラー（設定されていない場合はnull）
-     */
     public PlayerInventoryClickHandler getPlayerInventoryClickHandler() {
         return playerInventoryClickHandler;
     }
@@ -101,6 +89,18 @@ public class BaseGui {
         }
     }
 
+    public void setReturnItem(int slot, ItemBuilder builder) {
+        returnItemsOnClose = true;
+        setItem(slot, builder);
+        returnSlots.add(slot);
+    }
+
+    public void setReturnItem(int slot, ItemStack item, GuiAction action) {
+        returnItemsOnClose = true;
+        setItem(slot, item, action);
+        returnSlots.add(slot);
+    }
+
     public void setTemporaryButton(int slot, ItemStack item, long displayTime) {
         ItemStack original = inventory.getItem(slot);
         if (original != null) {
@@ -130,14 +130,11 @@ public class BaseGui {
             BaseGui gui = getGui(player);
             if (gui == null) return;
 
-            // GUIのトップインベントリを確認
             if (event.getInventory() != gui.inventory) return;
 
-            // クリックがどのインベントリで発生したか判定
             boolean isTopInventory = event.getRawSlot() < gui.inventory.getSize();
 
             if (isTopInventory) {
-                // GUIインベントリ内のクリック（従来の処理）
                 event.setCancelled(true);
 
                 Map<ClickType, GuiAction> map = gui.actions.get(event.getSlot());
@@ -148,11 +145,9 @@ public class BaseGui {
                     action.run(player);
                 }
             } else {
-                // プレイヤーインベントリのクリック
                 PlayerInventoryClickHandler handler = gui.getPlayerInventoryClickHandler();
                 if (handler != null) {
                     event.setCancelled(true);
-                    // プレイヤーインベントリ内の実際のスロット番号を計算
                     int playerSlot = event.getSlot();
                     ItemStack clickedItem = event.getCurrentItem();
                     handler.onClick(player, playerSlot, clickedItem, event.getClick());
@@ -168,6 +163,21 @@ public class BaseGui {
             if (gui == null) return;
 
             if (event.getInventory() != gui.inventory) return;
+
+            if (gui.returnItemsOnClose && event.getReason().equals(InventoryCloseEvent.Reason.PLAYER)) {
+                for (int slot : gui.returnSlots) {
+                    ItemStack item = gui.inventory.getItem(slot);
+                    if (item == null || item.getType() == Material.AIR) continue;
+
+                    Map<Integer, ItemStack> remaining = player.getInventory().addItem(item);
+                    if (!remaining.isEmpty()) {
+                        remaining.values().forEach(i ->
+                                player.getWorld().dropItemNaturally(player.getLocation(), i)
+                        );
+                    }
+                }
+                gui.inventory.clear();
+            }
 
             removeGui(player);
         }

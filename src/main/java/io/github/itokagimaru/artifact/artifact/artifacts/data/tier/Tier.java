@@ -1,4 +1,4 @@
-package io.github.itokagimaru.artifact.artifact.artifacts.data.tire;
+package io.github.itokagimaru.artifact.artifact.artifacts.data.tier;
 
 import java.util.HashMap;
 

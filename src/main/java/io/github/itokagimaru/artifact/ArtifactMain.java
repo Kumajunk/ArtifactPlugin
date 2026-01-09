@@ -98,7 +98,7 @@ public final class ArtifactMain extends JavaPlugin {
 
 
 
-        getSLF4JLogger().info("アーティファクトプラグインを有効化しました");
+        getSLF4JLogger().info("Enabled Artifact plugin");
 
     }
 
