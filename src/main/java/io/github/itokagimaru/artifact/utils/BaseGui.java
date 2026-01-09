@@ -90,11 +90,13 @@ public class BaseGui {
     }
 
     public void setReturnItem(int slot, ItemBuilder builder) {
+        returnItemsOnClose = true;
         setItem(slot, builder);
         returnSlots.add(slot);
     }
 
     public void setReturnItem(int slot, ItemStack item, GuiAction action) {
+        returnItemsOnClose = true;
         setItem(slot, item, action);
         returnSlots.add(slot);
     }
@@ -162,7 +164,7 @@ public class BaseGui {
 
             if (event.getInventory() != gui.inventory) return;
 
-            if (gui.returnItemsOnClose) {
+            if (gui.returnItemsOnClose && event.getReason().equals(InventoryCloseEvent.Reason.PLAYER)) {
                 for (int slot : gui.returnSlots) {
                     ItemStack item = gui.inventory.getItem(slot);
                     if (item == null || item.getType() == Material.AIR) continue;

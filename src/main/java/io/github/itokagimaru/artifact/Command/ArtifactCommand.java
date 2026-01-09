@@ -1,5 +1,6 @@
 package io.github.itokagimaru.artifact.Command;
 
+import io.github.itokagimaru.artifact.artifact.gui.ArtifactEnhanceMenu;
 import io.github.itokagimaru.artifact.artifact.gui.ArtifactEquipMenu;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -32,6 +33,10 @@ public class ArtifactCommand implements CommandExecutor, TabCompleter {
                 new ArtifactEquipMenu(player).open(player);
                 return true;
             }
+            case "enhance" -> {
+                new ArtifactEnhanceMenu().open(player);
+                return true;
+            }
         }
         return false;
     }
@@ -48,6 +53,7 @@ public class ArtifactCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             list.add("help");
             list.add("equip");
+            list.add("enhance");
         }
         return list;
     }
