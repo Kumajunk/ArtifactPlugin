@@ -133,10 +133,10 @@ public final class ArtifactMain extends JavaPlugin {
             // リポジトリ初期化
             auctionRepository = new AuctionRepository(this, auctionDatabase);
 
-            getSLF4JLogger().info("オークションデータベースを初期化しました");
+            getSLF4JLogger().info("Initialized Auction database");
 
         } catch (SQLException e) {
-            getSLF4JLogger().error("オークションシステムの初期化に失敗しました: " + e.getMessage());
+            getSLF4JLogger().error("Failed to initialize Auction database: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -161,10 +161,10 @@ public final class ArtifactMain extends JavaPlugin {
             auctionScheduler = new AuctionScheduler(this, auctionRepository, auctionConfig, vaultAPI, auctionManager, stashManager);
             auctionScheduler.start();
 
-            getSLF4JLogger().info("Stashシステムを初期化しました");
+            getSLF4JLogger().info("Initialized Stash system");
 
         } catch (SQLException e) {
-            getSLF4JLogger().error("Stashシステムの初期化に失敗しました: " + e.getMessage());
+            getSLF4JLogger().error("Failed to initialize Stash system: " + e.getMessage());
             e.printStackTrace();
         }
     }

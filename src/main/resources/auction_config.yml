@@ -42,5 +42,9 @@ auction:
 
 # データベース設定
 database:
-  # SQLiteファイル名
-  filename: "auction.db"
+  # MySQL設定
+  host: "localhost"
+  port: 3306
+  database: "artifact_auction"
+  username: "root"
+  password: "password"
