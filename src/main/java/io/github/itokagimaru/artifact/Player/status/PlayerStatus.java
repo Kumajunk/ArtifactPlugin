@@ -14,23 +14,29 @@ public class PlayerStatus {
         CRIDMG(6,"CriticalDamage"),
         FIRE_DMG_BONUS(7,"FireDamageBonus"),
         WATER_DMG_BONUS(8,"WaterDamageBonus"),
-        NATURE_DMG_BONUS(9,"NatureDamageBonus");
+        NATURE_DMG_BONUS(9,"NatureDamageBonus"),
+        FIRE_DMG_REDUCE(10,"FireDamageReduceRate"),
+        WATER_DMG_REDUCE(11,"WaterDamageReduceRate"),
+        NATURE_DMG_REDUCE(12,"NatureDamageReduceRate");
         playerStatus(int id, String text){
 
         }
     }
-    Map<playerStatus, Double> BaseStatus = new EnumMap<>(Map.of(
-            playerStatus.HP, 2.0,
-            playerStatus.ATK, 1.0,
-            playerStatus.DEF, 5.0,
-            playerStatus.LUK, 1.0,
-            playerStatus.VIT, 5.0,
-            playerStatus.CRI, 5.0,
-            playerStatus.CRIDMG, 50.0,
-            playerStatus.FIRE_DMG_BONUS, 0.0,
-            playerStatus.WATER_DMG_BONUS, 0.0,
-            playerStatus.NATURE_DMG_BONUS, 0.0
-    ));
+    private final Map<playerStatus, Double> baseStatus = new EnumMap<playerStatus, Double>(playerStatus.class);
+    {   baseStatus.put(playerStatus.HP, 20.0);
+        baseStatus.put(playerStatus.ATK, 10.0);
+        baseStatus.put(playerStatus.DEF, 50.0);
+        baseStatus.put(playerStatus.LUK, 1.0);
+        baseStatus.put(playerStatus.VIT, 0.05);
+        baseStatus.put(playerStatus.CRI, 0.05);
+        baseStatus.put(playerStatus.CRIDMG, 0.5);
+        baseStatus.put(playerStatus.FIRE_DMG_BONUS, 0.0);
+        baseStatus.put(playerStatus.WATER_DMG_BONUS, 0.0);
+        baseStatus.put(playerStatus.NATURE_DMG_BONUS, 0.0);
+        baseStatus.put(playerStatus.FIRE_DMG_REDUCE, 0.0);
+        baseStatus.put(playerStatus.WATER_DMG_REDUCE, 0.0);
+        baseStatus.put(playerStatus.NATURE_DMG_REDUCE, 0.0);
+    }
     private final ModifierStack modifierStack = new ModifierStack();
 
     public void addModifier(StatusModifier modifier) {
@@ -63,6 +69,6 @@ public class PlayerStatus {
                 }
             }
         }
-        return (BaseStatus.get(status) + addTypeModifier) * multiplyTypeModifier;
+        return (baseStatus.get(status) + addTypeModifier) * multiplyTypeModifier;
     }
 }
