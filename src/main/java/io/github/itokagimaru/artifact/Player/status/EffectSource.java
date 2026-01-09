@@ -5,13 +5,14 @@ public class EffectSource {
         SET_EFFECT,
         MAIN_EFFECT,
         SUB_EFFECT,
-        WEAPON_EFFECT
+        WEAPON_EFFECT,
+        Skill
     }
 
     private final EffectSourceType effectSourceType;
     private final String id;
 
-    EffectSource(EffectSourceType effectSourceType, String id){
+    public EffectSource(EffectSourceType effectSourceType, String id){
         this.effectSourceType = effectSourceType;
         this.id = id;
     }
