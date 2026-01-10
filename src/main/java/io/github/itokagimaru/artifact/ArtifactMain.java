@@ -1,7 +1,9 @@
 package io.github.itokagimaru.artifact;
 
 import io.github.itokagimaru.artifact.Command.ArtifactCommand;
+import io.github.itokagimaru.artifact.Command.ArtifactOpCommand;
 import io.github.itokagimaru.artifact.artifact.GeneralConfig;
+import io.github.itokagimaru.artifact.artifact.decompose.DecomposeConfig;
 import io.github.itokagimaru.artifact.auction.AuctionManager;
 import io.github.itokagimaru.artifact.auction.AuctionScheduler;
 import io.github.itokagimaru.artifact.auction.config.AuctionConfig;
@@ -36,6 +38,7 @@ public final class ArtifactMain extends JavaPlugin {
     private StashManager stashManager;
     private VaultAPI vaultAPI;
     private GeneralConfig generalConfig;
+    private DecomposeConfig decomposeConfig;
     public static JavaPlugin plugin;
     private static ArtifactMain instance;
 
@@ -57,6 +60,7 @@ public final class ArtifactMain extends JavaPlugin {
         // VaultAPI初期化
         vaultAPI = new VaultAPI(this);
         generalConfig = new GeneralConfig(this);
+        decomposeConfig = new DecomposeConfig(this);
 
         // オークションシステム初期化
         initAuctionSystem();
@@ -75,6 +79,10 @@ public final class ArtifactMain extends JavaPlugin {
         // アーティファクトコマンド登録
         ArtifactCommand artifactCommand = new ArtifactCommand();
         registerCommandWithTabCompleter("artifact", artifactCommand, artifactCommand);
+
+        // アーティファクト管理者コマンド登録
+        ArtifactOpCommand artifactOpCommand = new ArtifactOpCommand();
+        registerCommandWithTabCompleter("artifactop", artifactOpCommand, artifactOpCommand);
         
         // オークションコマンド登録
         AuctionCommand auctionCommand = new AuctionCommand();
@@ -187,6 +195,7 @@ public final class ArtifactMain extends JavaPlugin {
     public static void reloadConfigs() {
         getInstance().generalConfig.reload();
         getInstance().auctionConfig.reload();
+        getInstance().decomposeConfig.reload();
     }
 
     public static ArtifactMain getInstance() {
@@ -207,5 +216,9 @@ public final class ArtifactMain extends JavaPlugin {
 
     public static VaultAPI getVaultAPI() {
         return getInstance().vaultAPI;
+    }
+
+    public static DecomposeConfig getDecomposeConfig() {
+        return getInstance().decomposeConfig;
     }
 }

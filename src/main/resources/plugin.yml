@@ -43,7 +43,15 @@ commands:
 
   artifact:
     description: アーティファクトに関するコマンド
-    usage: /artifact [equip|help]
+    usage: /artifact [equip|enhance|sell|decompose|help]
     permission: artifact.use
     aliases:
       - aft
+
+  artifactop:
+    description: アーティファクト管理者コマンド
+    usage: /artifactop [decomptable|getaugment|reload|help]
+    permission: artifact.admin
+    aliases:
+      - aftop
+
