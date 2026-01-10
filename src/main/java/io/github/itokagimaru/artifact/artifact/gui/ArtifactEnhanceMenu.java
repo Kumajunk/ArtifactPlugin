@@ -1,5 +1,6 @@
 package io.github.itokagimaru.artifact.artifact.gui;
 
+import io.github.itokagimaru.artifact.ArtifactMain;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.exceptionStatus.ExceptionStatus;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.ArtifactToItem;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.ItemToArtifact;
@@ -41,6 +42,9 @@ public class ArtifactEnhanceMenu extends BaseGui {
 
     private void setupPlayerInventoryHandler(){
         setPlayerInventoryClickHandler((player, slot, item, clickType) -> {
+            if (item == null || item.getType() == Material.AIR) {
+                return;
+            }
             if (SpecialItems.isAugment(item)) {
                 if (augment == null) {
                     ItemStack newAugment = item.clone();
@@ -76,12 +80,30 @@ public class ArtifactEnhanceMenu extends BaseGui {
                         }
                     }
                 }
+                if (checkLevelCap(artifact)) {
+                    player.sendMessage("§cこのアーティファクトはこれ以上強化できません！");
+                    return;
+                }
                 player.getInventory().setItem(slot, new ItemStack(Material.AIR));
                 new ArtifactEnhanceMenu(item, enhanceMaterials, augment).open(player);
                 return;
             }
             if (!enhanceMaterials.contains(item)) {
+                BaseArtifact artifact = ItemToArtifact.convert(item).orElse(null);
+                BaseArtifact targetArtifact = ItemToArtifact.convert(enhanceTarget).orElse(null);
+                if (artifact == null || targetArtifact == null) {
+                    player.sendMessage("§cアーティファクトの情報が取得できませんでした！");
+                    return;
+                }
                 if ((long) enhanceMaterials.size() < 3) {
+                    if (!checkArtifactSeries(artifact, targetArtifact)) {
+                        player.sendMessage("§c強化素材のシリーズが一致しません！");
+                        return;
+                    }
+                    if (artifact.getLv() != 0) {
+                        player.sendMessage("§c強化素材のレベルは0でなければいけません！");
+                        return;
+                    }
                     player.getInventory().setItem(slot, new ItemStack(Material.AIR));
                     enhanceMaterials.add(item);
                     new ArtifactEnhanceMenu(enhanceTarget, enhanceMaterials, augment).open(player);
@@ -190,10 +212,9 @@ public class ArtifactEnhanceMenu extends BaseGui {
                         return;
                     }
                     BaseArtifact baseArtifact = artifact.get();
-                    int lv = baseArtifact.getLv();
-                    if (lv == 30) {
+                    if (checkLevelCap(baseArtifact)) {
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
-                        player.sendMessage("§cアーティファクトのレベルは最大です！");
+                        player.sendMessage("§cこのアーティファクトはこれ以上強化できません！");
                         return;
                     }
                     boolean isSuccess = Math.random() < displayProb;
@@ -208,5 +229,40 @@ public class ArtifactEnhanceMenu extends BaseGui {
                     new ArtifactEnhanceMenu(enhancedItem, new ArrayList<>(), null).open(player);
                 })
         );
+    }
+
+    private boolean checkLevelCap(BaseArtifact artifact){
+        int lv = artifact.getLv();
+        String tier = artifact.getTier().getText;
+        switch (tier){
+            case "C" -> {
+                return lv >= 10;
+            }
+            case "B" -> {
+                return lv >= 15;
+            }
+            case "A" -> {
+                return lv >= 20;
+            }
+            case "S" -> {
+                return lv >= 25;
+            }
+            case "SS" -> {
+                return lv >= 30;
+            }
+            default -> {
+                return false;
+            }
+        }
+    }
+
+    private boolean checkArtifactSeries(BaseArtifact artifact_1, BaseArtifact artifact_2){
+        if (!ArtifactMain.getGeneralConfig().isSeriesBinding()) {
+            return true;
+        }
+        if (artifact_1.getSeries() == null || artifact_2.getSeries() == null) {
+            return false;
+        }
+        return artifact_1.getSeries().equals(artifact_2.getSeries());
     }
 }

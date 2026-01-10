@@ -5,3 +5,4 @@ build/
 .kotlin/
 bin/
 run/
+out/
