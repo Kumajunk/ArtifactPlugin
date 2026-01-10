@@ -1,7 +1,9 @@
 package io.github.itokagimaru.artifact.Command;
 
+import io.github.itokagimaru.artifact.ArtifactMain;
 import io.github.itokagimaru.artifact.artifact.gui.ArtifactEnhanceMenu;
 import io.github.itokagimaru.artifact.artifact.gui.ArtifactEquipMenu;
+import io.github.itokagimaru.artifact.artifact.gui.ArtifactSellMenu;
 import io.github.itokagimaru.artifact.artifact.items.SpecialItems;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -26,6 +28,11 @@ public class ArtifactCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if (!ArtifactMain.getAuctionManager().getAllowedWorlds().contains(player.getWorld().getName()) && !player.hasPermission("artifact.admin")) {
+            player.sendMessage("§cこのワールドではオークションコマンドを使用できません");
+            return true;
+        }
+
         switch (args[0]) {
             case "help" -> {
                 showHelp(player);
@@ -37,6 +44,10 @@ public class ArtifactCommand implements CommandExecutor, TabCompleter {
             }
             case "enhance" -> {
                 new ArtifactEnhanceMenu().open(player);
+                return true;
+            }
+            case "sell" -> {
+                new ArtifactSellMenu().open(player);
                 return true;
             }
             case "getaugment" -> {
@@ -83,6 +94,7 @@ public class ArtifactCommand implements CommandExecutor, TabCompleter {
             list.add("help");
             list.add("equip");
             list.add("enhance");
+            list.add("sell");
             list.add("getaugment");
         }
         return list;
