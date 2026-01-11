@@ -1,4 +1,4 @@
-package io.github.itokagimaru.artifact.artifact.artifacts.series.Base;
+package io.github.itokagimaru.artifact.artifact.artifacts.artifact;
 
 import io.github.itokagimaru.artifact.artifact.artifacts.data.exceptionStatus.ExceptionStatus;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffect;
@@ -16,9 +16,7 @@ import java.util.UUID;
 
 public class BaseArtifact {
     protected UUID artifactId;
-    protected Series.artifactSeres series;
-    protected String seriesName;
-    protected String model;
+    protected Series series;
     protected Tier.artifactTier tire;
     protected int lv;
     protected MainEffect.artifactMainEffect mainEffect;
@@ -26,10 +24,10 @@ public class BaseArtifact {
     protected SubEffect.artifactSubEffect[] subEffects;
     protected double[] subEffectsValue;
     protected Slot.artifactSlot slot;
-    protected List<Component> flavorText;
-    protected ExceptionStatus.artifactExceptionStatus[] exStatus;
 
-    public void setStatus(Slot.artifactSlot slot, Tier.artifactTier tire, int lv, MainEffect.artifactMainEffect mainEffect, double mainEffectValue, SubEffect.artifactSubEffect[] subEffects, double[] subEffectsValue){
+    public void setStatus(Series series, Slot.artifactSlot slot, Tier.artifactTier tire, int lv, MainEffect.artifactMainEffect mainEffect, double mainEffectValue, SubEffect.artifactSubEffect[] subEffects, double[] subEffectsValue){
+        artifactId = UUID.randomUUID();
+        this.series = series;
         this.slot = slot;
         this.tire = tire;
         this.lv = lv;
@@ -49,11 +47,8 @@ public class BaseArtifact {
     public Slot.artifactSlot getSlot() {
         return slot;
     }
-    public Series.artifactSeres getSeries(){
+    public Series getSeries(){
         return series;
-    }
-    public String getModel(){
-        return model;
     }
     public int getLv(){
         return lv;
@@ -69,21 +64,5 @@ public class BaseArtifact {
     }
     public double[] getSubEffectsValue(){
         return subEffectsValue;
-    }
-    public String getSeriesName(){
-        return seriesName;
-    }
-    public List<Component> getFlavorText(){
-        return new ArrayList<>(flavorText);
-    }
-    public ExceptionStatus.artifactExceptionStatus[] getExStatus(){
-        return exStatus;
-    }
-    public static void twoSetEffect(Player player){
-
-    }
-
-    public static void fourSetEffect(Player player){
-
     }
 }

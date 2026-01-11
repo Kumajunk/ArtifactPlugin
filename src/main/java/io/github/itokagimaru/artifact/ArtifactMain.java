@@ -1,5 +1,9 @@
 package io.github.itokagimaru.artifact;
 
+import io.github.itokagimaru.artifact.Player.status.PlayerStatusManager;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.EffectStack;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesFactory;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
 import io.github.itokagimaru.artifact.auction.AuctionManager;
 import io.github.itokagimaru.artifact.auction.AuctionScheduler;
 import io.github.itokagimaru.artifact.auction.config.AuctionConfig;
@@ -18,14 +22,20 @@ import io.github.itokagimaru.artifact.utils.VaultAPI;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.sql.SQLException;
+import java.util.logging.Level;
+
+import static org.apache.logging.log4j.LogManager.getLogger;
 
 /**
  * アーティファクトプラグインのメインクラス
  */
 public final class ArtifactMain extends JavaPlugin {
+    public static ArtifactMain instance;
 
     private AuctionConfig auctionConfig;
     private AuctionDatabase auctionDatabase;
@@ -33,6 +43,11 @@ public final class ArtifactMain extends JavaPlugin {
     private AuctionManager auctionManager;
     private AuctionScheduler auctionScheduler;
     private VaultAPI vaultAPI;
+
+    SeriesRegistry seriesRegistry;
+    EffectStack effectStack;
+
+    PlayerStatusManager playerStatusManager;
 
     private StashManager stashManager;
 
@@ -86,8 +101,11 @@ public final class ArtifactMain extends JavaPlugin {
             getLogger().info("MythicMobs hooked!");
         }
 
+        // artifactSeriesの読み込み
+        loadArtifactFiles();
 
 
+        instance = this;
         getSLF4JLogger().info("アーティファクトプラグインを有効化しました");
 
     }
@@ -105,6 +123,10 @@ public final class ArtifactMain extends JavaPlugin {
         }
 
         getSLF4JLogger().info("アーティファクトプラグインを無効化しました");
+    }
+
+    public static ArtifactMain getInstance(){
+        return instance;
     }
 
     /**
@@ -183,6 +205,43 @@ public final class ArtifactMain extends JavaPlugin {
         command.setExecutor(executor);
         command.setTabCompleter(tabCompleter);
     }
+
+    private void loadArtifactFiles() {
+
+        File pluginsDir = getDataFolder().getParentFile();
+        File artifactDir = new File(pluginsDir, "artifact/series");
+
+        if (!artifactDir.exists()) {
+            artifactDir.mkdirs();
+            getLogger().info("artifact ディレクトリを作成しました");
+            loadArtifactFiles();
+            return;
+        }
+
+        File[] ymlFiles = artifactDir.listFiles(
+                (dir, name) -> name.endsWith(".yml")
+        );
+
+        if (ymlFiles == null || ymlFiles.length == 0) {
+            getLogger().info("series ディレクトリに yml がありません");
+            return;
+        }
+        seriesRegistry = new SeriesRegistry();
+        for (File file : ymlFiles) {
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+            try{
+                seriesRegistry.addSeries(SeriesFactory.makeSeries(config));
+                String fileName = file.getName();
+                getLogger().info("Loading artifact file: " + fileName);
+            } catch (Exception e){
+                getSLF4JLogger().error("SeriesFile:" + file.getName() +"の読み込みに失敗しました");
+            }
+
+
+        }
+    }
+
+
 
     // ========== Getter ==========
 

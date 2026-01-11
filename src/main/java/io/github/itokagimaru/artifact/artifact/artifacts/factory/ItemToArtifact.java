@@ -2,10 +2,11 @@ package io.github.itokagimaru.artifact.artifact.artifacts.factory;
 
 import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffect;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffect;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.tire.Tier;
-import io.github.itokagimaru.artifact.artifact.artifacts.series.Base.BaseArtifact;
+import io.github.itokagimaru.artifact.artifact.artifacts.artifact.BaseArtifact;
 import io.github.itokagimaru.artifact.data.ItemData;
 import io.github.itokagimaru.artifact.utils.ByteArrayConverter;
 import org.bukkit.Material;
@@ -49,7 +50,7 @@ public class ItemToArtifact {
         try {
             // PDCからデータを取得
             String uuidStr = ItemData.UUID.get(item);
-            int seriesId = ItemData.SERIES_ID.get(item);
+            String seriesKey = ItemData.SERIES_KEY.get(item);
             int slotId = ItemData.SLOT.get(item);
             int tierId = ItemData.TIER.get(item);
             int level = ItemData.LV.get(item);
@@ -59,13 +60,13 @@ public class ItemToArtifact {
             double[] subEffectValues = ByteArrayConverter.ByteToDoubleArray(ItemData.SUB_VALUE.get(item));
 
             // シリーズからBaseArtifactを生成
-            Series.artifactSeres series = Series.artifactSeres.fromId(seriesId);
+            Series series = SeriesRegistry.getSeries(seriesKey);
             if (series == null) {
                 return Optional.empty();
             }
 
             // シリーズに対応するアーティファクトインスタンスを取得
-            BaseArtifact artifact = series.getArtifactType();
+            BaseArtifact artifact = new BaseArtifact();
             if (artifact == null) {
                 return Optional.empty();
             }
@@ -93,7 +94,7 @@ public class ItemToArtifact {
             }
 
             // ステータスを設定
-            artifact.setStatus(slot, tier, level, mainEffect, mainEffectValue, subEffects, subEffectValues);
+            artifact.setStatus(series, slot, tier, level, mainEffect, mainEffectValue, subEffects, subEffectValues);
 
             return Optional.of(artifact);
 

@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public class DoRemoveBuff extends Action {
     EffectSource effectSource;
-    DoRemoveBuff(EffectSource effectSource){
+    public DoRemoveBuff(EffectSource effectSource){
         this.effectSource = effectSource;
     }
     @Override
