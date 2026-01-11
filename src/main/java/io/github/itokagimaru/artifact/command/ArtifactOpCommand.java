@@ -1,4 +1,4 @@
-package io.github.itokagimaru.artifact.Command;
+package io.github.itokagimaru.artifact.command;
 
 import io.github.itokagimaru.artifact.ArtifactMain;
 import io.github.itokagimaru.artifact.artifact.gui.LootTableEditMenu;

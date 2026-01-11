@@ -1,4 +1,4 @@
-package io.github.itokagimaru.artifact.Command;
+package io.github.itokagimaru.artifact.command;
 
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.Factory;
@@ -20,7 +20,7 @@ public class GetNewArtifact implements CommandExecutor, TabCompleter {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         boolean error = false;
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Only players can execute this Command");
+            sender.sendMessage("Only players can execute this command");
             return false;
         }
 

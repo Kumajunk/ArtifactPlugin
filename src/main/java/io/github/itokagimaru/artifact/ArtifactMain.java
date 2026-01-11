@@ -4,8 +4,8 @@ import io.github.itokagimaru.artifact.Player.status.PlayerStatusManager;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.EffectStack;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesFactory;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
-import io.github.itokagimaru.artifact.Command.ArtifactCommand;
-import io.github.itokagimaru.artifact.Command.ArtifactOpCommand;
+import io.github.itokagimaru.artifact.command.ArtifactCommand;
+import io.github.itokagimaru.artifact.command.ArtifactOpCommand;
 import io.github.itokagimaru.artifact.artifact.GeneralConfig;
 import io.github.itokagimaru.artifact.artifact.decompose.DecomposeConfig;
 import io.github.itokagimaru.artifact.auction.AuctionManager;
@@ -13,8 +13,8 @@ import io.github.itokagimaru.artifact.auction.AuctionScheduler;
 import io.github.itokagimaru.artifact.auction.config.AuctionConfig;
 import io.github.itokagimaru.artifact.auction.data.AuctionDatabase;
 import io.github.itokagimaru.artifact.auction.data.AuctionRepository;
-import io.github.itokagimaru.artifact.Command.AuctionCommand;
-import io.github.itokagimaru.artifact.Command.GetNewArtifact;
+import io.github.itokagimaru.artifact.command.AuctionCommand;
+import io.github.itokagimaru.artifact.command.GetNewArtifact;
 import org.bukkit.Bukkit;
 import io.github.itokagimaru.artifact.stash.StashCommand;
 import io.github.itokagimaru.artifact.stash.StashLoginListener;
@@ -30,7 +30,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.sql.SQLException;
-import java.util.logging.Level;
 
 import static org.apache.logging.log4j.LogManager.getLogger;
 
