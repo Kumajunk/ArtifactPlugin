@@ -11,7 +11,7 @@ public class Effect {
     ActionStack actions;
     ConditionStack conditions;
 
-    Effect(TriggerType.triggerType triggerType, Condition[] conditions, Action[] actions){
+    public Effect(TriggerType.triggerType triggerType, Condition[] conditions, Action[] actions){
         this.triggerType = triggerType;
         this.conditions = new ConditionStack(conditions);
         this.actions = new ActionStack(actions);

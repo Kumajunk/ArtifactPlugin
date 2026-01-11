@@ -11,8 +11,6 @@ public class ActionStack {
         this.actions = actions;
     }
 
-
-
     public void runActions(UUID playerUuid){
         for (Action action : actions){
             action.run(playerUuid);

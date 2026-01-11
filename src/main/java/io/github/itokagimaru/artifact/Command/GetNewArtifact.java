@@ -1,5 +1,6 @@
 package io.github.itokagimaru.artifact.Command;
 
+import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.Factory;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
@@ -17,6 +18,7 @@ import java.util.List;
 public class GetNewArtifact implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        boolean error = false;
         if (!(sender instanceof Player player)) {
             sender.sendMessage("Only players can execute this Command");
             return false;
@@ -24,47 +26,50 @@ public class GetNewArtifact implements CommandExecutor, TabCompleter {
 
         if (args.length != 3) {
             player.sendMessage(Component.text("引数の数に異常があります"));
-            player.sendMessage(Component.text("/getnewartifact <seriesId> <slotId> <tier>"));
+            player.sendMessage(Component.text("/getnewartifact <seriesKey> <slotId> <tier>"));
             return false;
         }
-        int[] argsInt = new int[3];
-        for (int i = 0; i < args.length; i++){
+        int[] argsInt = new int[2];
+        for (int i = 1; i < args.length; i++){
             try {
-                argsInt[i] = Integer.parseInt(args[i]);
+                argsInt[i-1] = Integer.parseInt(args[i]);
             } catch (NumberFormatException e) {
                 player.sendMessage(Component.text("引数はint型で入力してください"));
-                player.sendMessage(Component.text("/getnewartifact <seriesId> <slotId> <tier>"));
+                player.sendMessage(Component.text("/getnewartifact <seriesKey> <slotId> <tier>"));
                 return false;
             }
         }
 
         Factory factory = new Factory();
-        if(Series.artifactSeres.fromId(argsInt[0]) == null){
+        if(SeriesRegistry.getSeries(args[0]) == null){
             player.sendMessage(Component.text("そのseriesIdは不正です seriesId:" + argsInt[0]));
-            player.sendMessage(Component.text("--------<seriesIdList>--------"));
-            for (Series.artifactSeres seres : Series.artifactSeres.values()){
-                player.sendMessage(Component.text(seres.getId + ":" + seres.getArtifactType().getSeriesName()));
+            player.sendMessage(Component.text("--------<seriesKeyList>--------"));
+            for (Series seres : SeriesRegistry.seriesRegistry.values()) {
+                player.sendMessage(Component.text(seres.getSeriesName()));
             }
             player.sendMessage(Component.text(""));
+            error = true;
         }
-        if(Slot.artifactSlot.fromId(argsInt[1]) == null){
+        if(Slot.artifactSlot.fromId(argsInt[0]) == null){
             player.sendMessage(Component.text("そのslotIdは不正です slotId:" + argsInt[1]));
             player.sendMessage(Component.text("--------<slotIdList>--------"));
             for (Slot.artifactSlot slot : Slot.artifactSlot.values()){
                 player.sendMessage(Component.text(slot.getId + ":" + slot.getSlotName));
             }
             player.sendMessage(Component.text(""));
+            error = true;
         }
-        if(Tier.artifactTier.fromId(argsInt[2]) == null){
-            player.sendMessage(Component.text("そのtierは不正です tier:" + argsInt[2]));
+        if(Tier.artifactTier.fromId(argsInt[1]) == null){
+            player.sendMessage(Component.text("そのtierは不正です tier:" + argsInt[1]));
             player.sendMessage(Component.text("--------<tierList>--------"));
             for (Tier.artifactTier tier : Tier.artifactTier.values()){
                 player.sendMessage(Component.text(tier.getId + ":" + tier.getText));
             }
             player.sendMessage(Component.text(""));
+            error = true;
         }
-        if (Series.artifactSeres.fromId(argsInt[0]) == null || Slot.artifactSlot.fromId(argsInt[1]) == null || Tier.artifactTier.fromId(argsInt[2]) == null) return false;
-        player.give(factory.makeNewArtifact(Series.artifactSeres.fromId(argsInt[0]), Slot.artifactSlot.fromId(argsInt[1]), Tier.artifactTier.fromId(argsInt[2])));
+        if(error) return false;
+        player.give(factory.makeNewArtifact(SeriesRegistry.getSeries(args[0]), Slot.artifactSlot.fromId(argsInt[0]), Tier.artifactTier.fromId(argsInt[1])));
         return true;
     }
 

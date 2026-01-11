@@ -1,24 +1,26 @@
 package io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.actions;
 
 import io.github.itokagimaru.artifact.ArtifactMain;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.ActionStack;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.value.Values;
 import org.bukkit.Bukkit;
 
 import java.util.UUID;
 
 public class Delay extends Action {
-    Action action;
-    int delayTime;
+    ActionStack actions;
+    Values delayTime;
 
 
-    Delay(Action action, int delayTime){
-        this.action = action;
+    public Delay(ActionStack actions, Values delayTime){
+        this.actions = actions;
         this.delayTime = delayTime;
     }
 
     @Override
-    public void run(UUID playerUuid){
+    public void run(UUID playerUuid) {
         Bukkit.getScheduler().runTaskLater(ArtifactMain.getInstance(), () -> {
-            action.run(playerUuid);
-        }, delayTime);
+            actions.runActions(playerUuid);
+        }, (long) delayTime.calculate(playerUuid));
     }
 }

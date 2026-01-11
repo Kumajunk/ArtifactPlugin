@@ -26,8 +26,8 @@ public class ExceptionStatus {
         }
     }
 
-    public static boolean isHaveExceptionStatus(Series.artifactSeres seres, artifactExceptionStatus status){
-        for (artifactExceptionStatus exStatus : seres.getArtifactType().getExStatus()){
+    public static boolean isHaveExceptionStatus(Series seres, artifactExceptionStatus status){
+        for (artifactExceptionStatus exStatus : seres.getExStatus()){
             if (exStatus == status) return true;
         }
         return false;

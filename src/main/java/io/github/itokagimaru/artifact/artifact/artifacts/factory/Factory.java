@@ -10,6 +10,9 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffec
 import io.github.itokagimaru.artifact.artifact.artifacts.data.tier.Tier;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.tier.TierTable;
 import io.github.itokagimaru.artifact.artifact.artifacts.series.Base.BaseArtifact;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.tire.Tier;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.tire.TierTable;
+import io.github.itokagimaru.artifact.artifact.artifacts.artifact.BaseArtifact;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -22,7 +25,7 @@ public class Factory {
         return Slot.artifactSlot.fromId(r);
     }
 
-    public MainEffect.artifactMainEffect getRandMainEffect(Series.artifactSeres seres, Slot.artifactSlot slot){
+    public MainEffect.artifactMainEffect getRandMainEffect(Series seres, Slot.artifactSlot slot){
         if (ExceptionStatus.isHaveExceptionStatus(seres, ExceptionStatus.artifactExceptionStatus.MAIN_EFFECT_FIXED)){
             return MainEffectTable.ExceptionMainEffectTable.get(slot).getFirst();
         }
@@ -36,7 +39,7 @@ public class Factory {
         return MainEffectTable.mainEffectInitialValue.get(mainEffect);
     }
 
-    public SubEffect.artifactSubEffect[] getRandSubEffects(Series.artifactSeres seres){
+    public SubEffect.artifactSubEffect[] getRandSubEffects(Series seres){
 
         SubEffect.artifactSubEffect[] subEffects = new SubEffect.artifactSubEffect[2];
         SubEffect.artifactSubEffect subEffectTemp = null;
@@ -88,16 +91,16 @@ public class Factory {
         return table[2];
     }
 
-    public BaseArtifact makeNewArtifactData(Series.artifactSeres seres, Slot.artifactSlot slot, Tier.artifactTier tier){
-        MainEffect.artifactMainEffect mainEffect = getRandMainEffect(seres, slot);
+    public BaseArtifact makeNewArtifactData(Series series, Slot.artifactSlot slot, Tier.artifactTier tier){
+        MainEffect.artifactMainEffect mainEffect = getRandMainEffect(series, slot);
         double mainEffectValue = getMainEffectValue(mainEffect);
-        SubEffect.artifactSubEffect[] subEffects = getRandSubEffects(seres);
+        SubEffect.artifactSubEffect[] subEffects = getRandSubEffects(series);
         double[] subEffectsValue = getSubEffectsValue(subEffects);
-        BaseArtifact artifact = seres.getArtifactType();
-        artifact.setStatus(slot, tier, 0, mainEffect, mainEffectValue, subEffects, subEffectsValue);
+        BaseArtifact artifact = new BaseArtifact();
+        artifact.setStatus(series, slot, tier, 0, mainEffect, mainEffectValue, subEffects, subEffectsValue);
         return artifact;
     }
-    public ItemStack makeNewArtifact(Series.artifactSeres seres, Slot.artifactSlot slot, Tier.artifactTier tier){
-        return ArtifactToItem.convert(makeNewArtifactData(seres, slot, tier));
+    public ItemStack makeNewArtifact(Series series, Slot.artifactSlot slot, Tier.artifactTier tier){
+        return ArtifactToItem.convert(makeNewArtifactData(series, slot, tier));
     }
 }
