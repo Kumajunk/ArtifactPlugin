@@ -2,12 +2,13 @@ package io.github.itokagimaru.artifact.artifact;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import io.github.itokagimaru.artifact.artifact.artifacts.artifact.BaseArtifact;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffect;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffect;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.tier.Tier;
-import io.github.itokagimaru.artifact.artifact.artifacts.series.Base.BaseArtifact;
 
 import java.util.UUID;
 
@@ -22,8 +23,7 @@ public final class JsonConverter {
     public static String serializeArtifact(BaseArtifact artifact) {
         JsonObject json = new JsonObject();
         json.addProperty("uuid", artifact.getUUID().toString());
-        json.addProperty("seriesId", artifact.getSeries().getId);
-        json.addProperty("seriesName", artifact.getSeriesName());
+        json.addProperty("seriesName", artifact.getSeries().getSeriesName());
         json.addProperty("slotId", artifact.getSlot().getId);
         json.addProperty("tierId", artifact.getTier().getId);
         json.addProperty("level", artifact.getLv());
@@ -62,12 +62,11 @@ public final class JsonConverter {
         try {
             JsonObject json = gson.fromJson(artifactData, JsonObject.class);
 
-            int seriesId = json.has("seriesId") ? json.get("seriesId").getAsInt() : 0;
-            Series.artifactSeres series = Series.artifactSeres.fromId(seriesId);
+            String seriesName = json.has("seriesName") ? json.get("seriesName").getAsString() : null;
+            Series series = SeriesRegistry.getSeries(seriesName);
             if (series == null) return null;
 
-            BaseArtifact artifact = series.getArtifactType();
-            if (artifact == null) return null;
+            BaseArtifact artifact = new BaseArtifact();
 
             // UUIDを設定
             String uuidStr = json.has("uuid") ? json.get("uuid").getAsString() : UUID.randomUUID().toString();
@@ -109,7 +108,7 @@ public final class JsonConverter {
                 }
             }
 
-            artifact.setStatus(slot, tier, level, mainEffect, mainEffectValue, subEffects, subEffectValues);
+            artifact.setStatus(series, slot, tier, level, mainEffect, mainEffectValue, subEffects, subEffectValues);
             return artifact;
 
         } catch (Exception e) {

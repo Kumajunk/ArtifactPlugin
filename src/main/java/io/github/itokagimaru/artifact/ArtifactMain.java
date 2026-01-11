@@ -52,11 +52,9 @@ public final class ArtifactMain extends JavaPlugin {
     PlayerStatusManager playerStatusManager;
 
     private StashManager stashManager;
-    private VaultAPI vaultAPI;
     private GeneralConfig generalConfig;
     private DecomposeConfig decomposeConfig;
     public static JavaPlugin plugin;
-    private static ArtifactMain instance;
 
     @Override
     public void onEnable() {
@@ -217,9 +215,6 @@ public final class ArtifactMain extends JavaPlugin {
         getInstance().decomposeConfig.reload();
     }
 
-    public static ArtifactMain getInstance() {
-        return instance;
-    }
     private void loadArtifactFiles() {
 
         File pluginsDir = getDataFolder().getParentFile();
@@ -258,6 +253,10 @@ public final class ArtifactMain extends JavaPlugin {
 
 
     // ========== Getter ==========
+
+    public static ArtifactMain getInstance() {
+        return instance;
+    }
 
     public static AuctionManager getAuctionManager() {
         return getInstance().auctionManager;

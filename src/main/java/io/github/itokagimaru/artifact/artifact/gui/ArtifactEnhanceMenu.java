@@ -4,7 +4,7 @@ import io.github.itokagimaru.artifact.ArtifactMain;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.exceptionStatus.ExceptionStatus;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.ArtifactToItem;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.ItemToArtifact;
-import io.github.itokagimaru.artifact.artifact.artifacts.series.Base.BaseArtifact;
+import io.github.itokagimaru.artifact.artifact.artifacts.artifact.BaseArtifact;
 import io.github.itokagimaru.artifact.artifact.items.SpecialItems;
 import io.github.itokagimaru.artifact.utils.BaseGui;
 import org.bukkit.Material;
@@ -72,8 +72,8 @@ public class ArtifactEnhanceMenu extends BaseGui {
                     player.sendMessage("§cアーティファクトの情報が取得できませんでした！");
                     return;
                 }
-                if (artifact.getExStatus() != null) {
-                    for (ExceptionStatus.artifactExceptionStatus status : artifact.getExStatus()) {
+                if (artifact.getSeries().getExStatus() != null) {
+                    for (ExceptionStatus.artifactExceptionStatus status : artifact.getSeries().getExStatus()) {
                         if (status == ExceptionStatus.artifactExceptionStatus.CANNOT_ENHANCE) {
                             player.sendMessage("§cこのアーティファクトは強化できません！");
                             return;

@@ -1,8 +1,8 @@
 package io.github.itokagimaru.artifact.artifact;
 
 import io.github.itokagimaru.artifact.ArtifactMain;
+import io.github.itokagimaru.artifact.artifact.artifacts.artifact.BaseArtifact;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
-import io.github.itokagimaru.artifact.artifact.artifacts.series.Base.BaseArtifact;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;

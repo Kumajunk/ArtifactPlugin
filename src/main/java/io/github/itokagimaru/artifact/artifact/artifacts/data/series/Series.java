@@ -1,13 +1,7 @@
 package io.github.itokagimaru.artifact.artifact.artifacts.data.series;
 
-import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.Effect;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.EffectStack;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.exceptionStatus.ExceptionStatus;
 import net.kyori.adventure.text.Component;
-import io.github.itokagimaru.artifact.artifact.artifacts.series.Base.BaseArtifact;
-import io.github.itokagimaru.artifact.artifact.artifacts.series.ExRookie.ExRookie;
-import io.github.itokagimaru.artifact.artifact.artifacts.series.King.King;
-import io.github.itokagimaru.artifact.artifact.artifacts.series.Rookie.Rookie;
 
 import java.util.List;
 
@@ -44,5 +38,9 @@ public class Series {
     }
     public List<Component> getFourSerDescription() {
         return fourSerDescription;
+    }
+
+    public List<Component> getFlavorText() {
+        return flavorText;
     }
 }

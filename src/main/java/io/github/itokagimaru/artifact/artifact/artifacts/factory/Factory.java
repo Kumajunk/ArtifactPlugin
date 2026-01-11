@@ -9,9 +9,6 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffec
 import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffectTable;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.tier.Tier;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.tier.TierTable;
-import io.github.itokagimaru.artifact.artifact.artifacts.series.Base.BaseArtifact;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.tire.Tier;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.tire.TierTable;
 import io.github.itokagimaru.artifact.artifact.artifacts.artifact.BaseArtifact;
 import org.bukkit.inventory.ItemStack;
 

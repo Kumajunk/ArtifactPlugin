@@ -78,8 +78,8 @@ public class GetNewArtifact implements CommandExecutor, TabCompleter {
         List<String> list = new ArrayList<>();
         switch (args.length){
             case 1 -> {
-                for (Series.artifactSeres seres : Series.artifactSeres.values()){
-                    list.add(String.valueOf(seres.getId));
+                for (Series seres : SeriesRegistry.seriesRegistry.values()){
+                    list.add(seres.getSeriesName());
                 }
             }
             case 2 -> {

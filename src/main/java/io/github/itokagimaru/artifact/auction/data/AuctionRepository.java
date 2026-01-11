@@ -218,7 +218,7 @@ public class AuctionRepository {
                     .map(s -> "?")
                     .collect(Collectors.joining(","));
             sql.append(" AND series_id IN (").append(placeholders).append(")");
-            filter.getSeries().forEach(s -> params.add(s.getId));
+            filter.getSeries().forEach(s -> params.add(s.getSeriesName()));
         }
 
         // スロット条件

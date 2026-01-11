@@ -74,8 +74,7 @@ public class ArtifactOpCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
             case "reload" -> {
-                ArtifactMain.getGeneralConfig().reload();
-                ArtifactMain.getDecomposeConfig().reload();
+                ArtifactMain.reloadConfigs();
                 sender.sendMessage("§a設定をリロードしました");
                 return true;
             }

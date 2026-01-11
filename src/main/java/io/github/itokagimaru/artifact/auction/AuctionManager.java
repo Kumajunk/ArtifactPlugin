@@ -3,7 +3,7 @@ package io.github.itokagimaru.artifact.auction;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.github.itokagimaru.artifact.artifact.JsonConverter;
-import io.github.itokagimaru.artifact.artifact.artifacts.series.Base.BaseArtifact;
+import io.github.itokagimaru.artifact.artifact.artifacts.artifact.BaseArtifact;
 import io.github.itokagimaru.artifact.auction.config.AuctionConfig;
 import io.github.itokagimaru.artifact.auction.data.AuctionRepository;
 import io.github.itokagimaru.artifact.auction.event.AuctionSoldEvent;
@@ -205,7 +205,7 @@ public class AuctionManager {
 
             AuctionSoldEvent event = new AuctionSoldEvent(
                 listing.getSellerId(),
-                Objects.requireNonNull(JsonConverter.deserializeArtifact(listing.getArtifactData())).getSeriesName(),
+                Objects.requireNonNull(JsonConverter.deserializeArtifact(listing.getArtifactData())).getSeries().getSeriesName(),
                 totalPrice
             );
 

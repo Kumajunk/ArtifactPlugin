@@ -1,6 +1,5 @@
 package io.github.itokagimaru.artifact.artifact.artifacts.data.series;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -24,5 +23,24 @@ public class SeriesRegistry {
             index++;
         }
         return -1;
+    }
+
+    /**
+     * 全シリーズを配列で取得
+     */
+    public static Series[] getAllSeries() {
+        return seriesRegistry.values().toArray(new Series[0]);
+    }
+
+    /**
+     * インデックスからシリーズを取得
+     */
+    public static Series getSeriesByIndex(int index) {
+        int i = 0;
+        for (Series series : seriesRegistry.values()) {
+            if (i == index) return series;
+            i++;
+        }
+        return null;
     }
 }

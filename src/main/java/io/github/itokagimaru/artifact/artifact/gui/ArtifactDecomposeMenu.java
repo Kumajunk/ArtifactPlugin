@@ -1,10 +1,9 @@
 package io.github.itokagimaru.artifact.artifact.gui;
 
 import io.github.itokagimaru.artifact.ArtifactMain;
+import io.github.itokagimaru.artifact.artifact.artifacts.artifact.BaseArtifact;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
-import io.github.itokagimaru.artifact.artifact.artifacts.factory.ArtifactToItem;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.ItemToArtifact;
-import io.github.itokagimaru.artifact.artifact.artifacts.series.Base.BaseArtifact;
 import io.github.itokagimaru.artifact.artifact.decompose.DecomposeConfig;
 import io.github.itokagimaru.artifact.artifact.decompose.LootEntry;
 import io.github.itokagimaru.artifact.artifact.items.SpecialItems;
@@ -84,13 +83,13 @@ public class ArtifactDecomposeMenu extends BaseGui {
             if (artifactOpt.isPresent()) {
                 BaseArtifact artifact = artifactOpt.get();
                 int augmentReward = calculateAugmentReward(artifact);
-                Series.artifactSeres series = artifact.getSeries();
+                Series series = artifact.getSeries();
 
                 // 情報表示
                 ItemBuilder infoBuilder = new ItemBuilder()
                         .setMaterial(Material.PAPER)
                         .setName("§e分解報酬情報")
-                        .addLore("§7シリーズ: §f" + (series != null ? artifact.getSeriesName() : "不明"))
+                        .addLore("§7シリーズ: §f" + (series != null ? artifact.getSeries() : "不明"))
                         .addLore("§7ティア: §f" + artifact.getTier().getText)
                         .addLore("§7レベル: §f" + artifact.getLv())
                         .addLore("")
@@ -141,7 +140,7 @@ public class ArtifactDecomposeMenu extends BaseGui {
 
                         BaseArtifact art = opt.get();
                         int augmentCount = calculateAugmentReward(art);
-                        Series.artifactSeres series = art.getSeries();
+                        Series series = art.getSeries();
 
                         // オーグメントを付与
                         int remaining = augmentCount;
