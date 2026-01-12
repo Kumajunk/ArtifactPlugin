@@ -54,16 +54,16 @@ public class SeriesFactory {
             throw new IllegalArgumentException("ExStatusの値が不正です: " + statusText);
         }
     }
-    public enum effectKye {
+    public enum effectKey {
         TRIGGER("trigger"),
         ACTIONS("actions"),
         CONDITIONS("conditions");
         public final String key;
-        effectKye(String key){
+        effectKey(String key){
             this.key = key;
         }
-        public static effectKye fromText(String text) throws Exception {
-            for(effectKye effect : effectKye.values()){
+        public static effectKey fromText(String text) throws Exception {
+            for(effectKey effect : effectKey.values()){
                 if(effect.key.equals(text)){
                     return effect;
                 }
@@ -216,13 +216,13 @@ public class SeriesFactory {
         Effect[] effects = new Effect[effectsList.size()];
         for (int i = 0; i < effectsList.size(); i++){
             // TriggerKey
-            String triggerRaw = effectsList.get(i).get(effectKye.TRIGGER.key).toString();
+            String triggerRaw = effectsList.get(i).get(effectKey.TRIGGER.key).toString();
 
             // conditions
-            List<Map<?, ?>> conditions = (List<Map<?, ?>>) effectsList.get(i).get(effectKye.CONDITIONS.key);
+            List<Map<?, ?>> conditions = (List<Map<?, ?>>) effectsList.get(i).get(effectKey.CONDITIONS.key);
 
             // actions
-            List<Map<?, ?>> actions = (List<Map<?, ?>>) effectsList.get(i).get(effectKye.ACTIONS.key);
+            List<Map<?, ?>> actions = (List<Map<?, ?>>) effectsList.get(i).get(effectKey.ACTIONS.key);
             effects[i] = toSetEffect(triggerRaw, conditions, actions, key, setCount);
         }
         return effects;
