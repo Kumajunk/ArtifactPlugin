@@ -20,17 +20,17 @@ public class SpecialItems {
         ItemStack stack = new ItemStack(Material.WOODEN_HOE);
         stack.editMeta(meta -> {
             meta.setItemModel(NamespacedKey.minecraft("bundle"));
-            meta.customName(Component.text("魔法の麻袋"));
+            meta.customName(Component.text("魔法の麻袋").color(NamedTextColor.YELLOW));
             meta.lore(List.of(
-                    Component.text("中に\"アーティファクト\"を"),
-                    Component.text("入れる事で"),
-                    Component.text("真の力を引き出してくれる"),
-                    Component.text("不思議な麻袋"),
-                    Component.text("一説では伝説の\"錬金術師\"が作ったものと"),
-                    Component.text("されている")
+                    Component.text("中に\"アーティファクト\"を").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
+                    Component.text("入れる事で").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
+                    Component.text("真の力を引き出してくれる").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
+                    Component.text("不思議な麻袋").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
+                    Component.text("一説では伝説の\"錬金術師\"が作ったものと").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
+                    Component.text("されている").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false)
             ));
             meta.setMaxStackSize(1);
-            meta.isUnbreakable();
+            meta.setUnbreakable(true);
             meta.getPersistentDataContainer().set(ARTIFACT_HOLDER_KEY, PersistentDataType.BYTE, (byte)1);
         });
         return stack;
@@ -46,8 +46,9 @@ public class SpecialItems {
     public static final NamespacedKey TIER_KEY = new NamespacedKey("artifact", "tier");
 
     public static ItemStack getUnidentifiedArtifact(String internalName) {
-        ItemStack item = new ItemStack(Material.SNOWBALL);
+        ItemStack item = new ItemStack(Material.PAPER);
         item.editMeta(meta -> {
+            meta.setItemModel(NamespacedKey.minecraft("snowball"));
             meta.customName(Component.text("未鑑定のアーティファクト")
                     .color(NamedTextColor.BLUE)
                     .decorate(TextDecoration.BOLD)
@@ -63,11 +64,7 @@ public class SpecialItems {
                             .decoration(TextDecoration.ITALIC, false),
                     Component.text("ここから削り出しと鑑定を行う必要がある")
                             .color(NamedTextColor.GRAY)
-                            .decoration(TextDecoration.ITALIC, false),
-                    Component.text("投げて遊ぶ事もできる")
-                            .color(NamedTextColor.GRAY)
                             .decoration(TextDecoration.ITALIC, false)
-                            .decoration(TextDecoration.STRIKETHROUGH, true)
             ));
             meta.setMaxStackSize(1);
             meta.getPersistentDataContainer().set(UNIDENTIFIED_ARTIFACT_KEY, PersistentDataType.STRING, internalName);
@@ -82,8 +79,9 @@ public class SpecialItems {
     }
 
     public static ItemStack getAppraisedArtifact(String internalName, String tier) {
-        ItemStack item = new ItemStack(Material.FLINT);
+        ItemStack item = new ItemStack(Material.PAPER);
         item.editMeta(meta -> {
+            meta.setItemModel(NamespacedKey.minecraft("flint"));
             meta.customName(Component.text("鑑定済みのアーティファクト")
                     .color(NamedTextColor.GREEN)
                     .decorate(TextDecoration.BOLD)
@@ -146,9 +144,7 @@ public class SpecialItems {
      */
     public static ItemStack setRemoveOnDeath(ItemStack item) {
         if (item == null) return null;
-        item.editMeta(meta -> {
-            meta.getPersistentDataContainer().set(REMOVE_ON_DEATH_KEY, PersistentDataType.BYTE, (byte) 1);
-        });
+        item.editMeta(meta -> meta.getPersistentDataContainer().set(REMOVE_ON_DEATH_KEY, PersistentDataType.BYTE, (byte) 1));
         return item;
     }
 
