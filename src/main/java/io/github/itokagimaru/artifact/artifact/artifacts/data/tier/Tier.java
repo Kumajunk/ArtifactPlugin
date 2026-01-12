@@ -29,6 +29,15 @@ public class Tier {
             return tierHashMap.get(id);
         }
 
+        public static artifactTier fromTier(String tire){
+            for (artifactTier tier : values()){
+                if (tier.getText.equalsIgnoreCase(tire)){
+                    return tier;
+                }
+            }
+            return null;
+        }
+
         public static void reloadTierPriceScale(GeneralConfig config) {
             for (artifactTier tier : values()) {
                 if (config.isTierScaling()) {
