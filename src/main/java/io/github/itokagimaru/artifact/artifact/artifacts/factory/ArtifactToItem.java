@@ -2,7 +2,7 @@ package io.github.itokagimaru.artifact.artifact.artifacts.factory;
 
 import io.github.itokagimaru.artifact.artifact.artifacts.data.exceptionStatus.ExceptionStatus;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffect;
-import io.github.itokagimaru.artifact.artifact.artifacts.series.Base.BaseArtifact;
+import io.github.itokagimaru.artifact.artifact.artifacts.artifact.BaseArtifact;
 import io.github.itokagimaru.artifact.data.ItemData;
 import io.github.itokagimaru.artifact.utils.ByteArrayConverter;
 import net.kyori.adventure.text.Component;
@@ -25,7 +25,7 @@ public class ArtifactToItem {
         ItemData.UUID.set(stack, artifact.getUUID().toString());
         ItemData.TIER.set(stack, artifact.getTier().getId);
         ItemData.SLOT.set(stack, artifact.getSlot().getId);
-        ItemData.SERIES_ID.set(stack, artifact.getSeries().getId);
+        ItemData.SERIES_KEY.set(stack, artifact.getSeries().getInternalName());
         ItemData.LV.set(stack, artifact.getLv());
         ItemData.MAIN_ID.set(stack, artifact.getMainEffect().getId);
         ItemData.MAIN_VALUE.set(stack, ByteArrayConverter.toByte(artifact.getMainEffectValue()));
@@ -47,7 +47,7 @@ public class ArtifactToItem {
 
         stack.editMeta(itemMeta -> {
             itemMeta.setMaxStackSize(1);
-            itemMeta.setItemModel(NamespacedKey.minecraft(artifact.getModel()));
+            itemMeta.setItemModel(NamespacedKey.minecraft(artifact.getSeries().getModel()));
             CustomModelDataComponent cmd = itemMeta.getCustomModelDataComponent();
             cmd.setFloats(List.of((float) artifact.getSlot().getId));
             itemMeta.setCustomModelDataComponent(cmd);
@@ -57,11 +57,9 @@ public class ArtifactToItem {
         return stack;
     }
     private static Component makeName(BaseArtifact artifact){
-        return Component.text("ArtifactSeries <").color(NamedTextColor.GRAY).append(Component.text(artifact.getSeriesName()).color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD).append(Component.text(">").color(NamedTextColor.GRAY))).decoration(TextDecoration.ITALIC, false);
+        return Component.text("ArtifactSeries <").color(NamedTextColor.GRAY).append(Component.text(artifact.getSeries().getSeriesName()).color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD).append(Component.text(">").color(NamedTextColor.GRAY))).decoration(TextDecoration.ITALIC, false);
     }
     private static List<Component> makeLore(BaseArtifact artifact){
-        String str = "-------------------------";
-        String[] split = str.split("\\.", 2);
         List<Component> lore = new java.util.ArrayList<>(List.of(
                 Component.text("Tier: ").color(NamedTextColor.GRAY).append(Component.text(artifact.getTier().getText).color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD)).decoration(TextDecoration.ITALIC, false),
                 Component.text("Lv: ").color(NamedTextColor.GRAY).append(Component.text("+" + artifact.getLv()).color(NamedTextColor.WHITE)).decoration(TextDecoration.ITALIC, false),
@@ -77,7 +75,7 @@ public class ArtifactToItem {
             lore.addLast(Component.text(artifact.getSubEffects()[i].getText).color(NamedTextColor.GRAY).append(Component.text(" +").color(NamedTextColor.WHITE).append(Component.text(String.format("%.2f", artifact.getSubEffectsValue()[i] * 100)).color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD).append(Component.text("%").color(NamedTextColor.WHITE)))).decoration(TextDecoration.ITALIC, false));
         }
         lore.addLast(Component.text("-------------------------").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false));
-        lore.addAll(artifact.getFlavorText());
+        lore.addAll(artifact.getSeries().getFlavorText());
         lore.addLast(Component.text("-------------------------").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false));
         for (ExceptionStatus.artifactExceptionStatus status : ExceptionStatus.artifactExceptionStatus.values()){
             if (ExceptionStatus.isHaveExceptionStatus(artifact.getSeries(),status)){

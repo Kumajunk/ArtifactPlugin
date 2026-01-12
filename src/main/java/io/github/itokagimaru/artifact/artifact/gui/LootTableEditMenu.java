@@ -2,6 +2,7 @@ package io.github.itokagimaru.artifact.artifact.gui;
 
 import io.github.itokagimaru.artifact.ArtifactMain;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
 import io.github.itokagimaru.artifact.artifact.decompose.DecomposeConfig;
 import io.github.itokagimaru.artifact.artifact.decompose.LootEntry;
 import io.github.itokagimaru.artifact.utils.BaseGui;
@@ -20,7 +21,7 @@ import java.util.List;
 public class LootTableEditMenu extends BaseGui {
     private static final int GUI_SIZE = 54;
     
-    private final Series.artifactSeres selectedSeries;
+    private final Series selectedSeries;
     private ItemStack pendingItem;
     private double pendingChance = 1.0;
     private int pendingMinAmount = 1;
@@ -40,8 +41,8 @@ public class LootTableEditMenu extends BaseGui {
      *
      * @param series 編集対象シリーズ
      */
-    public LootTableEditMenu(Series.artifactSeres series) {
-        super(GUI_SIZE, "§l分解テーブル - " + series.name());
+    public LootTableEditMenu(Series series) {
+        super(GUI_SIZE, "§l分解テーブル - " + series.getSeriesName());
         this.selectedSeries = series;
         setupLootEditGui();
         setupPlayerInventoryHandler();
@@ -53,11 +54,11 @@ public class LootTableEditMenu extends BaseGui {
     private void setupSeriesSelectGui() {
         fill(new ItemBuilder().setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName(" "));
 
-        Series.artifactSeres[] seriesList = Series.artifactSeres.values();
+        Series[] seriesList = SeriesRegistry.getAllSeries();
         int startSlot = 10;
         
         for (int i = 0; i < seriesList.length; i++) {
-            Series.artifactSeres series = seriesList[i];
+            Series series = seriesList[i];
             int slot = startSlot + (i % 7) + (i / 7) * 9;
             
             DecomposeConfig config = ArtifactMain.getDecomposeConfig();
@@ -65,7 +66,7 @@ public class LootTableEditMenu extends BaseGui {
 
             setItem(slot, new ItemBuilder()
                     .setMaterial(Material.BOOK)
-                    .setName("§e" + series.name())
+                    .setName("§e" + series.getSeriesName())
                     .addLore("§7登録アイテム数: §f" + entryCount)
                     .addLore("")
                     .addLore("§aクリックで編集")
@@ -192,9 +193,9 @@ public class LootTableEditMenu extends BaseGui {
     /**
      * ペンディングアイテム付きコンストラクタ（内部用）
      */
-    private LootTableEditMenu(Series.artifactSeres series, ItemStack pendingItem, 
+    private LootTableEditMenu(Series series, ItemStack pendingItem, 
                                double pendingChance, int pendingMinAmount, int pendingMaxAmount) {
-        super(GUI_SIZE, "§l分解テーブル - " + series.name());
+        super(GUI_SIZE, "§l分解テーブル - " + series.getSeriesName());
         this.selectedSeries = series;
         this.pendingItem = pendingItem;
         this.pendingChance = pendingChance;

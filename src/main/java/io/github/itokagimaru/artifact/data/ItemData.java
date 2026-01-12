@@ -6,9 +6,9 @@ public class ItemData {
     private static final String NAMESPACE = "artifact";
 
     /**
-     * Get key instance for pdc container id
+     * Get Key instance for pdc container id
      *
-     * @param key key
+     * @param key Key
      * @return New instance of NamespacedKey
      */
     private static NamespacedKey getKey(String key) {
@@ -19,7 +19,7 @@ public class ItemData {
     public static final ByteKey IS_SKILL_ITEM = new ByteKey(getKey("is_skill"), () -> (byte) 0);
     public static final IntKey TIER = new IntKey(getKey("tier"), () -> 0);
     public static final IntKey MAIN_ID = new IntKey(getKey("main_id"), () -> 0);
-    public static final IntKey SERIES_ID = new IntKey(getKey("series_id"), () -> 0);
+    public static final StringKey SERIES_KEY = new StringKey(getKey("series_key"), () -> "");
     public static final IntKey LV = new IntKey(getKey("lv"), () -> 0);
     public static final IntKey SLOT = new IntKey(getKey("slot_id"), () -> 0);
     public static final IntArrayKey SUB_ID = new IntArrayKey(getKey("sub_id"), () -> new int[4]);

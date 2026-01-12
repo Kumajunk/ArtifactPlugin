@@ -20,7 +20,7 @@ public class AuctionSearchFilter {
     // === 基本条件 ===
     
     /** シリーズ条件（複数選択可） */
-    private List<Series.artifactSeres> series = new ArrayList<>();
+    private List<Series> series = new ArrayList<>();
     
     /** スロット条件 */
     private Slot.artifactSlot slot;
@@ -76,7 +76,7 @@ public class AuctionSearchFilter {
     /**
      * シリーズ条件を追加
      */
-    public AuctionSearchFilter addSeries(Series.artifactSeres series) {
+    public AuctionSearchFilter addSeries(Series series) {
         this.series.add(series);
         return this;
     }
@@ -84,7 +84,7 @@ public class AuctionSearchFilter {
     /**
      * シリーズ条件を設定（複数）
      */
-    public AuctionSearchFilter setSeries(List<Series.artifactSeres> series) {
+    public AuctionSearchFilter setSeries(List<Series> series) {
         this.series = new ArrayList<>(series);
         return this;
     }
@@ -195,7 +195,7 @@ public class AuctionSearchFilter {
 
     // ========== Getter ==========
 
-    public List<Series.artifactSeres> getSeries() {
+    public List<Series> getSeries() {
         return series;
     }
 

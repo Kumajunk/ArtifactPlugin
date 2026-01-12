@@ -1,4 +1,4 @@
-package io.github.itokagimaru.artifact.Command;
+package io.github.itokagimaru.artifact.command;
 
 import io.github.itokagimaru.artifact.ArtifactMain;
 import io.github.itokagimaru.artifact.artifact.gui.LootTableEditMenu;
@@ -74,8 +74,7 @@ public class ArtifactOpCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
             case "reload" -> {
-                ArtifactMain.getGeneralConfig().reload();
-                ArtifactMain.getDecomposeConfig().reload();
+                ArtifactMain.reloadConfigs();
                 sender.sendMessage("§a設定をリロードしました");
                 return true;
             }

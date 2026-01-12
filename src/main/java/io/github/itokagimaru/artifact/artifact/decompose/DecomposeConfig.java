@@ -1,6 +1,7 @@
 package io.github.itokagimaru.artifact.artifact.decompose;
 
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -20,7 +21,7 @@ public class DecomposeConfig {
     private YamlConfiguration config;
 
     // シリーズごとのルートテーブル
-    private final Map<Series.artifactSeres, List<LootEntry>> lootTables = new EnumMap<>(Series.artifactSeres.class);
+    private final Map<Series, List<LootEntry>> lootTables = new HashMap<>();
 
     /**
      * コンストラクタ
@@ -57,8 +58,8 @@ public class DecomposeConfig {
             YamlConfiguration defaultConfig = new YamlConfiguration();
             
             // 各シリーズの空のセクションを作成
-            for (Series.artifactSeres series : Series.artifactSeres.values()) {
-                defaultConfig.createSection("series." + series.name() + ".loot");
+            for (Series series : SeriesRegistry.getAllSeries()) {
+                defaultConfig.createSection("series." + series.getSeriesName() + ".loot");
             }
             
             defaultConfig.save(configFile);
@@ -77,9 +78,9 @@ public class DecomposeConfig {
         if (seriesSection == null) return;
 
         for (String seriesName : seriesSection.getKeys(false)) {
-            Series.artifactSeres series;
+            Series series;
             try {
-                series = Series.artifactSeres.valueOf(seriesName.toUpperCase());
+                series = SeriesRegistry.getSeries(seriesName);
             } catch (IllegalArgumentException e) {
                 plugin.getLogger().warning("Unknown series in decompose.yml: " + seriesName);
                 continue;
@@ -115,8 +116,8 @@ public class DecomposeConfig {
     public void saveConfig() {
         try {
             // ルートテーブルを設定に反映
-            for (Map.Entry<Series.artifactSeres, List<LootEntry>> entry : lootTables.entrySet()) {
-                String path = "series." + entry.getKey().name() + ".loot";
+            for (Map.Entry<Series, List<LootEntry>> entry : lootTables.entrySet()) {
+                String path = "series." + entry.getKey().getSeriesName() + ".loot";
                 List<Map<String, Object>> lootList = new ArrayList<>();
 
                 for (LootEntry lootEntry : entry.getValue()) {
@@ -143,7 +144,7 @@ public class DecomposeConfig {
      * @param series シリーズ
      * @return ルートエントリのリスト
      */
-    public List<LootEntry> getLootTable(Series.artifactSeres series) {
+    public List<LootEntry> getLootTable(Series series) {
         return lootTables.getOrDefault(series, new ArrayList<>());
     }
 
@@ -153,7 +154,7 @@ public class DecomposeConfig {
      * @param series シリーズ
      * @param entry  追加するエントリ
      */
-    public void addLootEntry(Series.artifactSeres series, LootEntry entry) {
+    public void addLootEntry(Series series, LootEntry entry) {
         lootTables.computeIfAbsent(series, k -> new ArrayList<>()).add(entry);
         saveConfig();
     }
@@ -164,7 +165,7 @@ public class DecomposeConfig {
      * @param series シリーズ
      * @param index  削除するエントリのインデックス
      */
-    public void removeLootEntry(Series.artifactSeres series, int index) {
+    public void removeLootEntry(Series series, int index) {
         List<LootEntry> entries = lootTables.get(series);
         if (entries != null && index >= 0 && index < entries.size()) {
             entries.remove(index);

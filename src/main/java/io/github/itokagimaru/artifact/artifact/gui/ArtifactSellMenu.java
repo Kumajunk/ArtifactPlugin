@@ -1,9 +1,9 @@
 package io.github.itokagimaru.artifact.artifact.gui;
 
 import io.github.itokagimaru.artifact.ArtifactMain;
+import io.github.itokagimaru.artifact.artifact.artifacts.artifact.BaseArtifact;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.ArtifactToItem;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.ItemToArtifact;
-import io.github.itokagimaru.artifact.artifact.artifacts.series.Base.BaseArtifact;
 import io.github.itokagimaru.artifact.artifact.items.SpecialItems;
 import io.github.itokagimaru.artifact.utils.BaseGui;
 import org.bukkit.Material;

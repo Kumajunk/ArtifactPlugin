@@ -1,7 +1,7 @@
 package io.github.itokagimaru.artifact.auction.gui;
 
+import io.github.itokagimaru.artifact.artifact.artifacts.artifact.BaseArtifact;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.ItemToArtifact;
-import io.github.itokagimaru.artifact.artifact.artifacts.series.Base.BaseArtifact;
 import io.github.itokagimaru.artifact.auction.AuctionManager;
 import io.github.itokagimaru.artifact.auction.Result;
 import io.github.itokagimaru.artifact.auction.model.AuctionListing;
@@ -260,7 +260,7 @@ public class AuctionSellMenu extends BaseGui {
                     
                     // 確認メッセージを表示
                     player.sendMessage("§6§l=== 出品確認 ===");
-                    player.sendMessage("§fアイテム: §e" + artifact.getSeriesName() + " - " + artifact.getSlot().getSlotName);
+                    player.sendMessage("§fアイテム: §e" + artifact.getSeries().getSeriesName() + " - " + artifact.getSlot().getSlotName);
                     player.sendMessage("§fレベル: §a" + artifact.getLv());
                     player.sendMessage("§f出品タイプ: §e" + selectedType.getDisplayName());
                     player.sendMessage("§f出品価格: §a$" + String.format("%,d", price));

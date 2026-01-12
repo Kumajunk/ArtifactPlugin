@@ -2,6 +2,7 @@ package io.github.itokagimaru.artifact.auction.gui;
 
 import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffect;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffect;
 import io.github.itokagimaru.artifact.auction.AuctionManager;
@@ -245,18 +246,18 @@ public class AuctionSearchMenu extends BaseGui {
         StringBuilder sb = new StringBuilder("§f");
         for (int i = 0; i < filter.getSeries().size(); i++) {
             if (i > 0) sb.append(", ");
-            sb.append(filter.getSeries().get(i).name());
+            sb.append(filter.getSeries().get(i).getSeriesName());
         }
         return sb.toString();
     }
 
     private void cycleSeriesFilter() {
-        Series.artifactSeres[] values = Series.artifactSeres.values();
+        Series[] values = SeriesRegistry.getAllSeries();
         if (filter.getSeries().isEmpty()) {
             filter.addSeries(values[0]);
         } else {
-            Series.artifactSeres current = filter.getSeries().get(filter.getSeries().size() - 1);
-            int nextIndex = (current.ordinal() + 1) % values.length;
+            Series current = filter.getSeries().get(filter.getSeries().size() - 1);
+            int nextIndex = (SeriesRegistry.getIndex(current) + 1) % values.length;
             filter.getSeries().clear();
             filter.addSeries(values[nextIndex]);
         }
