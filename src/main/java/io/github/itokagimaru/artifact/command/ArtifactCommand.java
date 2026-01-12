@@ -7,11 +7,13 @@ import io.github.itokagimaru.artifact.artifact.gui.ArtifactEnhanceMenu;
 import io.github.itokagimaru.artifact.artifact.gui.ArtifactEquipMenu;
 import io.github.itokagimaru.artifact.artifact.gui.ArtifactProcessMenu;
 import io.github.itokagimaru.artifact.artifact.gui.ArtifactSellMenu;
+import io.github.itokagimaru.artifact.artifact.items.SpecialItems;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +65,17 @@ public class ArtifactCommand implements CommandExecutor, TabCompleter {
                 new ArtifactProcessMenu().open(player);
                 return true;
             }
+            case "buyholder" -> {
+                if (ArtifactMain.getVaultAPI().getBalance(player.getUniqueId()) < 100) {
+                    player.sendMessage("§c所持金が不足しています。アーティファクトホルダーの購入には100コイン必要です。");
+                    return true;
+                }
+                ArtifactMain.getVaultAPI().withdraw(player.getUniqueId(), 100);
+                ItemStack item = SpecialItems.getArtifactHolder();
+                player.getInventory().addItem(item);
+                player.sendMessage("§aアーティファクトホルダーを購入しました。");
+                return true;
+            }
         }
         return false;
     }
@@ -76,6 +89,7 @@ public class ArtifactCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§e/artifact decompose §7- §fアーティファクト分解メニューを開きます");
         sender.sendMessage("§e/artifact appraise §7- §fアーティファクト鑑定メニューを開きます");
         sender.sendMessage("§e/artifact process §7- §fアーティファクト加工メニューを開きます");
+        sender.sendMessage("§e/artifact buyholder §7- §fアーティファクトホルダーを100コインで購入します");
     }
 
     @Override
@@ -89,6 +103,7 @@ public class ArtifactCommand implements CommandExecutor, TabCompleter {
             list.add("decompose");
             list.add("appraise");
             list.add("process");
+            list.add("buyholder");
         }
         return list;
     }

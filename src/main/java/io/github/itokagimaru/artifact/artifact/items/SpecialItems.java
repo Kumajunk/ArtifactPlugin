@@ -13,7 +13,10 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.List;
 
 public class SpecialItems {
-    public ItemStack artifactHolder(){
+
+    public static final NamespacedKey ARTIFACT_HOLDER_KEY = new NamespacedKey("artifact", "artifact_holder");
+
+    public static ItemStack getArtifactHolder(){
         ItemStack stack = new ItemStack(Material.WOODEN_HOE);
         stack.editMeta(meta -> {
             meta.setItemModel(NamespacedKey.minecraft("bundle"));
@@ -27,8 +30,15 @@ public class SpecialItems {
                     Component.text("されている")
             ));
             meta.setMaxStackSize(1);
+            meta.isUnbreakable();
+            meta.getPersistentDataContainer().set(ARTIFACT_HOLDER_KEY, PersistentDataType.BYTE, (byte)1);
         });
         return stack;
+    }
+
+    public static boolean isArtifactHolder(ItemStack item){
+        if (item == null || !item.hasItemMeta()) return false;
+        return item.getItemMeta().getPersistentDataContainer().has(ARTIFACT_HOLDER_KEY, PersistentDataType.BYTE);
     }
 
     public static final NamespacedKey UNIDENTIFIED_ARTIFACT_KEY = new NamespacedKey("artifact", "unidentified_artifact");
