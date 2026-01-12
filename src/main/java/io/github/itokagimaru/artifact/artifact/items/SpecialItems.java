@@ -62,6 +62,7 @@ public class SpecialItems {
             meta.setMaxStackSize(1);
             meta.getPersistentDataContainer().set(UNIDENTIFIED_ARTIFACT_KEY, PersistentDataType.STRING, internalName);
         });
+        item = setRemoveOnDeath(item);
         return item;
     }
 
@@ -124,5 +125,30 @@ public class SpecialItems {
     public static boolean isAugment(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return false;
         return item.getItemMeta().getPersistentDataContainer().has(AUGMENT_KEY, PersistentDataType.BYTE);
+    }
+
+    // デス時にアイテムを消すタグ
+    public static final NamespacedKey REMOVE_ON_DEATH_KEY = new NamespacedKey("artifact", "remove_on_death");
+
+    /**
+     * アイテムにデス時消失タグを付与
+     * @param item 対象のアイテム
+     */
+    public static ItemStack setRemoveOnDeath(ItemStack item) {
+        if (item == null) return null;
+        item.editMeta(meta -> {
+            meta.getPersistentDataContainer().set(REMOVE_ON_DEATH_KEY, PersistentDataType.BYTE, (byte) 1);
+        });
+        return item;
+    }
+
+    /**
+     * アイテムにデス時消失タグがあるかチェック
+     * @param item 対象のアイテム
+     * @return タグがあればtrue
+     */
+    public static boolean hasRemoveOnDeathTag(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return false;
+        return item.getItemMeta().getPersistentDataContainer().has(REMOVE_ON_DEATH_KEY, PersistentDataType.BYTE);
     }
 }
