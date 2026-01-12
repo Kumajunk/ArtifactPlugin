@@ -25,7 +25,7 @@ public class ArtifactToItem {
         ItemData.UUID.set(stack, artifact.getUUID().toString());
         ItemData.TIER.set(stack, artifact.getTier().getId);
         ItemData.SLOT.set(stack, artifact.getSlot().getId);
-        ItemData.SERIES_KEY.set(stack, artifact.getSeries().getSeriesName());
+        ItemData.SERIES_KEY.set(stack, artifact.getSeries().getInternalName());
         ItemData.LV.set(stack, artifact.getLv());
         ItemData.MAIN_ID.set(stack, artifact.getMainEffect().getId);
         ItemData.MAIN_VALUE.set(stack, ByteArrayConverter.toByte(artifact.getMainEffectValue()));
@@ -60,8 +60,6 @@ public class ArtifactToItem {
         return Component.text("ArtifactSeries <").color(NamedTextColor.GRAY).append(Component.text(artifact.getSeries().getSeriesName()).color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD).append(Component.text(">").color(NamedTextColor.GRAY))).decoration(TextDecoration.ITALIC, false);
     }
     private static List<Component> makeLore(BaseArtifact artifact){
-        String str = "-------------------------";
-        String[] split = str.split("\\.", 2);
         List<Component> lore = new java.util.ArrayList<>(List.of(
                 Component.text("Tier: ").color(NamedTextColor.GRAY).append(Component.text(artifact.getTier().getText).color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD)).decoration(TextDecoration.ITALIC, false),
                 Component.text("Lv: ").color(NamedTextColor.GRAY).append(Component.text("+" + artifact.getLv()).color(NamedTextColor.WHITE)).decoration(TextDecoration.ITALIC, false),

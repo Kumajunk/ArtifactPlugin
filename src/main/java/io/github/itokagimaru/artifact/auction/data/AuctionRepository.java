@@ -2,6 +2,7 @@ package io.github.itokagimaru.artifact.auction.data;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffect;
 import io.github.itokagimaru.artifact.auction.model.AuctionListing;
 import io.github.itokagimaru.artifact.auction.model.AuctionType;
@@ -42,7 +43,9 @@ public class AuctionRepository {
     public void save(AuctionListing listing) throws SQLException {
         // artifact_dataからインデックス用データを抽出
         JsonObject artifactJson = gson.fromJson(listing.getArtifactData(), JsonObject.class);
-        int seriesId = artifactJson.has("seriesId") ? artifactJson.get("seriesId").getAsInt() : -1;
+        // seriesIndexを優先、後方互換性のためseriesIdもフォールバック
+        int seriesId = artifactJson.has("seriesIndex") ? artifactJson.get("seriesIndex").getAsInt() 
+            : (artifactJson.has("seriesId") ? artifactJson.get("seriesId").getAsInt() : -1);
         int slotId = artifactJson.has("slotId") ? artifactJson.get("slotId").getAsInt() : -1;
         int level = artifactJson.has("level") ? artifactJson.get("level").getAsInt() : 0;
         int mainEffectId = artifactJson.has("mainEffectId") ? artifactJson.get("mainEffectId").getAsInt() : -1;
@@ -212,13 +215,13 @@ public class AuctionRepository {
         List<Object> params = new ArrayList<>();
         params.add(System.currentTimeMillis());
 
-        // シリーズ条件
+        // シリーズ条件（インデックスを使用）
         if (!filter.getSeries().isEmpty()) {
             String placeholders = filter.getSeries().stream()
                     .map(s -> "?")
                     .collect(Collectors.joining(","));
             sql.append(" AND series_id IN (").append(placeholders).append(")");
-            filter.getSeries().forEach(s -> params.add(s.getSeriesName()));
+            filter.getSeries().forEach(s -> params.add(SeriesRegistry.getIndex(s)));
         }
 
         // スロット条件

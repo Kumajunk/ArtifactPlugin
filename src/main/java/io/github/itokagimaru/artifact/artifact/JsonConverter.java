@@ -23,7 +23,9 @@ public final class JsonConverter {
     public static String serializeArtifact(BaseArtifact artifact) {
         JsonObject json = new JsonObject();
         json.addProperty("uuid", artifact.getUUID().toString());
-        json.addProperty("seriesName", artifact.getSeries().getSeriesName());
+        json.addProperty("seriesInternalName", artifact.getSeries().getInternalName());
+        json.addProperty("seriesName", artifact.getSeries().getSeriesName()); // 後方互換性のため保持
+        json.addProperty("seriesIndex", SeriesRegistry.getIndex(artifact.getSeries())); // DB検索用インデックス
         json.addProperty("slotId", artifact.getSlot().getId);
         json.addProperty("tierId", artifact.getTier().getId);
         json.addProperty("level", artifact.getLv());
@@ -62,8 +64,11 @@ public final class JsonConverter {
         try {
             JsonObject json = gson.fromJson(artifactData, JsonObject.class);
 
-            String seriesName = json.has("seriesName") ? json.get("seriesName").getAsString() : null;
-            Series series = SeriesRegistry.getSeries(seriesName);
+            // 内部名で検索（後方互換性のためseriesNameもフォールバック）
+            String internalName = json.has("seriesInternalName") 
+                ? json.get("seriesInternalName").getAsString() 
+                : json.has("seriesName") ? json.get("seriesName").getAsString() : null;
+            Series series = SeriesRegistry.getSeriesWithFallback(internalName);
             if (series == null) return null;
 
             BaseArtifact artifact = new BaseArtifact();

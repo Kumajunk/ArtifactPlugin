@@ -59,17 +59,14 @@ public class ItemToArtifact {
             int[] subEffectIds = ItemData.SUB_ID.get(item);
             double[] subEffectValues = ByteArrayConverter.ByteToDoubleArray(ItemData.SUB_VALUE.get(item));
 
-            // シリーズからBaseArtifactを生成
-            Series series = SeriesRegistry.getSeries(seriesKey);
+            // シリーズからBaseArtifactを生成（内部名または表示名で検索）
+            Series series = SeriesRegistry.getSeriesWithFallback(seriesKey);
             if (series == null) {
                 return Optional.empty();
             }
 
             // シリーズに対応するアーティファクトインスタンスを取得
             BaseArtifact artifact = new BaseArtifact();
-            if (artifact == null) {
-                return Optional.empty();
-            }
 
             // UUIDを設定（リフレクションで設定）
             try {

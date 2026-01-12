@@ -7,7 +7,8 @@ import java.util.List;
 
 
 public class Series {
-    String seriesName;
+    String internalName; // 内部名（レジストリのキーとして使用）
+    String seriesName;   // 表示名
     String model;
     ExceptionStatus.artifactExceptionStatus[] exStatus;
     List<Component> twoSetDescription;
@@ -15,7 +16,8 @@ public class Series {
     List<Component> flavorText;
 
 
-    Series(String seriesName, String model, ExceptionStatus.artifactExceptionStatus[] exStatus, List<Component> twoSetDescription, List<Component> fourSerDescription, List<Component> flavorText){
+    Series(String internalName, String seriesName, String model, ExceptionStatus.artifactExceptionStatus[] exStatus, List<Component> twoSetDescription, List<Component> fourSerDescription, List<Component> flavorText){
+        this.internalName = internalName;
         this.seriesName = seriesName;
         this.model = model;
         this.exStatus = exStatus;
@@ -24,6 +26,18 @@ public class Series {
         this.flavorText = flavorText;
     }
 
+    /**
+     * 内部名を取得
+     * @return 内部名（レジストリのキー）
+     */
+    public String getInternalName() {
+        return internalName;
+    }
+
+    /**
+     * 表示名を取得
+     * @return 表示用のシリーズ名
+     */
     public String getSeriesName() {
         return seriesName;
     }

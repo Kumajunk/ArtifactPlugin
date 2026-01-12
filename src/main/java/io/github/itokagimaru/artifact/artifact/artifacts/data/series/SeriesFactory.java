@@ -18,8 +18,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.util.*;
 
 public class SeriesFactory {
-    public static enum Key {
+    public enum Key {
         SERIES("series"),
+        INTERNAL_NAME("internal-name"),
         SERIES_NAME("series-name"),
         MODEL("model"),
         FLAVOR_TEXT("flavor-text"),
@@ -35,7 +36,7 @@ public class SeriesFactory {
             keyName = keyText;
         }
     }
-    public static enum ExStatus {
+    public enum ExStatus {
         CANNOT_ENHANCE("cannot-enhance"),
         MAIN_EFFECT_FIXED("main-effect-fixed"),
         CANNOT_HAVE_SUB_EFFECT("cannot-have-sub-effect"),;
@@ -53,7 +54,7 @@ public class SeriesFactory {
             throw new IllegalArgumentException("ExStatusの値が不正です: " + statusText);
         }
     }
-    public static enum effectKye {
+    public enum effectKye {
         TRIGGER("trigger"),
         ACTIONS("actions"),
         CONDITIONS("conditions");
@@ -70,7 +71,7 @@ public class SeriesFactory {
             throw new IllegalAccessException("effectsの値が不正です:" + text);
         }
     }
-    public static enum TriggerKey {
+    public enum TriggerKey {
         ON_UPDATE("on-artifact-update"),
         ON_DAMAGE("on-damage"),
         ON_ATTACK("on-attack"),
@@ -95,7 +96,7 @@ public class SeriesFactory {
             throw new IllegalAccessException("triggerの値が不正です:" + text);
         }
     }
-    public static enum ConditionKey {
+    public enum ConditionKey {
         OR_LASSE_HP("or-lass-hp"),
         OR_LASSE_ATK("or-lass-atk"),
         OR_LASSE_LUK("or-lass-luk"),
@@ -121,7 +122,7 @@ public class SeriesFactory {
             throw new IllegalAccessException("Conditionの値が不正です: " + text);
         }
     }
-    public static enum ActionKey {
+    public enum ActionKey {
         DO_GIVE_BUFF("do-give-buff"),
         DO_REMOVE_BUFF("do-remove-buff"),
         DO_GIVE_SKILL("do-give-skill"),
@@ -141,7 +142,7 @@ public class SeriesFactory {
             throw new IllegalAccessException("actionの値が不正です:" + text);
         }
     }
-    public static enum playerStatusKey {
+    public enum playerStatusKey {
         HP("player-status-hp"),
         ATK("player-status-atk"),
         DEF("player-status-def"),
@@ -172,6 +173,7 @@ public class SeriesFactory {
 
         ConfigurationSection seriesSec = config.getConfigurationSection(Key.SERIES.keyName);
         try {
+            String internalName = seriesSec.getString(Key.INTERNAL_NAME.keyName);
             String seriesName = seriesSec.get(Key.SERIES_NAME.keyName).toString();
             String model = seriesSec.getString(Key.MODEL.keyName);
             List<Component> flavorText = toComponentText(seriesSec.getMapList(Key.FLAVOR_TEXT.keyName));
@@ -179,17 +181,17 @@ public class SeriesFactory {
             ConfigurationSection setEffectSec = seriesSec.getConfigurationSection(Key.SET_EFFECT.keyName);
             ConfigurationSection twoSetEffectSec = setEffectSec.getConfigurationSection(Key.TWO_SET.keyName);
             List<Component> twoSetEffectDescription = toComponentText(twoSetEffectSec.getMapList(Key.DESCRIPTION.keyName));
-            Effect[] twoSetEffect = toSetEffects(twoSetEffectSec, seriesName, 2);
+            Effect[] twoSetEffect = toSetEffects(twoSetEffectSec, internalName, 2);
             ConfigurationSection fourSetEffectSec = setEffectSec.getConfigurationSection(Key.FOUR_SET.keyName);
             List<Component> fourSetEffectDescription = toComponentText(fourSetEffectSec.getMapList(Key.DESCRIPTION.keyName));
-            Effect[] fourSetEffect = toSetEffects(fourSetEffectSec, seriesName, 4);
+            Effect[] fourSetEffect = toSetEffects(fourSetEffectSec, internalName, 4);
             for (Effect effect : twoSetEffect){
                 EffectStack.addEffect(effect);
             }
             for (Effect effect : fourSetEffect){
                 EffectStack.addEffect(effect);
             }
-            return new Series(seriesName, model, exStatus, twoSetEffectDescription, fourSetEffectDescription, flavorText);
+            return new Series(internalName, seriesName, model, exStatus, twoSetEffectDescription, fourSetEffectDescription, flavorText);
         } catch (Exception e) {
             throw new IllegalAccessException("ymlファイルの読み込みに失敗しました: " + e.getMessage());
         }
@@ -200,18 +202,10 @@ public class SeriesFactory {
         for (int i = 0; i < exStatusList.toArray().length; i++){
             ExStatus exStatus = ExStatus.fromText(exStatusList.get(i));
             switch (exStatus){
-                case ExStatus.CANNOT_ENHANCE -> {
-                    exStatusArray[i] = ExceptionStatus.artifactExceptionStatus.CANNOT_ENHANCE;
-                }
-                case ExStatus.MAIN_EFFECT_FIXED -> {
-                    exStatusArray[i] = ExceptionStatus.artifactExceptionStatus.MAIN_EFFECT_FIXED;
-                }
-                case ExStatus.CANNOT_HAVE_SUB_EFFECT -> {
-                    exStatusArray[i] = ExceptionStatus.artifactExceptionStatus.CANNOT_HAVE_SUB_EFFECT;
-                }
-                default -> {
-                    throw new IllegalStateException("exStatusの値が不正です:" + exStatus);
-                }
+                case ExStatus.CANNOT_ENHANCE -> exStatusArray[i] = ExceptionStatus.artifactExceptionStatus.CANNOT_ENHANCE;
+                case ExStatus.MAIN_EFFECT_FIXED -> exStatusArray[i] = ExceptionStatus.artifactExceptionStatus.MAIN_EFFECT_FIXED;
+                case ExStatus.CANNOT_HAVE_SUB_EFFECT -> exStatusArray[i] = ExceptionStatus.artifactExceptionStatus.CANNOT_HAVE_SUB_EFFECT;
+                default -> throw new IllegalStateException("exStatusの値が不正です:" + exStatus);
             }
         }
         return exStatusArray;

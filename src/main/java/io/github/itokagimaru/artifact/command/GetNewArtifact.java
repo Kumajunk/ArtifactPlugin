@@ -42,10 +42,10 @@ public class GetNewArtifact implements CommandExecutor, TabCompleter {
 
         Factory factory = new Factory();
         if(SeriesRegistry.getSeries(args[0]) == null){
-            player.sendMessage(Component.text("そのseriesIdは不正です seriesId:" + argsInt[0]));
+            player.sendMessage(Component.text("そのseriesKeyは不正です seriesKey:" + args[0]));
             player.sendMessage(Component.text("--------<seriesKeyList>--------"));
             for (Series seres : SeriesRegistry.seriesRegistry.values()) {
-                player.sendMessage(Component.text(seres.getSeriesName()));
+                player.sendMessage(Component.text(seres.getInternalName() + " (" + seres.getSeriesName() + ")"));
             }
             player.sendMessage(Component.text(""));
             error = true;
@@ -79,7 +79,7 @@ public class GetNewArtifact implements CommandExecutor, TabCompleter {
         switch (args.length){
             case 1 -> {
                 for (Series seres : SeriesRegistry.seriesRegistry.values()){
-                    list.add(seres.getSeriesName());
+                    list.add(seres.getInternalName());
                 }
             }
             case 2 -> {
