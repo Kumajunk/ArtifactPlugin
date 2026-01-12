@@ -75,6 +75,12 @@ public class ArtifactToItem {
             lore.addLast(Component.text(artifact.getSubEffects()[i].getText).color(NamedTextColor.GRAY).append(Component.text(" +").color(NamedTextColor.WHITE).append(Component.text(String.format("%.2f", artifact.getSubEffectsValue()[i] * 100)).color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD).append(Component.text("%").color(NamedTextColor.WHITE)))).decoration(TextDecoration.ITALIC, false));
         }
         lore.addLast(Component.text("-------------------------").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false));
+        lore.add(Component.text("setEffect").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false));
+        lore.add(Component.text("2set:").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false));
+        lore.addAll(artifact.getSeries().getTwoSetDescription());
+        lore.add(Component.text("4set:").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false));
+        lore.addAll(artifact.getSeries().getFourSerDescription());
+        lore.addLast(Component.text("-------------------------").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false));
         lore.addAll(artifact.getSeries().getFlavorText());
         lore.addLast(Component.text("-------------------------").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false));
         for (ExceptionStatus.artifactExceptionStatus status : ExceptionStatus.artifactExceptionStatus.values()){
