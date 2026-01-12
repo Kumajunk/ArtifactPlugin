@@ -1,0 +1,24 @@
+sell:
+  augment:
+    price: 1000
+  # 分解時のオーグメントの入手数とアーティファクトの販売価格のスケーリング設定
+  tier_scaling:
+    enabled: true
+    tiers:
+      - tier: "C"
+        multiplier: 1.0
+      - tier: "B"
+        multiplier: 1.5
+      - tier: "A"
+        multiplier: 2.2
+      - tier: "S"
+        multiplier: 3.5
+      - tier: "SS"
+        multiplier: 5.0
+  level_scaling:
+    enabled: true
+    rate: 0.5544
+
+enhance:
+  series_binding:
+    enabled: true
