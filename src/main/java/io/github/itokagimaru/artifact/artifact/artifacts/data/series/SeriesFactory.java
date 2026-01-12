@@ -11,6 +11,7 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.Tri
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.value.Calculator;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.value.Values;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.exceptionStatus.ExceptionStatus;
+import io.github.itokagimaru.artifact.utils.Utils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -412,7 +413,9 @@ public class SeriesFactory {
     private static List<Component> toComponentText(List<Map<?, ?>> texts){
         List<Component> ComponentText = new ArrayList<>();
         for (Map<?, ?> text : texts){
-            ComponentText.add(Component.text((String) text.get(Key.TEXT.keyName)));
+            String rawText = (String) text.get(Key.TEXT.keyName);
+            String coloredText = rawText.replace('&', '§');
+            ComponentText.add(Utils.parseLegacy(coloredText));
         }
         return ComponentText;
 
