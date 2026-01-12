@@ -49,6 +49,20 @@ public class BaseGui {
         return playerInventoryClickHandler;
     }
 
+    public interface GuiCloseAction {
+        void run(Player player);
+    }
+
+    private final List<GuiCloseAction> closeActions = new ArrayList<>();
+
+    public void addCloseAction(GuiCloseAction action) {
+        closeActions.add(action);
+    }
+
+    public List<GuiCloseAction> getCloseActions() {
+        return closeActions;
+    }
+
     private static JavaPlugin instance;
     private static final Map<UUID, BaseGui> openGuis = new HashMap<>();
 
@@ -177,6 +191,10 @@ public class BaseGui {
                     }
                 }
                 gui.inventory.clear();
+            }
+
+            for (GuiCloseAction action : gui.getCloseActions()) {
+                action.run(player);
             }
 
             removeGui(player);

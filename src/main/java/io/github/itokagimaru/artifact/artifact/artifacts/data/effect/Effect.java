@@ -6,6 +6,8 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.Tri
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.condition.ConditionStack;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.condition.Conditions.Condition;
 
+import java.util.UUID;
+
 public class Effect {
     TriggerType.triggerType triggerType;
     ActionStack actions;
@@ -15,6 +17,10 @@ public class Effect {
         this.triggerType = triggerType;
         this.conditions = new ConditionStack(conditions);
         this.actions = new ActionStack(actions);
+    }
+    public void run(UUID playerUUID){
+        if (!conditions.isAllTrue(playerUUID)) return;
+        actions.runActions(playerUUID);
     }
 
     public TriggerType.triggerType getTriggerType(){

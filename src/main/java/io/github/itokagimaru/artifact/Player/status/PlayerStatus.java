@@ -58,7 +58,7 @@ public class PlayerStatus {
     public double getStatus(playerStatus status){
         List<StatusModifier> modifiers = modifierStack.getByStat(status);
         double addTypeModifier = 0.0;
-        double multiplyTypeModifier = 0.0;
+        double multiplyTypeModifier = 1.0;
         for (StatusModifier modifier : modifiers){
             switch (modifier.getType()){
                 case ADD -> {

@@ -1,10 +1,17 @@
 package io.github.itokagimaru.artifact.artifact.gui;
 
 import io.github.itokagimaru.artifact.ArtifactMain;
+import io.github.itokagimaru.artifact.Player.status.HpStatUpdater;
+import io.github.itokagimaru.artifact.Player.status.PlayerStatus;
+import io.github.itokagimaru.artifact.Player.status.PlayerStatusManager;
 import io.github.itokagimaru.artifact.artifact.EquipPdc;
 import io.github.itokagimaru.artifact.artifact.JsonConverter;
 import io.github.itokagimaru.artifact.artifact.artifacts.artifact.BaseArtifact;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.EffectStack;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.TriggerType;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffectUpdater;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffectUpdater;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.ArtifactToItem;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.ItemToArtifact;
 import io.github.itokagimaru.artifact.utils.BaseGui;
@@ -24,6 +31,17 @@ public class ArtifactEquipMenu extends BaseGui {
         this.player = player;
         setupMenu();
         setupPlayerInventoryHandler();
+        addCloseAction(target -> {
+            PlayerStatusManager.addPlayerStatus(target.getUniqueId(), new PlayerStatus());
+            for (Slot.artifactSlot slot : Slot.artifactSlot.values()) {
+                BaseArtifact artifact = loadFromPdc(target, slot);
+                if (artifact == null) continue;
+                MainEffectUpdater.mainEffectUpdater(target, artifact);
+                SubEffectUpdater.subEffectUpdater(target, artifact);
+            }
+            EffectStack.runByTrigger(TriggerType.triggerType.ON_UPDATE, target.getUniqueId());
+            HpStatUpdater.hpStatUpdater(player);
+        });
     }
 
     public void setupMenu() {
