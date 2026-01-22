@@ -119,12 +119,6 @@ public final class ArtifactMain extends JavaPlugin {
         stashLoginListener.setStashManager(stashManager);
         getServer().getPluginManager().registerEvents(stashLoginListener, this);
 
-        // デス時アイテム消失リスナー
-        getServer().getPluginManager().registerEvents(new PlayerDeathListener(), this);
-
-        // アイテム使用リスナー（ArtifactHolder右クリック等）
-        getServer().getPluginManager().registerEvents(new ItemUseListener(), this);
-
         if (Bukkit.getPluginManager().getPlugin("MythicMobs") == null) {
             getLogger().severe("MythicMobs not found!");
             getServer().getPluginManager().disablePlugin(this);
@@ -132,9 +126,11 @@ public final class ArtifactMain extends JavaPlugin {
             getLogger().info("MythicMobs hooked!");
         }
 
+        //Listenerはここで宣言お願いします
         registerListeners(
                 new ArtifactPlayerOnDamageListener(),
-                new ItemUseListener()
+                new ItemUseListener(),
+                new PlayerDeathListener()
         );
 
         // artifactSeriesの読み込み
