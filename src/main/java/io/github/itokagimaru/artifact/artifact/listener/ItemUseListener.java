@@ -18,30 +18,15 @@ public class ItemUseListener implements Listener {
     public static void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         ItemStack item = event.getItem();
-        if (!(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
+        if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) {
             return;
         }
         if (item == null) return;
         if (item.getType() != Material.WOODEN_HOE) return;
-
         if (item.getItemMeta().hasItemModel()) {
-            if (ItemData.IS_SKILL_ITEM.get(item) != (byte) 1) return;
-            EffectStack.runByTrigger(TriggerType.triggerType.ON_SKILL_USE, player.getUniqueId(), event);
-    /**
-     * プレイヤーがアイテムを使用した際のハンドラ
-     * ArtifactHolderを右クリックした場合、ArtifactEquipMenuを開く
-     */
-    @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        // 右クリックのみ処理
-        if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) {
-            return;
+            player.sendMessage("you use skill!!");
+            if (ItemData.IS_SKILL_ITEM.get(item) == (byte) 1) EffectStack.runByTrigger(TriggerType.triggerType.ON_SKILL_USE, player.getUniqueId(), event);
         }
-
-        Player player = event.getPlayer();
-        ItemStack item = event.getItem();
-
-        // ArtifactHolderかどうかを判定
         if (SpecialItems.isArtifactHolder(item)) {
             // デフォルトの動作をキャンセル
             event.setCancelled(true);
