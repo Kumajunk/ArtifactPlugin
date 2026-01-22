@@ -10,19 +10,21 @@ import java.util.Map;
 import java.util.UUID;
 
 public class Values {
-    List<Map<Calculator.calculateType, String>> values = new ArrayList<>();
-    public Values(String base, List<Map<Calculator.calculateType, String>> values){
+    List<Value> values = new ArrayList<>();
+    public Values(String base, List<Value> values){
+        this.base = base;
         this.values = values;
     }
     String base;
 
     public double calculate(UUID playerUuid) {
         double resultValue = getValue(playerUuid, base);
-        for (Map<Calculator.calculateType, String> value : values){
-            if(!value.get(Calculator.calculateType.ADD).isEmpty()){
-                resultValue += getValue(playerUuid, value.get(Calculator.calculateType.ADD));
-            } else if(!value.get(Calculator.calculateType.MULTIPLY).isEmpty()){
-                resultValue *= getValue(playerUuid, value.get(Calculator.calculateType.MULTIPLY));
+        for (Value value : values){
+            String valueStr = value.getValue();
+            if(value.getType() == Calculator.calculateType.ADD){
+                resultValue += getValue(playerUuid, valueStr);
+            } else if(value.getType() == Calculator.calculateType.MULTIPLY){
+                resultValue *= getValue(playerUuid, valueStr);
             }
         }
         return resultValue;
@@ -31,6 +33,7 @@ public class Values {
     public double getValue(UUID playerUuid, String strValue) {
         double value = 0;
         try {
+            if(strValue == null) return value;
             value += Double.parseDouble(strValue);
         } catch (NumberFormatException e) {
             try {

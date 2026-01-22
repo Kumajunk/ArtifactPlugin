@@ -193,8 +193,10 @@ public class BaseGui {
                 gui.inventory.clear();
             }
 
-            for (GuiCloseAction action : gui.getCloseActions()) {
-                action.run(player);
+            if (event.getReason().equals(InventoryCloseEvent.Reason.PLAYER)) {
+                for (GuiCloseAction action : gui.getCloseActions()) {
+                    action.run(player);
+                }
             }
 
             removeGui(player);

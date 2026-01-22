@@ -4,10 +4,11 @@ import io.github.itokagimaru.artifact.Player.status.PlayerStatus;
 import io.github.itokagimaru.artifact.Player.status.PlayerStatusManager;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.value.Values;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-public class OrLessHp extends Condition {
+public class OrLessHp implements ConditionWithoutEvent {
     Values values;
     boolean isMultiply;
 
@@ -18,14 +19,17 @@ public class OrLessHp extends Condition {
 
     @Override
     public boolean isTrue(UUID uuid) {
+        Player player = Bukkit.getPlayer(uuid);
         if (isMultiply){
             PlayerStatus playerStatus = PlayerStatusManager.getPlayerStatus(uuid);
             double maxHp = playerStatus.getStatus(PlayerStatus.playerStatus.HP);
-            double nowHp = Bukkit.getEntity(uuid).getHeight();
-            return values.calculate(uuid) > nowHp / maxHp;
+            double nowHp = player.getHealth();
+            return values.calculate(uuid) >= nowHp / maxHp;
         }else{
+            double nowHp = player.getHealth();
 
-            double nowHp = Bukkit.getEntity(uuid).getHeight();
+            player.sendMessage("value: " + values.calculate(uuid));
+            player.sendMessage("hp: " + nowHp);
             return values.calculate(uuid) >= nowHp;
         }
     }

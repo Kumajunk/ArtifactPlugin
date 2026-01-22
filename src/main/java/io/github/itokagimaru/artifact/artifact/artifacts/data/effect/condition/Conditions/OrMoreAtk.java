@@ -6,7 +6,7 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.value.Value
 
 import java.util.UUID;
 
-public class OrMoreAtk extends Condition{
+public class OrMoreAtk implements ConditionWithoutEvent{
     Values values;
     boolean isMultiply;
 

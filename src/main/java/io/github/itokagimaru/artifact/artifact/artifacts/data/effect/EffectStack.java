@@ -1,6 +1,7 @@
 package io.github.itokagimaru.artifact.artifact.artifacts.data.effect;
 
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.TriggerType;
+import org.bukkit.event.Event;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,12 @@ public class EffectStack {
     public static void runByTrigger(TriggerType.triggerType triggerType, UUID playerUUID){
         for (Effect effect : getByTrigger(triggerType)){
             effect.run(playerUUID);
+        }
+    }
+
+    public static void runByTrigger(TriggerType.triggerType triggerType, UUID playerUUID, Event event){
+        for (Effect effect : getByTrigger(triggerType)){
+            effect.run(playerUUID, event);
         }
     }
 

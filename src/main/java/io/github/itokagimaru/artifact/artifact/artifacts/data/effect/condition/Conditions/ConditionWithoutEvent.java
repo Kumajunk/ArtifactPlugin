@@ -1,7 +1,7 @@
 package io.github.itokagimaru.artifact.artifact.artifacts.data.effect.condition.Conditions;
 
-import org.bukkit.event.Event;
 import java.util.UUID;
 
-public interface Condition {}
-
+public interface ConditionWithoutEvent extends Condition {
+    boolean isTrue(UUID uuid);
+}

@@ -4,10 +4,11 @@ import io.github.itokagimaru.artifact.Player.status.PlayerStatus;
 import io.github.itokagimaru.artifact.Player.status.PlayerStatusManager;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.value.Values;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
-public class OrMoreHp extends Condition{
+public class OrMoreHp implements ConditionWithoutEvent {
     Values values;
     boolean isMultiply;
 
@@ -18,14 +19,15 @@ public class OrMoreHp extends Condition{
 
     @Override
     public boolean isTrue(UUID uuid) {
+        Player player = Bukkit.getPlayer(uuid);
         if (isMultiply){
             PlayerStatus playerStatus = PlayerStatusManager.getPlayerStatus(uuid);
             double maxHp = playerStatus.getStatus(PlayerStatus.playerStatus.HP);
-            double nowHp = Bukkit.getEntity(uuid).getHeight();
+            double nowHp =player.getHealth();
             return values.calculate(uuid) < nowHp / maxHp;
         }else{
 
-            double nowHp = Bukkit.getEntity(uuid).getHeight();
+            double nowHp = player.getHealth();
             return values.calculate(uuid) <= nowHp;
         }
     }

@@ -30,6 +30,10 @@ public class ModifierStack {
         modifiers.values().removeIf(m -> m.getSource().getType() == type & id.equals(m.getSource().getId()));
     }
 
+    public void removeEachBySource(EffectSource.EffectSourceType type, String id) {
+        remove(modifiers.values().stream().filter(m -> m.getSource().getType() == type & id.equals(m.getSource().getId())).toList().get(0).getId());
+    }
+
     public StatusModifier findById(UUID id) {
         return modifiers.get(id);
     }
