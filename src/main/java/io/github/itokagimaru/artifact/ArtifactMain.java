@@ -23,6 +23,8 @@ import io.github.itokagimaru.artifact.stash.StashLoginListener;
 import io.github.itokagimaru.artifact.stash.StashManager;
 import io.github.itokagimaru.artifact.stash.StashRepository;
 import io.github.itokagimaru.artifact.utils.BaseGui;
+import io.github.itokagimaru.artifact.artifact.listener.ItemUseListener;
+import io.github.itokagimaru.artifact.artifact.listener.PlayerDeathListener;
 import io.github.itokagimaru.artifact.utils.VaultAPI;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
@@ -116,6 +118,12 @@ public final class ArtifactMain extends JavaPlugin {
         StashLoginListener stashLoginListener = new StashLoginListener();
         stashLoginListener.setStashManager(stashManager);
         getServer().getPluginManager().registerEvents(stashLoginListener, this);
+
+        // デス時アイテム消失リスナー
+        getServer().getPluginManager().registerEvents(new PlayerDeathListener(), this);
+
+        // アイテム使用リスナー（ArtifactHolder右クリック等）
+        getServer().getPluginManager().registerEvents(new ItemUseListener(), this);
 
         if (Bukkit.getPluginManager().getPlugin("MythicMobs") == null) {
             getLogger().severe("MythicMobs not found!");

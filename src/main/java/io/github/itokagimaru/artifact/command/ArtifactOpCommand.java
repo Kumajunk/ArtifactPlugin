@@ -1,6 +1,8 @@
 package io.github.itokagimaru.artifact.command;
 
 import io.github.itokagimaru.artifact.ArtifactMain;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
 import io.github.itokagimaru.artifact.artifact.gui.LootTableEditMenu;
 import io.github.itokagimaru.artifact.artifact.items.SpecialItems;
 import org.bukkit.command.Command;
@@ -28,6 +30,11 @@ public class ArtifactOpCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("§cこのコマンドはプレイヤーのみ使用できます");
+            return true;
+        }
+
         if (args.length == 0) {
             showHelp(sender);
             return true;
@@ -39,18 +46,10 @@ public class ArtifactOpCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
             case "decomptable" -> {
-                if (!(sender instanceof Player player)) {
-                    sender.sendMessage("§cこのコマンドはプレイヤーのみ使用できます");
-                    return true;
-                }
                 new LootTableEditMenu().open(player);
                 return true;
             }
             case "getaugment" -> {
-                if (!(sender instanceof Player player)) {
-                    sender.sendMessage("§cこのコマンドはプレイヤーのみ使用できます");
-                    return true;
-                }
                 
                 int count = 1;
                 if (args.length > 1) {
@@ -71,6 +70,21 @@ public class ArtifactOpCommand implements CommandExecutor, TabCompleter {
                     player.getInventory().addItem(augment);
                 }
                 player.sendMessage("§aオーグメントを" + count + "個取得しました");
+                return true;
+            }
+            case "getuniartifact" -> {
+                if (args.length < 2) {
+                    player.sendMessage("§c内部名を指定してください");
+                    return true;
+                }
+                String internalName = args[1];
+                if (SeriesRegistry.getSeries(args[1]) == null){
+                    player.sendMessage("§cその内部名のアーティファクトは存在しません: " + internalName);
+                    return true;
+                }
+                ItemStack uniArtifact = SpecialItems.getUnidentifiedArtifact(internalName);
+                player.getInventory().addItem(uniArtifact);
+                player.sendMessage("§a未鑑定アーティファクト(" + internalName + ")を取得しました");
                 return true;
             }
             case "reload" -> {
@@ -102,7 +116,7 @@ public class ArtifactOpCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 1) {
-            List<String> subCommands = List.of("help", "decomptable", "getaugment", "reload");
+            List<String> subCommands = List.of("help", "decomptable", "getaugment", "getuniartifact", "reload");
             String input = args[0].toLowerCase();
             completions = subCommands.stream()
                     .filter(cmd -> cmd.startsWith(input))
@@ -110,6 +124,10 @@ public class ArtifactOpCommand implements CommandExecutor, TabCompleter {
         } else if (args.length == 2 && args[0].equalsIgnoreCase("getaugment")) {
             // 数量のサジェスト
             completions.addAll(List.of("1", "10", "64"));
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("getuniartifact")) {
+            for (Series seres : SeriesRegistry.seriesRegistry.values()){
+                completions.add(seres.getInternalName());
+            }
         }
 
         return completions;

@@ -8,7 +8,6 @@ import io.github.itokagimaru.artifact.artifact.decompose.LootEntry;
 import io.github.itokagimaru.artifact.utils.BaseGui;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 
