@@ -6,6 +6,9 @@ import io.github.itokagimaru.artifact.Player.status.PlayerStatus;
 import io.github.itokagimaru.artifact.Player.status.PlayerStatusManager;
 import io.github.itokagimaru.artifact.Player.status.StatusModifier;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.value.Values;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
@@ -32,9 +35,10 @@ public class DoGiveBuff extends Action {
     public void run(UUID playerUuid) {
         EffectSource source = new EffectSource(effectSourceType, key);
         StatusModifier modifier = new StatusModifier(UUID.randomUUID(), status, valueType, value.calculate(playerUuid), source);
-
         PlayerStatus playerStatus = PlayerStatusManager.getPlayerStatus(playerUuid);
-        playerStatus.getModifierStack().add(modifier);
+        playerStatus.addModifier(modifier);
         PlayerStatusManager.addPlayerStatus(playerUuid, playerStatus);
+        Player player = Bukkit.getPlayer(playerUuid);
+        player.sendMessage(Component.text(value.calculate(playerUuid) + source.getId() + status));
     }
 }

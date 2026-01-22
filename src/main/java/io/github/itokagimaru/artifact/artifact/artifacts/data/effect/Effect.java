@@ -5,6 +5,11 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.acti
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.TriggerType;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.condition.ConditionStack;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.condition.Conditions.Condition;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+
+import java.util.UUID;
 
 public class Effect {
     TriggerType.triggerType triggerType;
@@ -15,6 +20,21 @@ public class Effect {
         this.triggerType = triggerType;
         this.conditions = new ConditionStack(conditions);
         this.actions = new ActionStack(actions);
+    }
+    public void run(UUID playerUUID){
+        Player  player = Bukkit.getPlayer(playerUUID);
+        player.sendMessage("呼ばれたぜ！！");
+        if (!conditions.isAllTrue(playerUUID, null)) return;
+        player.sendMessage("Trueだったぜ！");
+        actions.runActions(playerUUID);
+    }
+
+    public void run(UUID playerUUID, Event event){
+        Player  player = Bukkit.getPlayer(playerUUID);
+        player.sendMessage("呼ばれたぜ！！");
+        if (!conditions.isAllTrue(playerUUID, event)) return;
+        player.sendMessage("Trueだったぜ！");
+        actions.runActions(playerUUID);
     }
 
     public TriggerType.triggerType getTriggerType(){

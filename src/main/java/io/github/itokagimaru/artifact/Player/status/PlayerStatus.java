@@ -18,14 +18,15 @@ public class PlayerStatus {
         FIRE_DMG_REDUCE(10,"FireDamageReduceRate"),
         WATER_DMG_REDUCE(11,"WaterDamageReduceRate"),
         NATURE_DMG_REDUCE(12,"NatureDamageReduceRate");
+        String text;
         playerStatus(int id, String text){
-
+            this.text = text;
         }
     }
     private final Map<playerStatus, Double> baseStatus = new EnumMap<playerStatus, Double>(playerStatus.class);
     {   baseStatus.put(playerStatus.HP, 20.0);
         baseStatus.put(playerStatus.ATK, 10.0);
-        baseStatus.put(playerStatus.DEF, 50.0);
+        baseStatus.put(playerStatus.DEF, 10.0);
         baseStatus.put(playerStatus.LUK, 1.0);
         baseStatus.put(playerStatus.VIT, 0.05);
         baseStatus.put(playerStatus.CRI, 0.05);
@@ -58,7 +59,7 @@ public class PlayerStatus {
     public double getStatus(playerStatus status){
         List<StatusModifier> modifiers = modifierStack.getByStat(status);
         double addTypeModifier = 0.0;
-        double multiplyTypeModifier = 0.0;
+        double multiplyTypeModifier = 1.0;
         for (StatusModifier modifier : modifiers){
             switch (modifier.getType()){
                 case ADD -> {

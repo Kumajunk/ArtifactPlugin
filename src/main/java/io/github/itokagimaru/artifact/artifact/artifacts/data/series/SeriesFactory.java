@@ -9,6 +9,7 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.acti
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.condition.Conditions.*;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.TriggerType;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.value.Calculator;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.value.Value;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.value.Values;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.exceptionStatus.ExceptionStatus;
 import io.github.itokagimaru.artifact.utils.Utils;
@@ -98,13 +99,16 @@ public class SeriesFactory {
         }
     }
     public enum ConditionKey {
-        OR_LASSE_HP("or-lass-hp"),
-        OR_LASSE_ATK("or-lass-atk"),
-        OR_LASSE_LUK("or-lass-luk"),
+        OR_LESS_HP("or-less-hp"),
+        OR_LESS_ATK("or-less-atk"),
+        OR_LESS_LUK("or-less-luk"),
+        OR_LESS_PDC("or-less-pdc"),
         OR_MORE_HP("or-more-hp"),
         OR_MORE_ATK("or-more-atk"),
         OR_MORE_LUK("or-more-luk"),
-        IS_USED_SKILL("is-used-skill");
+        OR_MORE_PDC("or-more-pdc"),
+        IS_USED_SKILL("is-used-skill"),
+        IS_TRUE("is-true");
         public final String text;
         ConditionKey(String keyText){
             text = keyText;
@@ -127,8 +131,11 @@ public class SeriesFactory {
         DO_GIVE_BUFF("do-give-buff"),
         DO_REMOVE_BUFF("do-remove-buff"),
         DO_GIVE_SKILL("do-give-skill"),
+        DO_REMOVE_SKILL("do-remove-skill"),
         DO_HEAL("do-heal"),
-        DELAY("delay"),;
+        DELAY("delay"),
+        DO_SET_PDC("do-set-pdc"),
+        DO_ADD_PDC("do-add-pdc"),;
         public final String key;
         ActionKey(String keyText){
             key = keyText;
@@ -194,7 +201,7 @@ public class SeriesFactory {
             }
             return new Series(internalName, seriesName, model, exStatus, twoSetEffectDescription, fourSetEffectDescription, flavorText);
         } catch (Exception e) {
-            throw new IllegalAccessException("ymlファイルの読み込みに失敗しました: " + e.getMessage());
+            throw new IllegalAccessException(e.getMessage());
         }
     }
 
@@ -227,7 +234,6 @@ public class SeriesFactory {
             effects[i] = toSetEffect(triggerRaw, conditions, actions, key, setCount);
         }
         return effects;
-
     }
 
     private static Effect toSetEffect(String triggerRaw, List<Map<?, ?>> conditions, List<Map<?, ?>> actions, String key, int setCount) throws Exception {
@@ -274,32 +280,61 @@ public class SeriesFactory {
     private static Condition toCondition(Map<?, ?> condition) throws Exception {
         for (Map.Entry<?, ?> entry : condition.entrySet()){
             String key = entry.getKey().toString();
-            Map<?, ?> body = (Map<?, ?>) entry.getValue();
-            Map<?, ?> valueMap = (Map<?, ?>) body.get("value");
-            Values values = toValues(valueMap);
-            boolean isMultiply = isMultiply(body.get("value-type").toString());
+            Map<?, ?> conditionBody = (Map<?, ?>) entry.getValue();
+
             ConditionKey conditionKey = ConditionKey.fromText(key);
             switch (conditionKey){
                 case OR_MORE_HP -> {
+                    Map<?, ?> valueMap = (Map<?, ?>) conditionBody.get("value");
+                    Values values = toValues(valueMap);
+                    boolean isMultiply = isMultiply(conditionBody.get("value-type").toString());
                     return new OrMoreHp(values, isMultiply);
                 }
                 case OR_MORE_ATK ->  {
+                    Map<?, ?> valueMap = (Map<?, ?>) conditionBody.get("value");
+                    Values values = toValues(valueMap);
+                    boolean isMultiply = isMultiply(conditionBody.get("value-type").toString());
                     return new OrMoreAtk(values, isMultiply);
                 }
                 case OR_MORE_LUK -> {
+                    Map<?, ?> valueMap = (Map<?, ?>) conditionBody.get("value");
+                    Values values = toValues(valueMap);
+                    boolean isMultiply = isMultiply(conditionBody.get("value-type").toString());
                     return new OrMoreLuk(values, isMultiply);
                 }
-                case OR_LASSE_HP -> {
+                case OR_MORE_PDC -> {
+                    Map<?, ?> valueMap = (Map<?, ?>) conditionBody.get("value");
+                    Values values = toValues(valueMap);
+                    return new OrMorePdc(values, conditionBody.get("key").toString());
+                }
+                case OR_LESS_HP -> {
+                    Map<?, ?> valueMap = (Map<?, ?>) conditionBody.get("value");
+                    Values values = toValues(valueMap);
+                    boolean isMultiply = isMultiply(conditionBody.get("value-type").toString());
                     return new OrLessHp(values, isMultiply);
                 }
-                case OR_LASSE_ATK ->  {
+                case OR_LESS_ATK ->  {
+                    Map<?, ?> valueMap = (Map<?, ?>) conditionBody.get("value");
+                    Values values = toValues(valueMap);
+                    boolean isMultiply = isMultiply(conditionBody.get("value-type").toString());
                     return new OrLessAtk(values, isMultiply);
                 }
-                case OR_LASSE_LUK ->  {
+                case OR_LESS_LUK ->  {
+                    Map<?, ?> valueMap = (Map<?, ?>) conditionBody.get("value");
+                    Values values = toValues(valueMap);
+                    boolean isMultiply = isMultiply(conditionBody.get("value-type").toString());
                     return new OrLessLuk(values, isMultiply);
                 }
+                case OR_LESS_PDC -> {
+                    Map<?, ?> valueMap = (Map<?, ?>) conditionBody.get("value");
+                    Values values = toValues(valueMap);
+                    return new OrLessPdc(values, conditionBody.get("key").toString());
+                }
                 case IS_USED_SKILL -> {
-
+                    return new IsUseSkill(conditionBody.get("key").toString());
+                }
+                case IS_TRUE -> {
+                    return new IsTrue();
                 }
             }
         }
@@ -320,27 +355,58 @@ public class SeriesFactory {
 
     private static Action toAction(Map<?, ?> actionMap) throws Exception {
         for (Map.Entry<?, ?> entry : actionMap.entrySet()){
-            String key = entry.getKey().toString();
-            Map<?, ?> body = (Map<?, ?>) entry.getValue();
-            Map<?, ?> valueMap = (Map<?, ?>) body.get("value");
-            Values values = toValues(valueMap);
-            boolean isMultiply = isMultiply(body.get("value-type").toString());
-            ActionKey actionKey = ActionKey.fromText(key);
+            String rawActionKey = entry.getKey().toString();
+            Map<?, ?> actionBody = (Map<?, ?>) entry.getValue();
+            ActionKey actionKey = ActionKey.fromText(rawActionKey);
             switch (actionKey){
                 case DO_GIVE_BUFF -> {
-                    return new DoGiveBuff(toPlayerStatus(body.get("player-status").toString()), values, isMultiply, body.get("key").toString(), EffectSource.EffectSourceType.SUB_EFFECT);
+                    Map<?, ?> valueMap = (Map<?, ?>) actionBody.get("value");
+                    Values values = toValues(valueMap);
+                    boolean isMultiply = isMultiply(actionBody.get("value-type").toString());
+                    return new DoGiveBuff(toPlayerStatus(actionBody.get("player-status").toString()), values, isMultiply, actionBody.get("key").toString(), EffectSource.EffectSourceType.MAIN_EFFECT);
                 }
                 case DO_REMOVE_BUFF ->  {
-                    return new DoRemoveBuff( new EffectSource(EffectSource.EffectSourceType.MAIN_EFFECT, key));
+                    String removeTypeStr = actionBody.get("remove-type").toString();
+                    DoRemoveBuff.RemoveType removeType;
+                    switch (removeTypeStr){
+                        case "all" -> {
+                            removeType = DoRemoveBuff.RemoveType.ALL;
+                        }
+                        case "each" -> {
+                            removeType = DoRemoveBuff.RemoveType.EACH;
+                        }
+                        default -> {
+                            throw new IllegalAccessException("Do-remove-buffのremove-typeの値が不正です");
+                        }
+                    }
+                    return new DoRemoveBuff(new EffectSource(EffectSource.EffectSourceType.MAIN_EFFECT, actionBody.get("key").toString()), removeType);
                 }
                 case DO_HEAL -> {
-                    return new DoHeal();
+                    Map<?, ?> valueMap = (Map<?, ?>) actionBody.get("value");
+                    Values values = toValues(valueMap);
+                    boolean isMultiply = isMultiply(actionBody.get("value-type").toString());
+                    return new DoHeal(values, isMultiply);
                 }
                 case DO_GIVE_SKILL -> {
-                    return new DoGiveSkill();
+                    return new DoGiveSkill(actionBody.get("key").toString(), actionBody.get("skill-name").toString(), actionBody.get("model").toString(), toComponentText((List<Map<?, ?>>) actionBody.get(Key.DESCRIPTION.keyName)));
+                }
+                case DO_REMOVE_SKILL ->  {
+                    return new DoRemoveSkill(actionBody.get("key").toString());
                 }
                 case DELAY ->  {
-                    return new Delay(new ActionStack(toActions((List<Map<?,?>>) body.get("actions"))), values);
+                    Map<?, ?> valueMap = (Map<?, ?>) actionBody.get("value");
+                    Values values = toValues(valueMap);
+                    return new Delay(new ActionStack(toActions((List<Map<?,?>>) actionBody.get(effectKey.ACTIONS.key))), values);
+                }
+                case DO_SET_PDC -> {
+                    Map<?, ?> valueMap = (Map<?, ?>) actionBody.get("value");
+                    Values values = toValues(valueMap);
+                    return new DoSetPDC(values, actionBody.get("key").toString());
+                }
+                case DO_ADD_PDC -> {
+                    Map<?, ?> valueMap = (Map<?, ?>) actionBody.get("value");
+                    Values values = toValues(valueMap);
+                    return new DoAddPDC(values, actionBody.get("key").toString());
                 }
             }
         }
@@ -393,17 +459,16 @@ public class SeriesFactory {
     }
 
     private static Values toValues(Map<?, ?> valuesList){
-        List<Map<Calculator.calculateType, String>> values = new ArrayList<>();
         String base = valuesList.get("base").toString();
-        List<Map<Calculator.calculateType, String>> calc = toCalc((List<Map<?, ?>>) valuesList.get("calc"));
+        List<Value> calc = toCalc((List<Map<?, ?>>) valuesList.get("calc"));
         return new Values(base, calc);
     }
 
-    private static List<Map<Calculator.calculateType, String>> toCalc(List<Map<?, ?>> calcList){
-        List<Map<Calculator.calculateType, String>> calcs = new ArrayList<>();
+    private static List<Value> toCalc(List<Map<?, ?>> calcList){
+        List<Value> calcs = new ArrayList<>();
         for (Map<?, ?> map : calcList){
             for (Map.Entry<?, ?> entry : map.entrySet()){
-                Map<Calculator.calculateType, String> calc = new HashMap<>(Map.of(Calculator.calculateType.fromText(entry.getKey().toString()), entry.getValue().toString()));
+                Value calc = new Value(entry.getValue().toString(),Calculator.calculateType.fromText(entry.getKey().toString()));
                 calcs.add(calc);
             }
         }

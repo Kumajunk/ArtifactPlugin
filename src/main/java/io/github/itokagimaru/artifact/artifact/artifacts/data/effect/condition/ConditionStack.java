@@ -1,6 +1,9 @@
 package io.github.itokagimaru.artifact.artifact.artifacts.data.effect.condition;
 
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.condition.Conditions.Condition;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.condition.Conditions.ConditionWithEvent;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.condition.Conditions.ConditionWithoutEvent;
+import org.bukkit.event.Event;
 
 import java.util.UUID;
 
@@ -10,12 +13,23 @@ public class ConditionStack {
         this.conditions = conditions;
     }
 
-    public boolean isAllTrue(UUID playerUuid){
+    public boolean isAllTrue(UUID playerUuid, Event event){
         boolean flag = true;
         for (Condition condition : conditions){
-            if (!condition.isTrue(playerUuid)){
-                flag = false;
-                break;
+            if (condition instanceof ConditionWithoutEvent conditionWoE){
+                if (!conditionWoE.isTrue(playerUuid)){
+                    flag = false;
+                    break;
+                }
+            }else if (condition instanceof ConditionWithEvent conditionWE){
+                if (event == null) {
+                    flag = false;
+                    break;
+                }
+                if (!conditionWE.isTrue(playerUuid, event)){
+                    flag = false;
+                    break;
+                }
             }
         }
         return flag;

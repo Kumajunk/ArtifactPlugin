@@ -4,6 +4,8 @@ import io.github.itokagimaru.artifact.Player.status.PlayerStatusManager;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.EffectStack;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesFactory;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
+import io.github.itokagimaru.artifact.artifact.listener.ArtifactPlayerOnDamageListener;
+import io.github.itokagimaru.artifact.artifact.listener.ItemUseListener;
 import io.github.itokagimaru.artifact.command.ArtifactCommand;
 import io.github.itokagimaru.artifact.command.ArtifactOpCommand;
 import io.github.itokagimaru.artifact.artifact.GeneralConfig;
@@ -28,6 +30,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -128,6 +132,11 @@ public final class ArtifactMain extends JavaPlugin {
             getLogger().info("MythicMobs hooked!");
         }
 
+        registerListeners(
+                new ArtifactPlayerOnDamageListener(),
+                new ItemUseListener()
+        );
+
         // artifactSeriesの読み込み
         loadArtifactFiles();
 
@@ -217,6 +226,13 @@ public final class ArtifactMain extends JavaPlugin {
         command.setTabCompleter(tabCompleter);
     }
 
+    private void registerListeners(Listener... listeners) {
+        PluginManager pluginManager = getServer().getPluginManager();
+        for (Listener listener : listeners) {
+            pluginManager.registerEvents(listener, this);
+        }
+    }
+
     public static void reloadConfigs() {
         getInstance().generalConfig.reload();
         getInstance().auctionConfig.reload();
@@ -251,7 +267,7 @@ public final class ArtifactMain extends JavaPlugin {
                 String fileName = file.getName();
                 getLogger().info("Loading artifact file: " + fileName);
             } catch (Exception e){
-                getSLF4JLogger().error("SeriesFile:" + file.getName() +"の読み込みに失敗しました");
+                getSLF4JLogger().error("SeriesFile:" + file.getName() +"の読み込みに失敗しました\n" + e.getMessage());
             }
 
 

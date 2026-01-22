@@ -1,9 +1,11 @@
 package io.github.itokagimaru.artifact.artifact.artifacts.data.effect;
 
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.TriggerType;
+import org.bukkit.event.Event;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class EffectStack {
     public static List<Effect> effects = new ArrayList<>();
@@ -12,8 +14,20 @@ public class EffectStack {
         effects.add(effect);
     }
 
-    public static Effect[] getByTrigger(TriggerType.triggerType triggerType){
-        return (Effect[]) effects.stream().filter(effect -> effect.getTriggerType() == triggerType).toArray();
+    public static List<Effect> getByTrigger(TriggerType.triggerType triggerType){
+        return (List<Effect>) effects.stream().filter(effect -> effect.getTriggerType() == triggerType).toList();
+    }
+
+    public static void runByTrigger(TriggerType.triggerType triggerType, UUID playerUUID){
+        for (Effect effect : getByTrigger(triggerType)){
+            effect.run(playerUUID);
+        }
+    }
+
+    public static void runByTrigger(TriggerType.triggerType triggerType, UUID playerUUID, Event event){
+        for (Effect effect : getByTrigger(triggerType)){
+            effect.run(playerUUID, event);
+        }
     }
 
 }
