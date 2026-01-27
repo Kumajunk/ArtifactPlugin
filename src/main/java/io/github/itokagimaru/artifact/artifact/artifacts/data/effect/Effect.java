@@ -23,17 +23,13 @@ public class Effect {
     }
     public void run(UUID playerUUID){
         Player  player = Bukkit.getPlayer(playerUUID);
-        player.sendMessage("呼ばれたぜ！！");
         if (!conditions.isAllTrue(playerUUID, null)) return;
-        player.sendMessage("Trueだったぜ！");
         actions.runActions(playerUUID);
     }
 
     public void run(UUID playerUUID, Event event){
         Player  player = Bukkit.getPlayer(playerUUID);
-        player.sendMessage("呼ばれたぜ！！");
         if (!conditions.isAllTrue(playerUUID, event)) return;
-        player.sendMessage("Trueだったぜ！");
         actions.runActions(playerUUID);
     }
 

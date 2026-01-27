@@ -1,7 +1,8 @@
 package io.github.itokagimaru.artifact;
 
-import io.github.itokagimaru.artifact.Player.status.PlayerStatusManager;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.EffectStack;
+import com.elmakers.mine.bukkit.api.magic.MagicAPI;
+import com.elmakers.mine.bukkit.api.spell.Spell;
+import com.elmakers.mine.bukkit.magic.MagicPlugin;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesFactory;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
 import io.github.itokagimaru.artifact.artifact.listener.ArtifactPlayerOnDamageListener;
@@ -23,7 +24,6 @@ import io.github.itokagimaru.artifact.stash.StashLoginListener;
 import io.github.itokagimaru.artifact.stash.StashManager;
 import io.github.itokagimaru.artifact.stash.StashRepository;
 import io.github.itokagimaru.artifact.utils.BaseGui;
-import io.github.itokagimaru.artifact.artifact.listener.ItemUseListener;
 import io.github.itokagimaru.artifact.artifact.listener.PlayerDeathListener;
 import io.github.itokagimaru.artifact.utils.VaultAPI;
 import org.bukkit.command.CommandExecutor;
@@ -31,13 +31,12 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.sql.SQLException;
-
-import static org.apache.logging.log4j.LogManager.getLogger;
 
 /**
  * アーティファクトプラグインのメインクラス
@@ -53,9 +52,6 @@ public final class ArtifactMain extends JavaPlugin {
     private VaultAPI vaultAPI;
 
     SeriesRegistry seriesRegistry;
-    EffectStack effectStack;
-
-    PlayerStatusManager playerStatusManager;
 
     private StashManager stashManager;
     private GeneralConfig generalConfig;
@@ -136,10 +132,7 @@ public final class ArtifactMain extends JavaPlugin {
         // artifactSeriesの読み込み
         loadArtifactFiles();
 
-
-        instance = this;
         getSLF4JLogger().info("Enabled Artifact plugin");
-
     }
 
     @Override
@@ -252,7 +245,7 @@ public final class ArtifactMain extends JavaPlugin {
         );
 
         if (ymlFiles == null || ymlFiles.length == 0) {
-            getLogger().info("series ディレクトリに yml がありません");
+            getSLF4JLogger().info("series ディレクトリに yml がありません");
             return;
         }
         seriesRegistry = new SeriesRegistry();
@@ -261,13 +254,17 @@ public final class ArtifactMain extends JavaPlugin {
             try{
                 seriesRegistry.addSeries(SeriesFactory.makeSeries(config));
                 String fileName = file.getName();
-                getLogger().info("Loading artifact file: " + fileName);
+                getSLF4JLogger().info("Loading artifact file: " + fileName);
             } catch (Exception e){
                 getSLF4JLogger().error("SeriesFile:" + file.getName() +"の読み込みに失敗しました\n" + e.getMessage());
             }
 
 
         }
+    }
+
+    public void testLog(String message) {
+        getSLF4JLogger().info(message);
     }
 
 

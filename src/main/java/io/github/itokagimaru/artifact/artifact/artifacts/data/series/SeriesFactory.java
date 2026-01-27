@@ -1,11 +1,13 @@
 package io.github.itokagimaru.artifact.artifact.artifacts.data.series;
 
 import io.github.itokagimaru.artifact.Player.status.EffectSource;
+import io.github.itokagimaru.artifact.Player.status.ElementStatus;
 import io.github.itokagimaru.artifact.Player.status.PlayerStatus;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.Effect;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.EffectStack;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.ActionStack;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.actions.*;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.condition.ConditionStack;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.condition.Conditions.*;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.TriggerType;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.value.Calculator;
@@ -135,7 +137,11 @@ public class SeriesFactory {
         DO_HEAL("do-heal"),
         DELAY("delay"),
         DO_SET_PDC("do-set-pdc"),
-        DO_ADD_PDC("do-add-pdc"),;
+        DO_ADD_PDC("do-add-pdc"),
+        DO_SET_ELEMENT("do-set-element"),
+        DO_EMIT_PARTICLE("do-emit-particle"),
+        DO_PLAY_SOUND("do-play-sound"),
+        DO_MESSAGE("do-message"),;
         public final String key;
         ActionKey(String keyText){
             key = keyText;
@@ -270,6 +276,7 @@ public class SeriesFactory {
     }
 
     private static Condition[] toConditions(List<Map<?, ?>> conditionList) throws Exception {
+        if (conditionList == null) return new Condition[]{new IsTrue()};
         Condition[] conditions = new Condition[conditionList.toArray().length + 1];
         for (int i = 0; i < conditionList.toArray().length; i++){
             conditions[i] = toCondition(conditionList.get(i));
@@ -396,7 +403,10 @@ public class SeriesFactory {
                 case DELAY ->  {
                     Map<?, ?> valueMap = (Map<?, ?>) actionBody.get("value");
                     Values values = toValues(valueMap);
-                    return new Delay(new ActionStack(toActions((List<Map<?,?>>) actionBody.get(effectKey.ACTIONS.key))), values);
+                    List<Map<?, ?>> delayCondition = (List<Map<?,?>>) actionBody.get(effectKey.CONDITIONS.key);
+                    ConditionStack conditionStack = new ConditionStack(toConditions(delayCondition));
+
+                    return new Delay(new ActionStack(toActions((List<Map<?,?>>) actionBody.get(effectKey.ACTIONS.key))), values, conditionStack);
                 }
                 case DO_SET_PDC -> {
                     Map<?, ?> valueMap = (Map<?, ?>) actionBody.get("value");
@@ -407,6 +417,47 @@ public class SeriesFactory {
                     Map<?, ?> valueMap = (Map<?, ?>) actionBody.get("value");
                     Values values = toValues(valueMap);
                     return new DoAddPDC(values, actionBody.get("key").toString());
+                }
+                case DO_SET_ELEMENT -> {
+                    ElementStatus.Element element;
+                    switch (actionBody.get("element").toString()) {
+                        case "fire" -> element = ElementStatus.Element.FIRE;
+                        case "water" -> element = ElementStatus.Element.WATER;
+                        case "nature" -> element = ElementStatus.Element.NATURE;
+                        default -> element = ElementStatus.Element.NULL;
+                    }
+                    String setType = actionBody.get("set-type").toString();
+                    if (!setType.equals("base") && !setType.equals("buff")) throw new IllegalAccessException("do-set-elementの引数set-typeの値が不正です");
+                    return new DoSetElement(element, setType);
+                }
+                case DO_EMIT_PARTICLE -> {
+                    String particleName = actionBody.get("particle-name").toString();
+                    Object offsetXObj = actionBody.get("offset-x");
+                    double offsetX = 0;
+                    if (offsetXObj != null) offsetX = Double.parseDouble(offsetXObj.toString());
+                    Object offsetYObj = actionBody.get("offset-y");
+                    double offsetY = 0;
+                    if (offsetYObj != null) offsetY = Double.parseDouble(offsetYObj.toString());
+                    Object offsetZObj = actionBody.get("offset-z");
+                    double offsetZ = 0;
+                    if (offsetZObj != null) offsetZ = Double.parseDouble(offsetZObj.toString());
+                    int count = (int) actionBody.get("count");
+                    return new DoEmitParticle(particleName, offsetX, offsetY, offsetZ, count);
+                }
+                case DO_PLAY_SOUND -> {
+                    String soundName = actionBody.get("sound-name").toString();
+                    Object volumeObj = actionBody.get("volume");
+                    float volume = 1;
+                    if (volumeObj != null) volume = Float.parseFloat(volumeObj.toString());
+                    Object pitchObj = actionBody.get("pitch");
+                    float pitch = 1;
+                    if (pitchObj != null) pitch = Float.parseFloat(pitchObj.toString());
+                    return new DoPlaySound(soundName, volume, pitch);
+                }
+                case DO_MESSAGE -> {
+                    List<Map<?,?>> message = (List<Map<?,?>>) actionBody.get("message");
+                    if (message ==null) throw new IllegalAccessException("do-messageの引数がnullです");
+                    return new DoMessage(toComponentText(message));
                 }
             }
         }
@@ -466,6 +517,10 @@ public class SeriesFactory {
 
     private static List<Value> toCalc(List<Map<?, ?>> calcList){
         List<Value> calcs = new ArrayList<>();
+        if (calcList == null){
+            calcs.add(new Value("0", Calculator.calculateType.ADD));
+            return calcs;
+        }
         for (Map<?, ?> map : calcList){
             for (Map.Entry<?, ?> entry : map.entrySet()){
                 Value calc = new Value(entry.getValue().toString(),Calculator.calculateType.fromText(entry.getKey().toString()));
@@ -483,8 +538,5 @@ public class SeriesFactory {
             ComponentText.add(Utils.parseLegacy(coloredText));
         }
         return ComponentText;
-
     }
-
-
 }
