@@ -17,11 +17,38 @@ public class PlayerStatus {
         NATURE_DMG_BONUS(9,"NatureDamageBonus"),
         FIRE_DMG_REDUCE(10,"FireDamageReduceRate"),
         WATER_DMG_REDUCE(11,"WaterDamageReduceRate"),
-        NATURE_DMG_REDUCE(12,"NatureDamageReduceRate");
-        String text;
+        NATURE_DMG_REDUCE(12,"NatureDamageReduceRate"),;
+        final String text;
         playerStatus(int id, String text){
             this.text = text;
         }
+    }
+    ElementStatus baseElement = new ElementStatus();
+    ElementStatus buffElement = new ElementStatus();
+    ElementStatus weaponElement = new ElementStatus();
+    public ElementStatus.Element getBaseElement() {
+        return baseElement.getElement();
+    }
+    public void setBaseElement(ElementStatus.Element baseElement) {
+        this.baseElement.setElement(baseElement);
+    }
+    public ElementStatus.Element getBuffElement() {
+        return buffElement.getElement();
+    }
+    public void setBuffElement(ElementStatus.Element buffElement) {
+        this.buffElement.setElement(buffElement);
+    }
+    public ElementStatus.Element getWeaponElement(){
+        return weaponElement.getElement();
+    }
+    public void setWeaponElement(ElementStatus.Element element){
+        this.weaponElement.setElement(element);
+    }
+
+    public ElementStatus.Element getElement(){
+        if(weaponElement.getElement() != ElementStatus.Element.NULL) return weaponElement.getElement();
+        if(buffElement.getElement() != ElementStatus.Element.NULL) return buffElement.getElement();
+        return baseElement.getElement();
     }
     private final Map<playerStatus, Double> baseStatus = new EnumMap<playerStatus, Double>(playerStatus.class);
     {   baseStatus.put(playerStatus.HP, 20.0);

@@ -30,8 +30,5 @@ public class DoRemoveBuff extends Action {
         } else if (removeType == RemoveType.EACH) {
             playerStatus.getModifierStack().removeEachBySource(effectSource.getType(), effectSource.getId());
         }
-
-        Player player = Bukkit.getPlayer(playerUuid);
-        player.sendMessage("バフを消したぜ！！");
     }
 }

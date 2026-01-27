@@ -38,7 +38,5 @@ public class DoGiveBuff extends Action {
         PlayerStatus playerStatus = PlayerStatusManager.getPlayerStatus(playerUuid);
         playerStatus.addModifier(modifier);
         PlayerStatusManager.addPlayerStatus(playerUuid, playerStatus);
-        Player player = Bukkit.getPlayer(playerUuid);
-        player.sendMessage(Component.text(value.calculate(playerUuid) + source.getId() + status));
     }
 }

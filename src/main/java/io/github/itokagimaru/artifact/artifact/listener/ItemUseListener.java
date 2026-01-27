@@ -24,7 +24,6 @@ public class ItemUseListener implements Listener {
         if (item == null) return;
         if (item.getType() != Material.WOODEN_HOE) return;
         if (item.getItemMeta().hasItemModel()) {
-            player.sendMessage("you use skill!!");
             if (ItemData.IS_SKILL_ITEM.get(item) == (byte) 1) EffectStack.runByTrigger(TriggerType.triggerType.ON_SKILL_USE, player.getUniqueId(), event);
         }
         if (SpecialItems.isArtifactHolder(item)) {

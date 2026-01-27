@@ -15,7 +15,7 @@ public class EffectStack {
     }
 
     public static List<Effect> getByTrigger(TriggerType.triggerType triggerType){
-        return (List<Effect>) effects.stream().filter(effect -> effect.getTriggerType() == triggerType).toList();
+        return effects.stream().filter(effect -> effect.getTriggerType() == triggerType).toList();
     }
 
     public static void runByTrigger(TriggerType.triggerType triggerType, UUID playerUUID){

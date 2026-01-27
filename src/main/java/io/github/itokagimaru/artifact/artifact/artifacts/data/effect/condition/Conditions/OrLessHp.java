@@ -27,9 +27,6 @@ public class OrLessHp implements ConditionWithoutEvent {
             return values.calculate(uuid) >= nowHp / maxHp;
         }else{
             double nowHp = player.getHealth();
-
-            player.sendMessage("value: " + values.calculate(uuid));
-            player.sendMessage("hp: " + nowHp);
             return values.calculate(uuid) >= nowHp;
         }
     }
