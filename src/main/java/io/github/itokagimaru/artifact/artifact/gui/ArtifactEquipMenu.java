@@ -14,9 +14,12 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffectUpdater;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.ArtifactToItem;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.ItemToArtifact;
+import io.github.itokagimaru.artifact.data.ItemData;
 import io.github.itokagimaru.artifact.utils.BaseGui;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 
@@ -32,6 +35,13 @@ public class ArtifactEquipMenu extends BaseGui {
         setupMenu();
         setupPlayerInventoryHandler();
         addCloseAction(target -> {
+            Inventory inventory = target.getInventory();
+            for(int i = 0; i < inventory.getSize(); i++){
+                ItemStack item = inventory.getItem(i);
+                if(item == null) continue;
+                if (ItemData.IS_SKILL_ITEM.get(item) == (byte) 0) continue;
+                inventory.setItem(i, null);
+            }
             PlayerStatusManager.addPlayerStatus(target.getUniqueId(), new PlayerStatus());
             for (Slot.artifactSlot slot : Slot.artifactSlot.values()) {
                 BaseArtifact artifact = loadFromPdc(target, slot);

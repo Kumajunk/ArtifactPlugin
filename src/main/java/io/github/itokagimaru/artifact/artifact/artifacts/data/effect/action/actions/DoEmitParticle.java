@@ -22,6 +22,5 @@ public class DoEmitParticle extends Action {
     public void run(UUID playerUUID) {
         Player player = Bukkit.getPlayer(playerUUID);
         player.getWorld().spawnParticle(particle, player.getLocation().clone().add(offsetX, offsetY, offsetZ), count);
-        player.sendMessage(particle.toString() + " has been emitted.");
     }
 }
