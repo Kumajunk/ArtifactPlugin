@@ -11,11 +11,14 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.Tri
 import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffectUpdater;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffectUpdater;
+import io.github.itokagimaru.artifact.data.ItemData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import static io.github.itokagimaru.artifact.artifact.EquipPdc.loadFromPdc;
 
@@ -23,6 +26,13 @@ public class PlayerJoinListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e){
         Player player = e.getPlayer();
+        Inventory inventory = player.getInventory();
+        for(int i = 0; i < inventory.getSize(); i++){
+            ItemStack item = inventory.getItem(i);
+            if(item == null) continue;
+            if (ItemData.IS_SKILL_ITEM.get(item) == (byte) 0) continue;
+            inventory.setItem(i, null);
+        }
         PlayerStatusManager.addPlayerStatus(player.getUniqueId(), new PlayerStatus());
         for (Slot.artifactSlot slot : Slot.artifactSlot.values()) {
             BaseArtifact artifact = loadFromPdc(player, slot);
