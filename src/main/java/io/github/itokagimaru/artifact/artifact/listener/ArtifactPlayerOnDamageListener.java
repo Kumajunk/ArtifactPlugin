@@ -13,24 +13,24 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.damage.DamageType;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.projectiles.ProjectileSource;
+import org.bukkit.util.Vector;
 
 import java.util.Random;
 
 public class ArtifactPlayerOnDamageListener implements Listener {
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        event.setCancelled(true);
         Entity damaged = event.getEntity();
         Entity damager = event.getDamager();
-        double damageRate = (1 + event.getFinalDamage() / 10);
+        double damageRate = (1 + event.getFinalDamage() / 20);
         double attackerATK;
         ElementStatus.Element attackerElement;
         double criDMGBonus = 1.0;
@@ -50,7 +50,10 @@ public class ArtifactPlayerOnDamageListener implements Listener {
             }
         }
         if (damager instanceof Player attackerPlayer) {
-            if (event.getDamageSource().getDamageType() == DamageType.PLAYER_ATTACK) return;
+            if (event.getDamageSource().getDamageType() == DamageType.PLAYER_ATTACK) {
+                event.setCancelled(true);
+                return;
+            }
             EffectStack.runByTrigger(TriggerType.triggerType.ON_ATTACK, attackerPlayer.getUniqueId());
             PlayerStatus attackerStatus = PlayerStatusManager.getPlayerStatus(attackerPlayer.getUniqueId());
             attackerATK = attackerStatus.getStatus(PlayerStatus.playerStatus.ATK);
@@ -82,6 +85,31 @@ public class ArtifactPlayerOnDamageListener implements Listener {
                     attackerStatus.setWeaponElement(ElementStatus.Element.NULL);
             });
 
+
+            //ノックバックの計算
+            Vector diff = damaged.getLocation().toVector().subtract(attackerPlayer.getLocation().toVector());
+            if (diff.lengthSquared() != 0) {
+                Vector direction = diff.normalize();
+                double power = Math.max(0.2, 1.0) * 1.025;
+                Vector knockback = direction.multiply(power).setY(0.3);
+                //素のノックバック体制の保存
+                AttributeInstance attr;
+                if (damaged instanceof Player damagedPlayer) attr = damagedPlayer.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
+                else if (damaged instanceof LivingEntity damagedLivingEntity) attr = damagedLivingEntity.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
+                else if (damaged instanceof Monster damagedMonster) attr = damagedMonster.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
+                else attr = null;
+                if (attr != null) {
+                    double baseKnockbackResistance = attr.getBaseValue();
+                    //ノックバックを一旦無効化
+                    attr.setBaseValue(1.0);
+                    //1tick後にカスタムノックバックを適応
+                    Bukkit.getScheduler().runTask(ArtifactMain.getInstance(),() ->{
+                        attr.setBaseValue(baseKnockbackResistance);
+                        damaged.setVelocity(knockback.multiply(1-baseKnockbackResistance));
+                    });
+                }
+            }
+
         } else {
             attackerATK = ByteArrayConverter.ByteToDouble(EntityData.ENEMY_ATK.get(damager));
             String enemyElement = EntityData.ENEMY_ELEMENT.get(damager);
@@ -105,9 +133,9 @@ public class ArtifactPlayerOnDamageListener implements Listener {
             }
         }
 
-        if (damaged instanceof Player damagerPlayer){
-            EffectStack.runByTrigger(TriggerType.triggerType.ON_DAMAGE, damagerPlayer.getUniqueId());
-            PlayerStatus defenderStatus = PlayerStatusManager.getPlayerStatus(damagerPlayer.getUniqueId());
+        if (damaged instanceof Player damagedPlayer){
+            EffectStack.runByTrigger(TriggerType.triggerType.ON_DAMAGE, damagedPlayer.getUniqueId());
+            PlayerStatus defenderStatus = PlayerStatusManager.getPlayerStatus(damagedPlayer.getUniqueId());
             defenderDEF = defenderStatus.getStatus(PlayerStatus.playerStatus.DEF);
             switch (attackerElement) {
                 case FIRE -> defenderReduceRate += defenderStatus.getStatus(PlayerStatus.playerStatus.FIRE_DMG_REDUCE);
@@ -139,7 +167,6 @@ public class ArtifactPlayerOnDamageListener implements Listener {
             defenderPlayer.sendMessage(Component.text(doubleToString(finalDmg)).color(damageColor).decorate(TextDecoration.BOLD).append(Component.text(" Damage").color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, false)));
         }
         event.setDamage(finalDmg);
-        event.setCancelled(false);
     }
     private String doubleToString(double d){
         return String.format("%.2f", d);

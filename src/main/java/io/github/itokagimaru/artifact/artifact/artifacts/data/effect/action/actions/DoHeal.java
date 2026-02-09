@@ -23,6 +23,7 @@ public class DoHeal extends Action{
         } else {
             playerHp = playerHp + value.calculate(playerUuid);
         }
+        if(playerHp < 0) playerHp = 0;
         if (playerHp > playerMaxHp) playerHp = playerMaxHp;
         Bukkit.getPlayer(playerUuid).setHealth(playerHp);
     }
