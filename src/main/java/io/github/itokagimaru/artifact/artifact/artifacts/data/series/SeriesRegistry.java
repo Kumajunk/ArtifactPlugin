@@ -4,7 +4,17 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class SeriesRegistry {
-    public static Map<String, Series> seriesRegistry = new LinkedHashMap<>();
+    public static volatile Map<String, Series> seriesRegistry = new LinkedHashMap<>();
+
+    /**
+     * Atomically replace all series data with the given map.
+     * This ensures no intermediate empty state is visible during reload.
+     *
+     * @param newRegistry the new series data to replace the current one
+     */
+    public static void replaceAll(Map<String, Series> newRegistry) {
+        seriesRegistry = newRegistry;
+    }
 
     public static void addSeries(Series series){
         seriesRegistry.put(series.internalName, series);

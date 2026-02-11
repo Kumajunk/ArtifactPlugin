@@ -1,8 +1,6 @@
 package io.github.itokagimaru.artifact;
 
-import com.elmakers.mine.bukkit.api.magic.MagicAPI;
-import com.elmakers.mine.bukkit.api.spell.Spell;
-import com.elmakers.mine.bukkit.magic.MagicPlugin;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesFactory;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
 import io.github.itokagimaru.artifact.artifact.listener.ArtifactPlayerOnDamageListener;
@@ -31,12 +29,12 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.util.Map;
 
 /**
  * アーティファクトプラグインのメインクラス
@@ -226,6 +224,7 @@ public final class ArtifactMain extends JavaPlugin {
         getInstance().generalConfig.reload();
         getInstance().auctionConfig.reload();
         getInstance().decomposeConfig.reload();
+        getInstance().loadArtifactFiles();
     }
 
     private void loadArtifactFiles() {
@@ -248,19 +247,24 @@ public final class ArtifactMain extends JavaPlugin {
             getSLF4JLogger().info("series ディレクトリに yml がありません");
             return;
         }
-        seriesRegistry = new SeriesRegistry();
+
+        // Build new registry in a temporary map to avoid inconsistent state during reload
+        Map<String, Series> newRegistry = new java.util.LinkedHashMap<>();
         for (File file : ymlFiles) {
             YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
             try{
-                seriesRegistry.addSeries(SeriesFactory.makeSeries(config));
+                Series series = SeriesFactory.makeSeries(config);
+                newRegistry.put(series.getInternalName(), series);
                 String fileName = file.getName();
                 getSLF4JLogger().info("Loading artifact file: " + fileName);
             } catch (Exception e){
                 getSLF4JLogger().error("SeriesFile:" + file.getName() +"の読み込みに失敗しました\n" + e.getMessage());
             }
-
-
         }
+
+        // Atomically swap the registry to prevent inconsistent reads
+        SeriesRegistry.replaceAll(newRegistry);
+        getSLF4JLogger().info("Loaded " + newRegistry.size() + " artifact series");
     }
 
     public void testLog(String message) {

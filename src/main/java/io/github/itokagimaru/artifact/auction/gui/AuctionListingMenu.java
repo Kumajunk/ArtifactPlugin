@@ -1,10 +1,8 @@
 package io.github.itokagimaru.artifact.auction.gui;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffect;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
+import io.github.itokagimaru.artifact.artifact.JsonConverter;
+import io.github.itokagimaru.artifact.artifact.artifacts.artifact.BaseArtifact;
+import io.github.itokagimaru.artifact.artifact.artifacts.factory.ArtifactToItem;
 import io.github.itokagimaru.artifact.auction.AuctionManager;
 import io.github.itokagimaru.artifact.auction.model.AuctionListing;
 import io.github.itokagimaru.artifact.auction.model.AuctionType;
@@ -12,8 +10,10 @@ import io.github.itokagimaru.artifact.auction.search.AuctionSearchFilter;
 import io.github.itokagimaru.artifact.auction.search.SortOrder;
 import io.github.itokagimaru.artifact.utils.BaseGui;
 import io.github.itokagimaru.artifact.utils.Utils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -32,7 +32,6 @@ public class AuctionListingMenu extends BaseGui {
     private final AuctionSearchFilter filter;
     private final int page;
     private static final int ITEMS_PER_PAGE = 45;
-    private final Gson gson = new Gson();
 
     public AuctionListingMenu(AuctionManager manager, AuctionSearchFilter filter, int page) {
         super(54, "§6出品一覧 - ページ " + (page + 1));
@@ -113,100 +112,57 @@ public class AuctionListingMenu extends BaseGui {
      * 出品アイテムのItemStackを作成
      */
     private ItemStack createListingItem(AuctionListing listing) {
-        JsonObject json = gson.fromJson(listing.getArtifactData(), JsonObject.class);
-        
-        // アイテムマテリアル（スロットに基づいて選択）
-        Material material = getMaterialForSlot(json.has("slotId") ? json.get("slotId").getAsInt() : 0);
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
-        
-        if (meta != null) {
-            // 名前
-            String seriesName = json.has("seriesName") ? json.get("seriesName").getAsString() : "Unknown";
-            int slotId = json.has("slotId") ? json.get("slotId").getAsInt() : 0;
-            Slot.artifactSlot slot = Slot.artifactSlot.fromId(slotId);
-            String slotName = slot != null ? slot.getSlotName : "Unknown";
-            
-            meta.displayName(io.github.itokagimaru.artifact.utils.Utils.parseLegacy(
-                "§6" + seriesName + " §7- §e" + slotName));
-            
-            // Lore
-            List<String> lore = new ArrayList<>();
-            
-            // レベル
-            int level = json.has("level") ? json.get("level").getAsInt() : 0;
-            lore.add("§7Lv.§f" + level);
-            lore.add("");
-            
-            // Main効果
-            int mainEffectId = json.has("mainEffectId") ? json.get("mainEffectId").getAsInt() : 0;
-            double mainEffectValue = json.has("mainEffectValue") ? json.get("mainEffectValue").getAsDouble() : 0;
-            MainEffect.artifactMainEffect mainEffect = MainEffect.artifactMainEffect.fromId(mainEffectId);
-            String mainEffectName = mainEffect != null ? mainEffect.getText : "Unknown";
-            MainEffect.valueType valueType = mainEffect != null ? mainEffect.getAddType : null;
-            if (valueType != null && valueType == MainEffect.valueType.MULTIPLY){
-                lore.add("§f" + mainEffectName + " §a+" + formatPercent(mainEffectValue));
-            } else if (valueType != null) {
-                lore.add("§f" + mainEffectName + " §a+" + formatAdd(mainEffectValue));
-            }
-            // Sub効果（簡略表示）
-            if (json.has("subEffectCount")) {
-                int subCount = json.get("subEffectCount").getAsInt();
-                lore.add("§eSub効果: §f" + subCount + "個");
-            }
-            
-            lore.add("");
-            lore.add("§8━━━━━━━━━━━━━━");
-            
-            // 価格
-            String priceStr = formatPrice(listing.getDisplayPrice());
-            if (listing.getType() == AuctionType.BIN) {
-                lore.add("§a即時購入: §f$" + priceStr);
-            } else {
-                if (listing.getCurrentBid() > 0) {
-                    lore.add("§e現在入札額: §f$" + priceStr);
-                } else {
-                    lore.add("§7開始価格: §f$" + priceStr);
-                }
-            }
-            
-            // 残り時間
-            long remaining = listing.getRemainingTime();
-            lore.add("§7残り時間: §f" + formatTime(remaining));
-            
-            lore.add("");
-            lore.add("§eクリックで詳細を表示");
-            
-            List<net.kyori.adventure.text.Component> componentLore = new ArrayList<>();
-            for (String line : lore) {
-                componentLore.add(io.github.itokagimaru.artifact.utils.Utils.parseLegacy(line));
-            }
-            meta.lore(componentLore);
-            
-            item.setItemMeta(meta);
+        // Attempt to restore the artifact and use the canonical item representation
+        BaseArtifact artifact = JsonConverter.deserializeArtifact(listing.getArtifactData());
+        if (artifact != null) {
+            ItemStack item = ArtifactToItem.convert(artifact);
+            appendAuctionLore(item, listing);
+            return item;
         }
-        
-        return item;
+
+        // Fallback: if deserialization fails, show a placeholder
+        ItemStack fallback = new ItemStack(Material.BARRIER);
+        fallback.editMeta(meta -> {
+            meta.displayName(Component.text("データ復元失敗").color(NamedTextColor.RED)
+                    .decoration(TextDecoration.ITALIC, false));
+        });
+        return fallback;
     }
 
-    private Material getMaterialForSlot(int slotId) {
-        return switch (slotId) {
-            case 0 -> Material.AMETHYST_SHARD;  // PEAR
-            case 1 -> Material.PRISMARINE_SHARD;  // OVAL
-            case 2 -> Material.DIAMOND;  // LOZENGE
-            case 3 -> Material.EMERALD;  // CLOVER
-            case 4 -> Material.LAPIS_LAZULI;  // CUSHION
-            case 5 -> Material.QUARTZ;  // CRESCENT
-            default -> Material.NETHER_STAR;
-        };
-    }
+    /**
+     * Append auction-specific information to an existing artifact ItemStack's lore.
+     */
+    private void appendAuctionLore(ItemStack item, AuctionListing listing) {
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return;
 
-    private String formatPercent(double value) {
-        return String.format("%.1f%%", value * 100);
-    }
+        List<Component> lore = meta.lore() != null ? new ArrayList<>(meta.lore()) : new ArrayList<>();
 
-    private String formatAdd(double value){
-        return String.format("%.1f",value);
+        // Separator
+        lore.add(Component.text("━━━━━ AUCTION ━━━━━").color(NamedTextColor.GOLD)
+                .decoration(TextDecoration.ITALIC, false));
+
+        // Price
+        String priceStr = formatPrice(listing.getDisplayPrice());
+        if (listing.getType() == AuctionType.BIN) {
+            lore.add(Utils.parseLegacy("§a即時購入: §f$" + priceStr));
+        } else {
+            if (listing.getCurrentBid() > 0) {
+                lore.add(Utils.parseLegacy("§e現在入札額: §f$" + priceStr));
+            } else {
+                lore.add(Utils.parseLegacy("§7開始価格: §f$" + priceStr));
+            }
+        }
+
+        // Remaining time
+        long remaining = listing.getRemainingTime();
+        lore.add(Utils.parseLegacy("§7残り時間: §f" + formatTime(remaining)));
+
+        lore.add(Component.empty());
+        lore.add(Utils.parseLegacy("§eクリックで詳細を表示"));
+
+        meta.lore(lore);
+        item.setItemMeta(meta);
     }
 
     private String formatPrice(long price) {
@@ -216,7 +172,7 @@ public class AuctionListingMenu extends BaseGui {
     private String formatTime(long millis) {
         long hours = millis / (1000 * 60 * 60);
         long minutes = (millis / (1000 * 60)) % 60;
-        
+
         if (hours > 24) {
             long days = hours / 24;
             hours = hours % 24;
