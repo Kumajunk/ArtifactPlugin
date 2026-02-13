@@ -34,6 +34,7 @@ import io.github.itokagimaru.artifact.stash.StashRepository;
 import io.github.itokagimaru.artifact.utils.BaseGui;
 import io.github.itokagimaru.artifact.artifact.listener.PlayerDeathListener;
 import io.github.itokagimaru.artifact.utils.VaultAPI;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
