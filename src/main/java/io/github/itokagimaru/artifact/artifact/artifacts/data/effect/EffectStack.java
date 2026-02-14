@@ -30,4 +30,7 @@ public class EffectStack {
         }
     }
 
+    public static void clear(){
+        effects.clear();
+    }
 }
