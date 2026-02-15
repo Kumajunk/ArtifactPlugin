@@ -248,11 +248,10 @@ public final class ArtifactMain extends JavaPlugin {
             getSLF4JLogger().info("series ディレクトリに yml がありません");
             return;
         }
-        seriesRegistry = new SeriesRegistry();
         for (File file : ymlFiles) {
             YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
             try{
-                seriesRegistry.addSeries(SeriesFactory.makeSeries(config));
+                SeriesRegistry.addSeries(SeriesFactory.makeSeries(config));
                 String fileName = file.getName();
                 getSLF4JLogger().info("Loading artifact file: " + fileName);
             } catch (Exception e){
