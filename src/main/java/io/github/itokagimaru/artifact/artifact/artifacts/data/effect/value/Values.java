@@ -60,7 +60,7 @@ public class Values {
                     case SeriesFactory.playerStatusKey.CRIDMG -> {
                         value += PlayerStatusManager.getPlayerStatus(playerUuid).getStatus(PlayerStatus.playerStatus.CRIDMG);
                     }
-                    case SeriesFactory.playerStatusKey.FIER_DMG -> {
+                    case SeriesFactory.playerStatusKey.FIRE_DMG -> {
                         value += PlayerStatusManager.getPlayerStatus(playerUuid).getStatus(PlayerStatus.playerStatus.FIRE_DMG_BONUS);
                     }
                     case SeriesFactory.playerStatusKey.WATER_DMG -> {
@@ -69,7 +69,7 @@ public class Values {
                     case SeriesFactory.playerStatusKey.NATURE_DMG -> {
                         value += PlayerStatusManager.getPlayerStatus(playerUuid).getStatus(PlayerStatus.playerStatus.NATURE_DMG_BONUS);
                     }
-                    case SeriesFactory.playerStatusKey.FIER_REDUCE -> {
+                    case SeriesFactory.playerStatusKey.FIRE_REDUCE -> {
                         value += PlayerStatusManager.getPlayerStatus(playerUuid).getStatus(PlayerStatus.playerStatus.FIRE_DMG_REDUCE);
                     }
                     case SeriesFactory.playerStatusKey.WATER_REDUCE -> {

@@ -164,10 +164,10 @@ public class SeriesFactory {
         LUK("player-status-luk"),
         CRI("player-status-cri"),
         CRIDMG("player-status-cridmg"),
-        FIER_DMG("player-status-fier-dmg-bonus"),
+        FIRE_DMG("player-status-fire-dmg-bonus"),
         WATER_DMG("player-status-water-dmg-bonus"),
         NATURE_DMG("player-status-nature-dmg-bonus"),
-        FIER_REDUCE("player-status-fier-dmg-reduce"),
+        FIRE_REDUCE("player-status-fire-dmg-reduce"),
         WATER_REDUCE("player-status-water-dmg-reduce"),
         NATURE_REDUCE("player-status-nature-dmg-reduce");
         public final String statusText;
