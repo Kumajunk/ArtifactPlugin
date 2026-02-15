@@ -1,13 +1,21 @@
 package io.github.itokagimaru.artifact;
 
-import com.elmakers.mine.bukkit.api.magic.MagicAPI;
-import com.elmakers.mine.bukkit.api.spell.Spell;
-import com.elmakers.mine.bukkit.magic.MagicPlugin;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesFactory;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
+import io.github.itokagimaru.artifact.Player.status.HpStatUpdater;
+import io.github.itokagimaru.artifact.Player.status.PlayerStatus;
+import io.github.itokagimaru.artifact.Player.status.PlayerStatusManager;
+import io.github.itokagimaru.artifact.artifact.artifacts.artifact.BaseArtifact;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.EffectStack;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.TriggerType;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffectUpdater;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffectUpdater;
 import io.github.itokagimaru.artifact.artifact.listener.ArtifactPlayerOnDamageListener;
 import io.github.itokagimaru.artifact.artifact.listener.ItemUseListener;
 import io.github.itokagimaru.artifact.command.ArtifactCommand;
+import io.github.itokagimaru.artifact.data.ItemData;
 import io.github.itokagimaru.artifact.command.ArtifactOpCommand;
 import io.github.itokagimaru.artifact.artifact.GeneralConfig;
 import io.github.itokagimaru.artifact.artifact.decompose.DecomposeConfig;
@@ -26,17 +34,22 @@ import io.github.itokagimaru.artifact.stash.StashRepository;
 import io.github.itokagimaru.artifact.utils.BaseGui;
 import io.github.itokagimaru.artifact.artifact.listener.PlayerDeathListener;
 import io.github.itokagimaru.artifact.utils.VaultAPI;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+
+import static io.github.itokagimaru.artifact.artifact.EquipPdc.loadFromPdc;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.util.Map;
 
 /**
  * アーティファクトプラグインのメインクラス
@@ -226,9 +239,34 @@ public final class ArtifactMain extends JavaPlugin {
         getInstance().generalConfig.reload();
         getInstance().auctionConfig.reload();
         getInstance().decomposeConfig.reload();
+        getInstance().loadArtifactFiles();
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            updatePlayerArtifacts(player);
+        }
+    }
+
+    public static void updatePlayerArtifacts(Player player) {
+        Inventory inventory = player.getInventory();
+        for(int i = 0; i < inventory.getSize(); i++){
+            ItemStack item = inventory.getItem(i);
+            if(item == null) continue;
+            if (ItemData.IS_SKILL_ITEM.get(item) == (byte) 0) continue;
+            inventory.setItem(i, null);
+        }
+        PlayerStatusManager.addPlayerStatus(player.getUniqueId(), new PlayerStatus());
+        for (Slot.artifactSlot slot : Slot.artifactSlot.values()) {
+            BaseArtifact artifact = loadFromPdc(player, slot);
+            if (artifact == null) continue;
+            MainEffectUpdater.mainEffectUpdater(player, artifact);
+            SubEffectUpdater.subEffectUpdater(player, artifact);
+        }
+        EffectStack.runByTrigger(TriggerType.triggerType.ON_UPDATE, player.getUniqueId());
+        HpStatUpdater.hpStatUpdater(player);
     }
 
     private void loadArtifactFiles() {
+        EffectStack.clear();
 
         File pluginsDir = getDataFolder().getParentFile();
         File artifactDir = new File(pluginsDir, "artifact/series");
@@ -248,18 +286,24 @@ public final class ArtifactMain extends JavaPlugin {
             getSLF4JLogger().info("series ディレクトリに yml がありません");
             return;
         }
+
+        // Build new registry in a temporary map to avoid inconsistent state during reload
+        Map<String, Series> newRegistry = new java.util.LinkedHashMap<>();
         for (File file : ymlFiles) {
             YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
             try{
-                SeriesRegistry.addSeries(SeriesFactory.makeSeries(config));
+                Series series = SeriesFactory.makeSeries(config);
+                newRegistry.put(series.getInternalName(), series);
                 String fileName = file.getName();
                 getSLF4JLogger().info("Loading artifact file: " + fileName);
             } catch (Exception e){
                 getSLF4JLogger().error("SeriesFile:" + file.getName() +"の読み込みに失敗しました\n" + e.getMessage());
             }
-
-
         }
+
+        // Atomically swap the registry to prevent inconsistent reads
+        SeriesRegistry.replaceAll(newRegistry);
+        getSLF4JLogger().info("Loaded " + newRegistry.size() + " artifact series");
     }
 
     public void testLog(String message) {

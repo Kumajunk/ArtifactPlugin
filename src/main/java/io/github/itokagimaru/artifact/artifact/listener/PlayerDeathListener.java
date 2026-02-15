@@ -3,7 +3,6 @@ package io.github.itokagimaru.artifact.artifact.listener;
 import io.github.itokagimaru.artifact.artifact.items.SpecialItems;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
@@ -15,7 +14,7 @@ import java.util.Iterator;
  */
 public class PlayerDeathListener implements Listener {
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
         
@@ -24,7 +23,7 @@ public class PlayerDeathListener implements Listener {
             int removedCount = 0;
             for (int i = 0; i < player.getInventory().getSize(); i++) {
                 ItemStack item = player.getInventory().getItem(i);
-                if (item != null && SpecialItems.hasRemoveOnDeathTag(item)) {
+                if (SpecialItems.hasRemoveOnDeathTag(item)) {
                     player.getInventory().setItem(i, null);
                     removedCount++;
                 }
