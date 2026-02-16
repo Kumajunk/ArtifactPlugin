@@ -43,7 +43,7 @@ public class ArtifactPlayerOnDamageListener implements Listener {
         if(damager instanceof Projectile projectile) {
             ProjectileSource projectileSource = projectile.getShooter();
             if(projectileSource instanceof Entity source) {
-                ArtifactMain.getInstance().testLog(source.toString());
+                // ArtifactMain.getInstance().testLog(source.toString());
                 damager = source;
             }else {
                 ArtifactMain.getInstance().testLog("ダメージソースの取得に失敗");
@@ -81,7 +81,7 @@ public class ArtifactPlayerOnDamageListener implements Listener {
                     damageColor = NamedTextColor.GREEN;
                 }
             }
-            Bukkit.getScheduler().runTask(ArtifactMain.getInstance(),() ->{
+            Bukkit.getScheduler().runTask(ArtifactMain.getInstance(),() -> {
                     attackerStatus.setWeaponElement(ElementStatus.Element.NULL);
             });
 
