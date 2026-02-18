@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 /**
  * Stash command handler.
- *
  * /stash           - Open Stash GUI
  * /stash all       - Withdraw all items
  * /stash count     - Show stash item count
@@ -68,9 +67,7 @@ public class StashCommand implements CommandExecutor, TabCompleter {
                 int count = stashManager.getStashCount(player.getUniqueId());
                 player.sendMessage("§e[Stash] §f保管アイテム数: §a" + count);
             }
-            case "add" -> {
-                handleAddCommand(player, args);
-            }
+            case "add" -> handleAddCommand(player, args);
             default -> {
                 if (player.hasPermission("artifact.admin")) {
                     player.sendMessage("§c使用方法: /stash [all|count|add <player>]");
@@ -104,7 +101,6 @@ public class StashCommand implements CommandExecutor, TabCompleter {
         String targetName = args[1];
 
         // Resolve target player (supports offline players)
-        @SuppressWarnings("deprecation")
         OfflinePlayer targetOffline = Bukkit.getOfflinePlayer(targetName);
         if (!targetOffline.hasPlayedBefore() && !targetOffline.isOnline()) {
             sender.sendMessage("§cプレイヤー \"" + targetName + "\" が見つかりません");
