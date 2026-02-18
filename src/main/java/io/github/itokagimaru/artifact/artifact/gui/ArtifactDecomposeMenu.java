@@ -89,7 +89,7 @@ public class ArtifactDecomposeMenu extends BaseGui {
                 ItemBuilder infoBuilder = new ItemBuilder()
                         .setMaterial(Material.PAPER)
                         .setName("§e分解報酬情報")
-                        .addLore("§7シリーズ: §f" + (series != null ? artifact.getSeries() : "不明"))
+                        .addLore("§7シリーズ: §f" + (series != null ? artifact.getSeries().getSeriesName() : "不明"))
                         .addLore("§7ティア: §f" + artifact.getTier().getText)
                         .addLore("§7レベル: §f" + artifact.getLv())
                         .addLore("")
