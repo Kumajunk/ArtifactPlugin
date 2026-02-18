@@ -6,6 +6,7 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.tier.Tier;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.Factory;
 import io.github.itokagimaru.artifact.artifact.items.SpecialItems;
 import io.github.itokagimaru.artifact.utils.BaseGui;
+import io.github.itokagimaru.artifact.utils.Utils;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
@@ -16,26 +17,15 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot.artifactSlot.*;
 import static io.github.itokagimaru.artifact.artifact.items.SpecialItems.isAppraisedArtifact;
-import static io.github.itokagimaru.artifact.artifact.items.SpecialItems.isUnidentifiedArtifact;
 
 public class ArtifactProcessMenu extends BaseGui {
     private ItemStack processingItem;
     private String processingItemId;
     private Tier.artifactTier tier;
     private final Slot.artifactSlot processingSlot;
-    private final int APPRAISE_SLOT = 13;
-    private final int CONFIRM_SLOT = 53;
-    private final int PEAR_SLOT = 30;
-    private final int OVAL_SLOT = 31;
-    private final int LOZENGE_SLOT = 32;
-    private final int CLOVER_SLOT = 39;
-    private final int CUSHION_SLOT = 40;
-    private final int CRESCENT_SLOT = 41;
 
     public ArtifactProcessMenu() {
         this(null, null,null, null);
@@ -53,7 +43,6 @@ public class ArtifactProcessMenu extends BaseGui {
 
     private void setupPlayerInventoryClickHandler() {
         setPlayerInventoryClickHandler((player, slot, item, clickType) -> {
-            ;
             if (item == null || item.getType() == Material.AIR) {
                 return;
             }
@@ -71,6 +60,14 @@ public class ArtifactProcessMenu extends BaseGui {
     }
 
     private void setupGui() {
+        int APPRAISE_SLOT = 13;
+        int PEAR_SLOT = 30;
+        int OVAL_SLOT = 31;
+        int LOZENGE_SLOT = 32;
+        int CLOVER_SLOT = 39;
+        int CUSHION_SLOT = 40;
+        int CRESCENT_SLOT = 41;
+        int CONFIRM_SLOT = 53;
         if (processingItem == null) {
             setItem(APPRAISE_SLOT, new ItemBuilder()
                     .setMaterial(Material.BARRIER)
@@ -144,62 +141,25 @@ public class ArtifactProcessMenu extends BaseGui {
 
     private ItemStack buildSlotItem(Slot.artifactSlot slot) {
         ItemStack item = ItemStack.of(Material.PAPER);
-        switch(slot) {
-            case PEAR -> {
-                item.editMeta(meta -> {
-                    meta.setDisplayName("§aPear Cut");
-                    meta.setItemModel(NamespacedKey.minecraft("rookie"));
-                    CustomModelDataComponent cmd = meta.getCustomModelDataComponent();
-                    cmd.setFloats(List.of((float) slot.getId));
-                    meta.setCustomModelDataComponent(cmd);
-                });
-            }
-            case OVAL -> {
-                item.editMeta(meta -> {
-                    meta.setDisplayName("§aOval Cut");
-                    meta.setItemModel(NamespacedKey.minecraft("rookie"));
-                    CustomModelDataComponent cmd = meta.getCustomModelDataComponent();
-                    cmd.setFloats(List.of((float) slot.getId));
-                    meta.setCustomModelDataComponent(cmd);
-                });
-            }
-            case LOZENGE -> {
-                item.editMeta(meta -> {
-                    meta.setDisplayName("§aLozenge Cut");
-                    meta.setItemModel(NamespacedKey.minecraft("rookie"));
-                    CustomModelDataComponent cmd = meta.getCustomModelDataComponent();
-                    cmd.setFloats(List.of((float) slot.getId));
-                    meta.setCustomModelDataComponent(cmd);
-                });
-            }
-            case CLOVER -> {
-                item.editMeta(meta -> {
-                    meta.setDisplayName("§aClover Cut");
-                    meta.setItemModel(NamespacedKey.minecraft("rookie"));
-                    CustomModelDataComponent cmd = meta.getCustomModelDataComponent();
-                    cmd.setFloats(List.of((float) slot.getId));
-                    meta.setCustomModelDataComponent(cmd);
-                });
-            }
-            case CUSHION -> {
-                item.editMeta(meta -> {
-                    meta.setDisplayName("§aCushion Cut");
-                    meta.setItemModel(NamespacedKey.minecraft("rookie"));
-                    CustomModelDataComponent cmd = meta.getCustomModelDataComponent();
-                    cmd.setFloats(List.of((float) slot.getId));
-                    meta.setCustomModelDataComponent(cmd);
-                });
-            }
-            case CRESCENT -> {
-                item.editMeta(meta -> {
-                    meta.setDisplayName("§aCrescent Cut");
-                    meta.setItemModel(NamespacedKey.minecraft("rookie"));
-                    CustomModelDataComponent cmd = meta.getCustomModelDataComponent();
-                    cmd.setFloats(List.of((float) slot.getId));
-                    meta.setCustomModelDataComponent(cmd);
-                });
-            }
-        }
+
+        String name = switch (slot) {
+            case PEAR -> "§aPear Cut";
+            case OVAL -> "§aOval Cut";
+            case LOZENGE -> "§aLozenge Cut";
+            case CLOVER -> "§aClover Cut";
+            case CUSHION -> "§aCushion Cut";
+            case CRESCENT -> "§aCrescent Cut";
+        };
+
+        item.editMeta(meta -> {
+            meta.customName(Utils.parseLegacy(name));
+            meta.setItemModel(NamespacedKey.minecraft("default"));
+
+            CustomModelDataComponent cmd = meta.getCustomModelDataComponent();
+            cmd.setFloats(List.of((float) slot.getId));
+            meta.setCustomModelDataComponent(cmd);
+        });
+
         return item;
     }
 }

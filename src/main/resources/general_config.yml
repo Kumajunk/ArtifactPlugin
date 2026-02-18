@@ -1,6 +1,6 @@
 sell:
   augment:
-    price: 1000
+    price: 100
   # 分解時のオーグメントの入手数とアーティファクトの販売価格のスケーリング設定
   tier_scaling:
     enabled: true
@@ -21,4 +21,4 @@ sell:
 
 enhance:
   series_binding:
-    enabled: true
+    enabled: false
