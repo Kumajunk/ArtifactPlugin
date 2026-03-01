@@ -8,7 +8,7 @@ public class PlayerStatus {
         HP(0,"HitPoint"),
         ATK(1,"Attack"),
         DEF(2,"Defense"),
-        LUK(3,"Luck"),
+        AGI(3,"Agility"),
         VIT(4,"Vitality"),
         CRI(5,"CriticalRate"),
         CRIDMG(6,"CriticalDamage"),
@@ -53,8 +53,8 @@ public class PlayerStatus {
     private final Map<playerStatus, Double> baseStatus = new EnumMap<playerStatus, Double>(playerStatus.class);
     {   baseStatus.put(playerStatus.HP, 20.0);
         baseStatus.put(playerStatus.ATK, 10.0);
-        baseStatus.put(playerStatus.DEF, 10.0);
-        baseStatus.put(playerStatus.LUK, 1.0);
+        baseStatus.put(playerStatus.DEF, 8.0);
+        baseStatus.put(playerStatus.AGI, 0.1);
         baseStatus.put(playerStatus.VIT, 0.05);
         baseStatus.put(playerStatus.CRI, 0.05);
         baseStatus.put(playerStatus.CRIDMG, 0.5);

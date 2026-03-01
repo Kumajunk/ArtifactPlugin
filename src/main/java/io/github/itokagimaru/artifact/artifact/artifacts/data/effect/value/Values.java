@@ -51,8 +51,8 @@ public class Values {
                     case SeriesFactory.playerStatusKey.VIT -> {
                         value += PlayerStatusManager.getPlayerStatus(playerUuid).getStatus(PlayerStatus.playerStatus.VIT);
                     }
-                    case SeriesFactory.playerStatusKey.LUK -> {
-                        value += PlayerStatusManager.getPlayerStatus(playerUuid).getStatus(PlayerStatus.playerStatus.LUK);
+                    case SeriesFactory.playerStatusKey.AGI -> {
+                        value += PlayerStatusManager.getPlayerStatus(playerUuid).getStatus(PlayerStatus.playerStatus.AGI);
                     }
                     case SeriesFactory.playerStatusKey.CRI -> {
                         value += PlayerStatusManager.getPlayerStatus(playerUuid).getStatus(PlayerStatus.playerStatus.CRI);

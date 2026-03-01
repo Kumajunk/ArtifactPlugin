@@ -15,12 +15,13 @@ public class DoAddPDC extends Action{
 
     public DoAddPDC(Values values, String key) {
         this.values = values;
-        this.key = new NamespacedKey("artifact", key);
+        this.key = new NamespacedKey("artifact_custom", key);
     }
 
     @Override
     public void run(UUID playerUuid){
         Player player = Bukkit.getPlayer(playerUuid);
+        if (player == null) return;
         Object beforeValueObj = player.getPersistentDataContainer().get(key, PersistentDataType.BYTE_ARRAY);
         if (beforeValueObj == null){
             DoSetPDC doSetPDC = new DoSetPDC(values, key);

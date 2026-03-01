@@ -161,7 +161,7 @@ public class SeriesFactory {
         ATK("player-status-atk"),
         DEF("player-status-def"),
         VIT("player-status-vit"),
-        LUK("player-status-luk"),
+        AGI("player-status-agi"),
         CRI("player-status-cri"),
         CRIDMG("player-status-cridmg"),
         FIRE_DMG("player-status-fire-dmg-bonus"),
@@ -307,7 +307,7 @@ public class SeriesFactory {
                     Map<?, ?> valueMap = (Map<?, ?>) conditionBody.get("value");
                     Values values = toValues(valueMap);
                     boolean isMultiply = isMultiply(conditionBody.get("value-type").toString());
-                    return new OrMoreLuk(values, isMultiply);
+                    return new OrMoreAgi(values, isMultiply);
                 }
                 case OR_MORE_PDC -> {
                     Map<?, ?> valueMap = (Map<?, ?>) conditionBody.get("value");
@@ -330,7 +330,7 @@ public class SeriesFactory {
                     Map<?, ?> valueMap = (Map<?, ?>) conditionBody.get("value");
                     Values values = toValues(valueMap);
                     boolean isMultiply = isMultiply(conditionBody.get("value-type").toString());
-                    return new OrLessLuk(values, isMultiply);
+                    return new OrLessAgi(values, isMultiply);
                 }
                 case OR_LESS_PDC -> {
                     Map<?, ?> valueMap = (Map<?, ?>) conditionBody.get("value");
@@ -478,8 +478,8 @@ public class SeriesFactory {
             case "vit" -> {
                 return PlayerStatus.playerStatus.VIT;
             }
-            case "luk" -> {
-                return PlayerStatus.playerStatus.LUK;
+            case "agi" -> {
+                return PlayerStatus.playerStatus.AGI;
             }
             case "cri" -> {
                 return PlayerStatus.playerStatus.CRI;

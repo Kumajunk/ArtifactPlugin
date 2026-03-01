@@ -6,11 +6,11 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.value.Value
 
 import java.util.UUID;
 
-public class OrMoreLuk implements ConditionWithoutEvent {
+public class OrMoreAgi implements ConditionWithoutEvent {
     Values values;
     boolean isMultiply;
 
-    public OrMoreLuk(Values values, boolean isMultiply){
+    public OrMoreAgi(Values values, boolean isMultiply){
         this.values = values;
         this.isMultiply = isMultiply;
     }
@@ -19,8 +19,8 @@ public class OrMoreLuk implements ConditionWithoutEvent {
     public boolean isTrue(UUID uuid) {
         if (!isMultiply) {
             PlayerStatus playerStatus = PlayerStatusManager.getPlayerStatus(uuid);
-            double luk = playerStatus.getStatus(PlayerStatus.playerStatus.LUK);
-            return values.calculate(uuid) <= luk;
+            double agi = playerStatus.getStatus(PlayerStatus.playerStatus.AGI);
+            return values.calculate(uuid) >= agi;
         }
         return false;
     }

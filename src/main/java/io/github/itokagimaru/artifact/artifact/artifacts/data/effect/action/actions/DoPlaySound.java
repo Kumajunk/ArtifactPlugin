@@ -27,7 +27,12 @@ public class DoPlaySound extends Action {
 
     private void stringToSound(String sound) {
         NamespacedKey key = NamespacedKey.minecraft(sound);
-        this.sound = Bukkit.getRegistry(Sound.class).get(key);
+        try{
+            this.sound = Bukkit.getRegistry(Sound.class).get(key);
+        } catch (NullPointerException e){
+            throw new IllegalArgumentException("soundが存在しません: " + sound);
+        }
+
     }
 
     private String normalizeSoundKey(String str) {

@@ -1,5 +1,7 @@
 package io.github.itokagimaru.artifact;
 
+import io.github.itokagimaru.artifact.Player.status.AGIStatUpdater;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.ClearCustomPDC;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesFactory;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
@@ -12,8 +14,7 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.Tri
 import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffectUpdater;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffectUpdater;
-import io.github.itokagimaru.artifact.artifact.listener.ArtifactPlayerOnDamageListener;
-import io.github.itokagimaru.artifact.artifact.listener.ItemUseListener;
+import io.github.itokagimaru.artifact.artifact.listener.*;
 import io.github.itokagimaru.artifact.command.ArtifactCommand;
 import io.github.itokagimaru.artifact.data.ItemData;
 import io.github.itokagimaru.artifact.command.ArtifactOpCommand;
@@ -32,7 +33,6 @@ import io.github.itokagimaru.artifact.stash.StashLoginListener;
 import io.github.itokagimaru.artifact.stash.StashManager;
 import io.github.itokagimaru.artifact.stash.StashRepository;
 import io.github.itokagimaru.artifact.utils.BaseGui;
-import io.github.itokagimaru.artifact.artifact.listener.PlayerDeathListener;
 import io.github.itokagimaru.artifact.utils.VaultAPI;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -139,7 +139,9 @@ public final class ArtifactMain extends JavaPlugin {
         registerListeners(
                 new ArtifactPlayerOnDamageListener(),
                 new ItemUseListener(),
-                new PlayerDeathListener()
+                new PlayerDeathListener(),
+                new PlayerJoinListener(),
+                new playerItemDropListener()
         );
 
         // artifactSeriesの読み込み
@@ -247,6 +249,7 @@ public final class ArtifactMain extends JavaPlugin {
     }
 
     public static void updatePlayerArtifacts(Player player) {
+        ClearCustomPDC.clear(player.getUniqueId());
         Inventory inventory = player.getInventory();
         for(int i = 0; i < inventory.getSize(); i++){
             ItemStack item = inventory.getItem(i);
@@ -263,6 +266,7 @@ public final class ArtifactMain extends JavaPlugin {
         }
         EffectStack.runByTrigger(TriggerType.triggerType.ON_UPDATE, player.getUniqueId());
         HpStatUpdater.hpStatUpdater(player);
+        AGIStatUpdater.agiStatUpdater(player);
     }
 
     private void loadArtifactFiles() {

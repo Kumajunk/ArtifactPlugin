@@ -32,7 +32,7 @@ public class ArtifactCommand implements CommandExecutor, TabCompleter {
         }
 
         if (!ArtifactMain.getAuctionManager().getAllowedWorlds().contains(player.getWorld().getName()) && !player.hasPermission("artifact.admin")) {
-            player.sendMessage("§cこのワールドではオークションコマンドを使用できません");
+            player.sendMessage("§cこのワールドではこのコマンドを使用できません");
             return true;
         }
 
