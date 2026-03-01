@@ -103,11 +103,11 @@ public class SeriesFactory {
     public enum ConditionKey {
         OR_LESS_HP("or-less-hp"),
         OR_LESS_ATK("or-less-atk"),
-        OR_LESS_LUK("or-less-luk"),
+        OR_LESS_AGI("or-less-agi"),
         OR_LESS_PDC("or-less-pdc"),
         OR_MORE_HP("or-more-hp"),
         OR_MORE_ATK("or-more-atk"),
-        OR_MORE_LUK("or-more-luk"),
+        OR_MORE_AGI("or-more-agi"),
         OR_MORE_PDC("or-more-pdc"),
         IS_USED_SKILL("is-used-skill"),
         IS_TRUE("is-true");
@@ -303,7 +303,7 @@ public class SeriesFactory {
                     boolean isMultiply = isMultiply(conditionBody.get("value-type").toString());
                     return new OrMoreAtk(values, isMultiply);
                 }
-                case OR_MORE_LUK -> {
+                case OR_MORE_AGI -> {
                     Map<?, ?> valueMap = (Map<?, ?>) conditionBody.get("value");
                     Values values = toValues(valueMap);
                     boolean isMultiply = isMultiply(conditionBody.get("value-type").toString());
@@ -326,7 +326,7 @@ public class SeriesFactory {
                     boolean isMultiply = isMultiply(conditionBody.get("value-type").toString());
                     return new OrLessAtk(values, isMultiply);
                 }
-                case OR_LESS_LUK ->  {
+                case OR_LESS_AGI ->  {
                     Map<?, ?> valueMap = (Map<?, ?>) conditionBody.get("value");
                     Values values = toValues(valueMap);
                     boolean isMultiply = isMultiply(conditionBody.get("value-type").toString());
