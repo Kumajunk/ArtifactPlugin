@@ -11,7 +11,13 @@ public class DoEmitParticle extends Action {
     double offsetX, offsetY, offsetZ;
     int count;
     public DoEmitParticle(String particleStr, double offsetX, double offsetY, double offsetZ, int count) {
-        particle = Particle.valueOf(particleStr.toUpperCase());
+
+        try {
+            particle = Particle.valueOf(particleStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        }
+
         this.offsetX = offsetX;
         this.offsetY = offsetY;
         this.offsetZ = offsetZ;

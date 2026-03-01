@@ -9,7 +9,7 @@ public class SubEffectTable {
         subEffectValueTable.put(null,null);
         subEffectValueTable.put(SubEffect.artifactSubEffect.HP,List.of(0.004,0.005,0.007));
         subEffectValueTable.put(SubEffect.artifactSubEffect.ATK,List.of(0.005,0.006,0.008));
-        subEffectValueTable.put(SubEffect.artifactSubEffect.DEF,List.of(0.004,0.005,0.007));
+        subEffectValueTable.put(SubEffect.artifactSubEffect.DEF,List.of(0.005,0.006,0.008));
         subEffectValueTable.put(SubEffect.artifactSubEffect.VIT,List.of(0.002,0.003,0.005));
         subEffectValueTable.put(SubEffect.artifactSubEffect.CRI,List.of(0.001,0.002,0.004));
         subEffectValueTable.put(SubEffect.artifactSubEffect.CRIDMG,List.of(0.005,0.006,0.008));

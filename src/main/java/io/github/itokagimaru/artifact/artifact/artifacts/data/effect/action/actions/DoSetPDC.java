@@ -16,7 +16,7 @@ public class DoSetPDC extends Action{
 
     public DoSetPDC(Values values, String key) {
         this.values = values;
-        this.key = new NamespacedKey("artifact", key);
+        this.key = new NamespacedKey("artifact_custom", key);
     }
     public DoSetPDC(Values values, NamespacedKey key) {
         this.values = values;
@@ -26,6 +26,7 @@ public class DoSetPDC extends Action{
     @Override
     public void run(UUID playerUuid){
         Player player = Bukkit.getPlayer(playerUuid);
+        if (player == null) return;
         player.getPersistentDataContainer().set(key, PersistentDataType.BYTE_ARRAY, ByteArrayConverter.toByte(values.calculate(playerUuid)));
     }
 }

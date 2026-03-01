@@ -25,8 +25,8 @@ public class MainEffectUpdater {
             case DEF -> {
                 return PlayerStatus.playerStatus.DEF;
             }
-            case LUK -> {
-                return PlayerStatus.playerStatus.LUK;
+            case AGI -> {
+                return PlayerStatus.playerStatus.AGI;
             }
             case VIT -> {
                 return PlayerStatus.playerStatus.VIT;

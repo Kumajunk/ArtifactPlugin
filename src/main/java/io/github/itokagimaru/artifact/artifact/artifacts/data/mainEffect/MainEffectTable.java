@@ -13,7 +13,7 @@ public class MainEffectTable {
         mainEffectTable.put(Slot.artifactSlot.PEAR, List.of(MainEffect.artifactMainEffect.HP));
         mainEffectTable.put(Slot.artifactSlot.OVAL, List.of(MainEffect.artifactMainEffect.ATK));
         mainEffectTable.put(Slot.artifactSlot.LOZENGE, List.of(MainEffect.artifactMainEffect.HP, MainEffect.artifactMainEffect.ATK, MainEffect.artifactMainEffect.DEF, MainEffect.artifactMainEffect.CRI, MainEffect.artifactMainEffect.CRIDMG));
-        mainEffectTable.put(Slot.artifactSlot.CLOVER, List.of(MainEffect.artifactMainEffect.HP, MainEffect.artifactMainEffect.ATK, MainEffect.artifactMainEffect.DEF, MainEffect.artifactMainEffect.VIT, MainEffect.artifactMainEffect.LUK));
+        mainEffectTable.put(Slot.artifactSlot.CLOVER, List.of(MainEffect.artifactMainEffect.HP, MainEffect.artifactMainEffect.ATK, MainEffect.artifactMainEffect.DEF, MainEffect.artifactMainEffect.VIT, MainEffect.artifactMainEffect.AGI));
         mainEffectTable.put(Slot.artifactSlot.CUSHION, List.of(MainEffect.artifactMainEffect.HP, MainEffect.artifactMainEffect.DEF, MainEffect.artifactMainEffect.VIT));
         mainEffectTable.put(Slot.artifactSlot.CRESCENT, List.of(MainEffect.artifactMainEffect.ATK, MainEffect.artifactMainEffect.DEF, MainEffect.artifactMainEffect.FIRE_DMG_BONUS, MainEffect.artifactMainEffect.WATER_DMG_BONUS, MainEffect.artifactMainEffect.NATURE_DMG_BONUS));
     }
@@ -33,9 +33,9 @@ public class MainEffectTable {
     static {//各ステータスの初期値のテーブル
         mainEffectInitialValue.put(MainEffect.artifactMainEffect.HP,0.05);
         mainEffectInitialValue.put(MainEffect.artifactMainEffect.ATK,0.1);
-        mainEffectInitialValue.put(MainEffect.artifactMainEffect.DEF,0.3);
+        mainEffectInitialValue.put(MainEffect.artifactMainEffect.DEF,0.1);
         mainEffectInitialValue.put(MainEffect.artifactMainEffect.VIT,0.03);
-        mainEffectInitialValue.put(MainEffect.artifactMainEffect.LUK,5.0);
+        mainEffectInitialValue.put(MainEffect.artifactMainEffect.AGI,0.01);
         mainEffectInitialValue.put(MainEffect.artifactMainEffect.CRI,0.03);
         mainEffectInitialValue.put(MainEffect.artifactMainEffect.CRIDMG,0.06);
         mainEffectInitialValue.put(MainEffect.artifactMainEffect.FIRE_DMG_BONUS,0.05);
@@ -50,7 +50,7 @@ public class MainEffectTable {
         mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.ATK,0.04);
         mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.DEF,0.03);
         mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.VIT,0.01);
-        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.LUK,1.0);
+        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.AGI,0.005);
         mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.CRI,0.01);
         mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.CRIDMG,0.02);
         mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.FIRE_DMG_BONUS,0.015);

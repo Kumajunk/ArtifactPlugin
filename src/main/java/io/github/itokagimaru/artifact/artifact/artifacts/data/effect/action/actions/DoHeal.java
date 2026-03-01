@@ -19,7 +19,7 @@ public class DoHeal extends Action{
         double playerHp = Bukkit.getPlayer(playerUuid).getHealth();
         double playerMaxHp = Bukkit.getPlayer(playerUuid).getMaxHealth();
         if(isMultiply){
-            playerHp = playerHp * value.calculate(playerUuid);
+            playerHp = playerMaxHp * value.calculate(playerUuid);
         } else {
             playerHp = playerHp + value.calculate(playerUuid);
         }

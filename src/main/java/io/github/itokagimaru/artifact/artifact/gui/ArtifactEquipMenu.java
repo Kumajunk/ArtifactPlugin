@@ -34,24 +34,7 @@ public class ArtifactEquipMenu extends BaseGui {
         this.player = player;
         setupMenu();
         setupPlayerInventoryHandler();
-        addCloseAction(target -> {
-            Inventory inventory = target.getInventory();
-            for(int i = 0; i < inventory.getSize(); i++){
-                ItemStack item = inventory.getItem(i);
-                if(item == null) continue;
-                if (ItemData.IS_SKILL_ITEM.get(item) == (byte) 0) continue;
-                inventory.setItem(i, null);
-            }
-            PlayerStatusManager.addPlayerStatus(target.getUniqueId(), new PlayerStatus());
-            for (Slot.artifactSlot slot : Slot.artifactSlot.values()) {
-                BaseArtifact artifact = loadFromPdc(target, slot);
-                if (artifact == null) continue;
-                MainEffectUpdater.mainEffectUpdater(target, artifact);
-                SubEffectUpdater.subEffectUpdater(target, artifact);
-            }
-            EffectStack.runByTrigger(TriggerType.triggerType.ON_UPDATE, target.getUniqueId());
-            HpStatUpdater.hpStatUpdater(player);
-        });
+        addCloseAction(ArtifactMain::updatePlayerArtifacts);
     }
 
     public void setupMenu() {

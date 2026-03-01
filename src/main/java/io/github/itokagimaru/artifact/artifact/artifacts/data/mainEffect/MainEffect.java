@@ -8,7 +8,7 @@ public class MainEffect {
         HP(0,"HitPoint", valueType.MULTIPLY),
         ATK(1,"Attack", valueType.MULTIPLY),
         DEF(2,"Defense", valueType.MULTIPLY),
-        LUK(3,"Luck", valueType.ADD),
+        AGI(3,"Agility", valueType.MULTIPLY),
         VIT(4,"Vitality", valueType.MULTIPLY),
         CRI(5,"CriticalRate", valueType.MULTIPLY),
         CRIDMG(6,"CriticalDamage", valueType.MULTIPLY),
