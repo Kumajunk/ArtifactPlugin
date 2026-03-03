@@ -66,7 +66,7 @@ public class PlayerStatus {
     private final Map<playerStatus, Double> baseStatus = new EnumMap<playerStatus, Double>(playerStatus.class);
     {   baseStatus.put(playerStatus.HP, 20.0);
         baseStatus.put(playerStatus.ATK, 10.0);
-        baseStatus.put(playerStatus.DEF, 8.0);
+        baseStatus.put(playerStatus.DEF, 10.0);
         baseStatus.put(playerStatus.AGI, 0.1);
         baseStatus.put(playerStatus.VIT, 0.05);
         baseStatus.put(playerStatus.CRI, 0.05);

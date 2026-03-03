@@ -38,7 +38,7 @@ public final class DamageActionBarUtil {
             rightHalf = finalDmg.substring(mid + 1);
         }
 
-        String padding = " ".repeat(150);
+        String padding = " ".repeat(250);
 
         Component attackerPart = Component.text(attackerName)
                 .color(NamedTextColor.YELLOW)
