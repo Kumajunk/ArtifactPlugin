@@ -3,6 +3,7 @@ package io.github.itokagimaru.artifact.artifact.gui;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.tier.Tier;
 import io.github.itokagimaru.artifact.artifact.items.SpecialItems;
 import io.github.itokagimaru.artifact.utils.BaseGui;
+import io.github.itokagimaru.artifact.utils.Utils;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.event.inventory.ClickType;
@@ -47,6 +48,11 @@ public class ArtifactAppraiseMenu extends BaseGui {
                 return;
             }
 
+            if (unidentifiedArtifact != null) {
+                player.sendMessage(Utils.parseLegacy("§cすでに未鑑定のアーティファクトがセットされています!"));
+                return;
+            }
+
             // 未鑑定アーティファクトかチェック
             if (isUnidentifiedArtifact(item)) {
                 // シリーズIDを取得
@@ -57,12 +63,12 @@ public class ArtifactAppraiseMenu extends BaseGui {
                 ItemStack clonedItem = item.clone();
                 clonedItem.setAmount(1);
                 item.setAmount(0);
-                player.sendMessage("§a未鑑定のアーティファクトをセットしました");
+                player.sendMessage(Utils.parseLegacy("§a未鑑定のアーティファクトをセットしました"));
                 new ArtifactAppraiseMenu(clonedItem, seriesId).open(player);
                 return;
             }
 
-            player.sendMessage("§c未鑑定のアーティファクトをセットしてください");
+            player.sendMessage(Utils.parseLegacy("§c未鑑定のアーティファクトをセットしてください"));
         });
     }
 
@@ -70,7 +76,6 @@ public class ArtifactAppraiseMenu extends BaseGui {
      * GUI要素を設定
      */
     private void setupGui() {
-        // 背景を埋める
         fill(new ItemBuilder().setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName(" "));
 
         // アーティファクトスロット
@@ -90,7 +95,7 @@ public class ArtifactAppraiseMenu extends BaseGui {
                             player.getWorld().dropItemNaturally(player.getLocation(), i)
                     );
                 }
-                player.sendMessage("§a未鑑定のアーティファクトを返却しました");
+                player.sendMessage(Utils.parseLegacy("§a未鑑定のアーティファクトを返却しました"));
                 new ArtifactAppraiseMenu().open(player);
             });
         }
@@ -110,7 +115,7 @@ public class ArtifactAppraiseMenu extends BaseGui {
                     .addLore("§7 C: §765.0%")
                     .setClickAction(ClickType.LEFT, player -> {
                         if (unidentifiedArtifact == null || artifactSeriesId == null) {
-                            player.sendMessage("§c未鑑定のアーティファクトがセットされていません！");
+                            player.sendMessage(Utils.parseLegacy("§c未鑑定のアーティファクトがセットされていません！"));
                             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                             return;
                         }
@@ -134,7 +139,7 @@ public class ArtifactAppraiseMenu extends BaseGui {
 
                         // エフェクト
                         player.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.0f, 1.2f);
-                        player.sendMessage("§a鑑定完了！ ティア: §e" + tier.getText);
+                        player.sendMessage(Utils.parseLegacy("§a鑑定完了! ティア: §e" + tier.getText));
 
                         // メニューを閉じる
                         player.closeInventory();

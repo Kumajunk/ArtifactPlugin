@@ -46,6 +46,10 @@ public class ArtifactProcessMenu extends BaseGui {
             if (item == null || item.getType() == Material.AIR) {
                 return;
             }
+            if (processingItem != null) {
+                player.sendMessage(Utils.parseLegacy("§cすでに加工するアーティファクトがセットされています!"));
+                return;
+            }
             if (isAppraisedArtifact(item)) {
                 processingItem = item.clone();
                 processingItemId = item.getPersistentDataContainer().get(SpecialItems.APPRAISED_ARTIFACT_KEY, PersistentDataType.STRING);
