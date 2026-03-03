@@ -16,6 +16,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.*;
 import java.util.function.Consumer;
 
+import static io.github.itokagimaru.artifact.ArtifactMain.plugin;
+
 public final class Utils {
 
     private Utils() {}
@@ -92,10 +94,6 @@ public final class Utils {
         return builder.decoration(TextDecoration.ITALIC, false).build();
     }
 
-    public static String getPlainText(Component component) {
-        return PlainTextComponentSerializer.plainText().serialize(component);
-    }
-
     public static void promptTextInput(
             Player player,
             String message,
@@ -135,5 +133,9 @@ public final class Utils {
         };
 
         Bukkit.getPluginManager().registerEvents(listener, plugin);
+    }
+
+    public static void sync(Runnable runnable) {
+        plugin.getServer().getScheduler().runTask(plugin, runnable);
     }
 }

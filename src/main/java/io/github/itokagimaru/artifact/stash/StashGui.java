@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static io.github.itokagimaru.artifact.utils.Utils.sync;
+
 /**
  * InventoryStashのGUI
  * 保管されているアイテムを表示し、取り出し操作を提供する。
@@ -35,12 +37,18 @@ public class StashGui extends BaseGui {
 
     @Override
     public void open(Player player) {
+        // メニュー項目は非同期でロードされます。実際のインベントリ表示は renderMenu 内で行われます。
         setupMenu(player);
-        super.open(player);
     }
 
     private void setupMenu(Player player) {
-        List<StashItem> items = stashManager.getPlayerStash(player.getUniqueId());
+        stashManager.getPlayerStash(player.getUniqueId()).thenAccept(items -> sync(() -> {
+            renderMenu(items);
+            openGui(player, this);
+        }));
+    }
+
+    private void renderMenu(List<StashItem> items) {
 
         // ページングを適用
         int startIndex = page * ITEMS_PER_PAGE;
@@ -137,17 +145,16 @@ public class StashGui extends BaseGui {
     }
 
     private void handleWithdraw(Player player, StashItem stashItem) {
-        stashManager.withdrawItem(player, stashItem.getId());
-        // GUIを更新
-        new StashGui(stashManager, page).open(player);
+        stashManager.withdrawItem(player, stashItem.getId())
+                .thenRun(() -> sync(() -> new StashGui(stashManager, page).open(player)));
     }
 
     private void handleWithdrawAll(Player player) {
-        int count = stashManager.withdrawAll(player);
-        if (count > 0) {
-            player.sendMessage("§a" + count + "個のアイテムを取り出しました");
-        }
-        // GUIを更新
-        new StashGui(stashManager, page).open(player);
+        stashManager.withdrawAll(player).thenAccept(count -> sync(() -> {
+            if (count > 0) {
+                player.sendMessage("§a" + count + "個のアイテムを取り出しました");
+            }
+            new StashGui(stashManager, page).open(player);
+        }));
     }
 }

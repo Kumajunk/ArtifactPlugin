@@ -17,12 +17,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.github.itokagimaru.artifact.utils.Utils.sync;
+
 /**
- * Stash command handler.
- * /stash           - Open Stash GUI
- * /stash all       - Withdraw all items
- * /stash count     - Show stash item count
- * /stash add <player> - (Admin) Stash the held artifact into target player's stash
+ * Stashコマンドハンドラー。
+ * /stash           - Stash GUIを開く
+ * /stash all       - すべてのアイテムを取り出す
+ * /stash count     - Stash内のアイテム数を表示
+ * /stash add <player> - (管理者) 手に持っているアーティファクトを対象プレイヤーのStashに入れる
  */
 public class StashCommand implements CommandExecutor, TabCompleter {
 
@@ -53,20 +55,20 @@ public class StashCommand implements CommandExecutor, TabCompleter {
         String subCommand = args[0].toLowerCase();
 
         switch (subCommand) {
-            case "all" -> {
+            case "all" ->
                 // 全て取り出す
-                int count = stashManager.withdrawAll(player);
-                if (count > 0) {
-                    player.sendMessage("§a" + count + "個のアイテムを取り出しました");
-                } else {
-                    player.sendMessage("§7取り出せるアイテムがありません");
-                }
-            }
-            case "count" -> {
+                    stashManager.withdrawAll(player).thenAccept(count -> sync(() -> {
+                        if (count > 0) {
+                            player.sendMessage("§a" + count + "個のアイテムを取り出しました");
+                        } else {
+                            player.sendMessage("§7取り出せるアイテムがありません");
+                        }
+                    }));
+            case "count" ->
                 // アイテム数を表示
-                int count = stashManager.getStashCount(player.getUniqueId());
-                player.sendMessage("§e[Stash] §f保管アイテム数: §a" + count);
-            }
+                    stashManager.getStashCount(player.getUniqueId())
+                            .thenAccept(count -> sync(() ->
+                                    player.sendMessage("§e[Stash] §f保管アイテム数: §a" + count)));
             case "add" -> handleAddCommand(player, args);
             default -> {
                 if (player.hasPermission("artifact.admin")) {
@@ -81,10 +83,10 @@ public class StashCommand implements CommandExecutor, TabCompleter {
     }
 
     /**
-     * Handle the /stash add <player> subcommand.
-     * Requires artifact.admin permission.
-     * Takes the artifact from the sender's main hand and stashes it
-     * into the target player's stash.
+     * /stash add <player> サブコマンドを処理します。
+     * artifact.admin 権限が必要です。
+     * 送信者のメインハンドにあるアーティファクトを、
+     * ターゲットプレイヤーのStashに保存します。
      */
     private void handleAddCommand(Player sender, String[] args) {
         // Permission check
@@ -100,14 +102,14 @@ public class StashCommand implements CommandExecutor, TabCompleter {
 
         String targetName = args[1];
 
-        // Resolve target player (supports offline players)
+        // ターゲットプレイヤーを解決（オフラインプレイヤーにも対応）
         OfflinePlayer targetOffline = Bukkit.getOfflinePlayer(targetName);
         if (!targetOffline.hasPlayedBefore() && !targetOffline.isOnline()) {
             sender.sendMessage("§cプレイヤー \"" + targetName + "\" が見つかりません");
             return;
         }
 
-        // Check if the sender is holding an artifact
+        // 送信者がアーティファクトを持っているか確認
         ItemStack heldItem = sender.getInventory().getItemInMainHand();
         Optional<BaseArtifact> artifactOpt = ItemToArtifact.convert(heldItem);
 
@@ -116,25 +118,25 @@ public class StashCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        // Serialize and stash
+        // シリアライズしてStashに保存
         BaseArtifact artifact = artifactOpt.get();
         String artifactData = JsonConverter.serializeArtifact(artifact);
-        boolean success = stashManager.stashItem(
-                targetOffline.getUniqueId(), artifactData, "admin:" + sender.getName());
+        stashManager.stashItem(targetOffline.getUniqueId(), artifactData, "admin:" + sender.getName())
+                .thenAccept(success -> sync(() -> {
+                    // 送信者の手からアイテムを削除
+                    sender.getInventory().setItemInMainHand(null);
+                    sender.sendMessage("§a[Stash] §f" + targetName + " のStashにアーティファクトを追加しました");
 
-        if (success) {
-            // Remove item from sender's hand
-            sender.getInventory().setItemInMainHand(null);
-            sender.sendMessage("§a[Stash] §f" + targetName + " のStashにアーティファクトを追加しました");
-
-            // Notify target if online
-            Player targetOnline = targetOffline.getPlayer();
-            if (targetOnline != null && targetOnline.isOnline()) {
-                targetOnline.sendMessage("§e[Stash] §f管理者からアイテムがStashに追加されました。/stash で取り出せます");
-            }
-        } else {
-            sender.sendMessage("§cStashへの保存に失敗しました");
-        }
+                    // オンラインであればターゲットに通知
+                    Player targetOnline = targetOffline.getPlayer();
+                    if (targetOnline != null && targetOnline.isOnline()) {
+                        targetOnline.sendMessage("§e[Stash] §f管理者からのアイテムがStashに追加されました。/stash で取り出せます");
+                    }
+                }))
+                .exceptionally(ex -> {
+                    sender.sendMessage("§cStashへの保存に失敗しました");
+                    return null;
+                });
     }
 
     @Override

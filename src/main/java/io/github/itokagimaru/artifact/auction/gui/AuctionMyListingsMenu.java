@@ -1,15 +1,16 @@
 package io.github.itokagimaru.artifact.auction.gui;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffect;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
+import io.github.itokagimaru.artifact.artifact.JsonConverter;
+import io.github.itokagimaru.artifact.artifact.artifacts.artifact.BaseArtifact;
+import io.github.itokagimaru.artifact.artifact.artifacts.factory.ArtifactToItem;
 import io.github.itokagimaru.artifact.auction.AuctionManager;
-import io.github.itokagimaru.artifact.auction.Result;
 import io.github.itokagimaru.artifact.auction.model.AuctionListing;
 import io.github.itokagimaru.artifact.auction.model.AuctionType;
 import io.github.itokagimaru.artifact.utils.BaseGui;
 import io.github.itokagimaru.artifact.utils.Utils;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -20,6 +21,9 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+
+import static io.github.itokagimaru.artifact.utils.Utils.sync;
 
 /**
  * 自分の出品一覧を表示・管理するGUI
@@ -27,7 +31,6 @@ import java.util.Locale;
 public class AuctionMyListingsMenu extends BaseGui {
 
     private final AuctionManager manager;
-    private final Gson gson = new Gson();
 
     public AuctionMyListingsMenu(AuctionManager manager) {
         super(54, "§d§l自分の出品");
@@ -39,23 +42,25 @@ public class AuctionMyListingsMenu extends BaseGui {
      */
     @Override
     public void open(Player player) {
-        setupMenu(player);
-        super.open(player);
+        manager.getPlayerListings(player.getUniqueId())
+                .thenAccept(myListings -> sync(() -> {
+                    setupMenu(myListings);
+                    openGui(player, this);
+                }))
+                .exceptionally(ex -> {
+                    sync(() -> player.sendMessage("§c出品情報の読み込みに失敗しました"));
+                    return null;
+                });
     }
 
-    private void setupMenu(Player player) {
+    private void setupMenu(List<AuctionListing> myListings) {
         // 背景
         fill(new ItemBuilder().setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName(" "));
 
-        // プレイヤーの出品を取得
-        List<AuctionListing> myListings = manager.getPlayerListings(player.getUniqueId());
-
-        // 出品アイテムを表示
+        // プレイヤーの出品物を表示
         for (int i = 0; i < myListings.size() && i < 45; i++) {
             AuctionListing listing = myListings.get(i);
-            setItem(i, createListingItem(listing), p -> {
-                new MyListingDetailMenu(manager, listing).open(p);
-            });
+            setItem(i, createListingItem(listing), p -> new MyListingDetailMenu(manager, listing).open(p));
         }
 
         // 情報
@@ -70,93 +75,65 @@ public class AuctionMyListingsMenu extends BaseGui {
         setItem(53, new ItemBuilder()
             .setMaterial(Material.ARROW)
             .setName("§7§l戻る")
-            .setClickAction(ClickType.LEFT, p -> {
-                new AuctionMainMenu(manager).open(p);
-            }));
+            .setClickAction(ClickType.LEFT, p -> new AuctionMainMenu(manager).open(p)));
     }
 
     private ItemStack createListingItem(AuctionListing listing) {
-        JsonObject json = gson.fromJson(listing.getArtifactData(), JsonObject.class);
-        
-        int slotId = json.has("slotId") ? json.get("slotId").getAsInt() : 0;
-        Material material = getMaterialForSlot(slotId);
-        ItemStack item = new ItemStack(material);
+        BaseArtifact artifact = JsonConverter.deserializeArtifact(listing.getArtifactData());
+        if (artifact != null) {
+            ItemStack item = ArtifactToItem.convert(artifact);
+            appendMyListingLore(item, listing);
+            return item;
+        }
+
+        ItemStack fallback = new ItemStack(Material.BARRIER);
+        fallback.editMeta(meta ->
+                meta.displayName(Component.text("データ復元失敗")
+                        .color(NamedTextColor.RED)
+                        .decoration(TextDecoration.ITALIC, false)));
+        return fallback;
+    }
+
+    private void appendMyListingLore(ItemStack item, AuctionListing listing) {
         ItemMeta meta = item.getItemMeta();
-        
-        if (meta != null) {
-            String seriesName = json.has("seriesName") ? json.get("seriesName").getAsString() : "Unknown";
-            Slot.artifactSlot slot = Slot.artifactSlot.fromId(slotId);
-            String slotName = slot != null ? slot.getSlotName : "Unknown";
-            
-            meta.displayName(Utils.parseLegacy("§6" + seriesName + " §7- §e" + slotName));
-            
-            List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
-            
-            // レベル
-            int level = json.has("level") ? json.get("level").getAsInt() : 0;
-            lore.add(Utils.parseLegacy("§7Lv.§f" + level));
-            
-            // Main効果
-            int mainEffectId = json.has("mainEffectId") ? json.get("mainEffectId").getAsInt() : 0;
-            int mainEffectValue = json.has("mainEffectValue") ? json.get("mainEffectValue").getAsInt() : 0;
-            MainEffect.artifactMainEffect mainEffect = MainEffect.artifactMainEffect.fromId(mainEffectId);
-            String mainEffectName = mainEffect != null ? mainEffect.getText : "Unknown";
-            lore.add(Utils.parseLegacy("§6Main: §f" + mainEffectName + " §a+" + formatPercent(mainEffectValue)));
-            
-            lore.add(Utils.parseLegacy(""));
-            lore.add(Utils.parseLegacy("§8━━━━━━━━━━━━━━"));
-            
-            // 価格
-            String priceStr = formatPrice(listing.getDisplayPrice());
-            if (listing.getType() == AuctionType.BIN) {
-                lore.add(Utils.parseLegacy("§a即時購入: §f$" + priceStr));
+        if (meta == null) return;
+
+        List<Component> lore = meta.lore() != null ? new ArrayList<>(Objects.requireNonNull(meta.lore())) : new ArrayList<>();
+
+        lore.add(Component.text("━━━━━ AUCTION ━━━━━").color(NamedTextColor.GOLD)
+                .decoration(TextDecoration.ITALIC, false));
+
+        String priceStr = formatPrice(listing.getDisplayPrice());
+        if (listing.getType() == AuctionType.BIN) {
+            lore.add(Utils.parseLegacy("§a即時購入: §f$" + priceStr));
+        } else {
+            if (listing.getCurrentBid() > 0) {
+                lore.add(Utils.parseLegacy("§e現在入札額: §f$" + priceStr));
+                lore.add(Utils.parseLegacy("§7入札者あり"));
             } else {
-                if (listing.getCurrentBid() > 0) {
-                    lore.add(Utils.parseLegacy("§e現在入札額: §f$" + priceStr));
-                    lore.add(Utils.parseLegacy("§7入札者あり"));
-                } else {
-                    lore.add(Utils.parseLegacy("§7開始価格: §f$" + priceStr));
-                    lore.add(Utils.parseLegacy("§8入札なし"));
-                }
+                lore.add(Utils.parseLegacy("§7開始価格: §f$" + priceStr));
+                lore.add(Utils.parseLegacy("§8入札なし"));
             }
-            
-            // 残り時間
-            lore.add(Utils.parseLegacy("§7残り: §f" + formatTime(listing.getRemainingTime())));
-            
-            // キャンセル可能かどうか
-            long cancelWindow = 24 * 60 * 60 * 1000; // 24時間
-            if (listing.isCancellable(cancelWindow)) {
-                lore.add(Utils.parseLegacy(""));
-                lore.add(Utils.parseLegacy("§aキャンセル可能"));
-            } else {
-                lore.add(Utils.parseLegacy(""));
-                lore.add(Utils.parseLegacy("§cキャンセル不可"));
-            }
-            
-            lore.add(Utils.parseLegacy(""));
-            lore.add(Utils.parseLegacy("§eクリックで詳細"));
-            
-            meta.lore(lore);
-            item.setItemMeta(meta);
         }
         
-        return item;
-    }
+        // 残り時間
+        lore.add(Utils.parseLegacy("§7残り: §f" + formatTime(listing.getRemainingTime())));
+        
+        // キャンセル可能かどうか
+        long cancelWindow = 24 * 60 * 60 * 1000; // 24時間
+        if (listing.isCancellable(cancelWindow)) {
+            lore.add(Component.empty());
+            lore.add(Utils.parseLegacy("§aキャンセル可能"));
+        } else {
+            lore.add(Component.empty());
+            lore.add(Utils.parseLegacy("§cキャンセル不可"));
+        }
+        
+        lore.add(Component.empty());
+        lore.add(Utils.parseLegacy("§eクリックで詳細"));
 
-    private Material getMaterialForSlot(int slotId) {
-        return switch (slotId) {
-            case 0 -> Material.AMETHYST_SHARD;
-            case 1 -> Material.PRISMARINE_SHARD;
-            case 2 -> Material.DIAMOND;
-            case 3 -> Material.EMERALD;
-            case 4 -> Material.LAPIS_LAZULI;
-            case 5 -> Material.QUARTZ;
-            default -> Material.NETHER_STAR;
-        };
-    }
-
-    private String formatPercent(int value) {
-        return String.format("%.1f%%", value / 10.0);
+        meta.lore(lore);
+        item.setItemMeta(meta);
     }
 
     private String formatPrice(long price) {
@@ -213,15 +190,19 @@ public class AuctionMyListingsMenu extends BaseGui {
                     .addLore("§7アイテムは返却されます")
                     .addLore("")
                     .addLore("§eクリックでキャンセル")
-                    .setClickAction(ClickType.LEFT, player -> {
-                        Result<Void> result = manager.cancelListing(player, listing.getListingId());
-                        if (result.isSuccess()) {
-                            player.sendMessage("§a出品をキャンセルしました");
-                            new AuctionMyListingsMenu(manager).open(player);
-                        } else {
-                            player.sendMessage("§c" + result.getErrorMessage());
-                        }
-                    }));
+                    .setClickAction(ClickType.LEFT, player -> manager.cancelListing(player, listing.getListingId())
+                            .thenAccept(result -> sync(() -> {
+                                if (result.isSuccess()) {
+                                    player.sendMessage("§a出品をキャンセルしました");
+                                    new AuctionMyListingsMenu(manager).open(player);
+                                } else {
+                                    player.sendMessage("§c" + result.getErrorMessage());
+                                }
+                            }))
+                            .exceptionally(ex -> {
+                                sync(() -> player.sendMessage("§cキャンセル処理に失敗しました"));
+                                return null;
+                            })));
             } else {
                 setItem(11, new ItemBuilder()
                     .setMaterial(Material.BARRIER)
@@ -233,9 +214,7 @@ public class AuctionMyListingsMenu extends BaseGui {
             setItem(15, new ItemBuilder()
                 .setMaterial(Material.ARROW)
                 .setName("§7§l戻る")
-                .setClickAction(ClickType.LEFT, player -> {
-                    new AuctionMyListingsMenu(manager).open(player);
-                }));
+                .setClickAction(ClickType.LEFT, player -> new AuctionMyListingsMenu(manager).open(player)));
         }
 
         private String formatTime(long millis) {

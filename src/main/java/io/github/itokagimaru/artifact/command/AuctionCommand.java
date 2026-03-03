@@ -1,7 +1,6 @@
 package io.github.itokagimaru.artifact.command;
 
 import io.github.itokagimaru.artifact.auction.AuctionManager;
-import io.github.itokagimaru.artifact.auction.Result;
 import io.github.itokagimaru.artifact.auction.gui.AuctionMainMenu;
 import io.github.itokagimaru.artifact.auction.gui.AuctionMyListingsMenu;
 import io.github.itokagimaru.artifact.auction.gui.AuctionSearchMenu;
@@ -100,13 +99,18 @@ public class AuctionCommand implements CommandExecutor, TabCompleter {
     private void handleCancel(Player player, String idString) {
         try {
             UUID listingId = UUID.fromString(idString);
-            Result<Void> result = manager.cancelListing(player, listingId);
-            
-            if (result.isSuccess()) {
-                player.sendMessage("§a出品をキャンセルしました");
-            } else {
-                player.sendMessage("§c" + result.getErrorMessage());
-            }
+            manager.cancelListing(player, listingId)
+                    .thenAccept(result -> {
+                        if (result.isSuccess()) {
+                            player.sendMessage("§a出品をキャンセルしました");
+                        } else {
+                            player.sendMessage("§c" + result.getErrorMessage());
+                        }
+                    })
+                    .exceptionally(ex -> {
+                        player.sendMessage("§cキャンセル処理に失敗しました");
+                        return null;
+                    });
         } catch (IllegalArgumentException e) {
             player.sendMessage("§c無効な出品IDです");
         }
@@ -137,10 +141,14 @@ public class AuctionCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2 && args[0].equalsIgnoreCase("cancel")) {
             // 自分の出品IDを補完
             if (sender instanceof Player player && manager != null) {
-                return manager.getPlayerListings(player.getUniqueId()).stream()
-                    .map(l -> l.getListingId().toString())
-                    .filter(s -> s.startsWith(args[1]))
-                    .collect(Collectors.toList());
+                try {
+                    return manager.getPlayerListings(player.getUniqueId()).join().stream()
+                        .map(l -> l.getListingId().toString())
+                        .filter(s -> s.startsWith(args[1]))
+                        .collect(Collectors.toList());
+                } catch (Exception ignored) {
+                    return new ArrayList<>();
+                }
             }
         }
         

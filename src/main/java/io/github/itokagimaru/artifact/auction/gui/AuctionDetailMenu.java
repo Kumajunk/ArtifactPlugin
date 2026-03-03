@@ -6,18 +6,22 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEff
 import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffect;
 import io.github.itokagimaru.artifact.auction.AuctionManager;
-import io.github.itokagimaru.artifact.auction.Result;
 import io.github.itokagimaru.artifact.auction.model.AuctionListing;
 import io.github.itokagimaru.artifact.auction.model.AuctionType;
 import io.github.itokagimaru.artifact.utils.BaseGui;
 import io.github.itokagimaru.artifact.utils.Utils;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.inventory.ItemStack;
 
 import java.text.NumberFormat;
 import java.util.*;
+
+import static io.github.itokagimaru.artifact.ArtifactMain.plugin;
+import static io.github.itokagimaru.artifact.utils.Utils.sync;
 
 /**
  * 出品詳細を表示するGUI
@@ -32,14 +36,25 @@ public class AuctionDetailMenu extends BaseGui {
         super(54, "§6出品詳細");
         this.manager = manager;
         this.listingId = listingId;
-        setupMenu();
+        // setupMenu はここでは呼び出されません - open() 時に非同期でロードされます
     }
 
-    private void setupMenu() {
+    @Override
+    public void open(Player player) {
+        manager.getListingById(listingId)
+                .thenAccept(optListing -> sync(() -> {
+                    renderMenu(optListing);
+                    openGui(player, this);
+                }))
+                .exceptionally(ex -> {
+                    sync(() -> player.sendMessage("§c出品情報の読み込みに失敗しました"));
+                    return null;
+                });
+    }
+    private void renderMenu(Optional<AuctionListing> optListing) {
         // 背景
         fill(new ItemBuilder().setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName(" "));
 
-        Optional<AuctionListing> optListing = manager.getListingById(listingId);
         if (optListing.isEmpty()) {
             setItem(22, new ItemBuilder()
                 .setMaterial(Material.BARRIER)
@@ -49,9 +64,7 @@ public class AuctionDetailMenu extends BaseGui {
             setItem(49, new ItemBuilder()
                 .setMaterial(Material.ARROW)
                 .setName("§7§l戻る")
-                .setClickAction(ClickType.LEFT, player -> {
-                    new AuctionMainMenu(manager).open(player);
-                }));
+                .setClickAction(ClickType.LEFT, player -> new AuctionMainMenu(manager).open(player)));
             return;
         }
 
@@ -59,10 +72,10 @@ public class AuctionDetailMenu extends BaseGui {
         JsonObject json = gson.fromJson(listing.getArtifactData(), JsonObject.class);
 
         // メインアイテム表示（中央）
-        setItem(13, createDetailItem(listing, json), null);
+        setItem(13, createDetailItem(json), null);
 
         // 情報パネル
-        createInfoPanel(listing, json);
+        createInfoPanel(listing);
 
         // 購入/入札ボタン
         if (listing.getType() == AuctionType.BIN) {
@@ -72,9 +85,7 @@ public class AuctionDetailMenu extends BaseGui {
                 .addLore("§f価格: §e$" + formatPrice(listing.getPrice()))
                 .addLore("")
                 .addLore("§eクリックで購入")
-                .setClickAction(ClickType.LEFT, player -> {
-                    handlePurchase(player, listing);
-                }));
+                .setClickAction(ClickType.LEFT, player -> handlePurchase(player, listing)));
         } else {
             long minBid = listing.getCurrentBid() > 0 
                 ? listing.getCurrentBid() + 100 
@@ -86,9 +97,7 @@ public class AuctionDetailMenu extends BaseGui {
                 .addLore("§f最低入札額: §e$" + formatPrice(minBid))
                 .addLore("")
                 .addLore("§eクリックして入札額を入力")
-                .setClickAction(ClickType.LEFT, player -> {
-                    handleBid(player, listing, minBid);
-                }));
+                .setClickAction(ClickType.LEFT, player -> handleBid(player, listing, minBid)));
         }
 
         // 出品者情報
@@ -102,17 +111,15 @@ public class AuctionDetailMenu extends BaseGui {
         setItem(49, new ItemBuilder()
             .setMaterial(Material.ARROW)
             .setName("§7§l戻る")
-            .setClickAction(ClickType.LEFT, player -> {
-                new AuctionListingMenu(manager, null, 0).open(player);
-            }));
+            .setClickAction(ClickType.LEFT, player -> new AuctionListingMenu(manager, null, 0).open(player)));
     }
 
-    private org.bukkit.inventory.ItemStack createDetailItem(AuctionListing listing, JsonObject json) {
+    private ItemStack createDetailItem(JsonObject json) {
 
         int slotId = json.has("slotId") ? json.get("slotId").getAsInt() : 0;
         Material material = getMaterialForSlot(slotId);
         
-        var item = new org.bukkit.inventory.ItemStack(material);
+        var item = new ItemStack(material);
         var meta = item.getItemMeta();
         
         if (meta != null) {
@@ -122,7 +129,7 @@ public class AuctionDetailMenu extends BaseGui {
             
             meta.displayName(Utils.parseLegacy("§6§l" + seriesName + " §7- §e" + slotName));
             
-            List<net.kyori.adventure.text.Component> lore = new ArrayList<>();
+            List<Component> lore = new ArrayList<>();
             
             // レベル
             int level = json.has("level") ? json.get("level").getAsInt() : 0;
@@ -135,7 +142,7 @@ public class AuctionDetailMenu extends BaseGui {
             MainEffect.artifactMainEffect mainEffect = MainEffect.artifactMainEffect.fromId(mainEffectId);
             String mainEffectName = mainEffect != null ? mainEffect.getText : "Unknown";
             lore.add(Utils.parseLegacy("§6§lMain効果"));
-            if (mainEffect.getAddType == MainEffect.valueType.MULTIPLY){
+            if (Objects.requireNonNull(mainEffect).getAddType == MainEffect.valueType.MULTIPLY){
                 lore.add(Utils.parseLegacy("§f" + mainEffectName + " §a+" + formatPercent(mainEffectValue)));
             } else {
                 lore.add(Utils.parseLegacy("§f" + mainEffectName + " §a+" + formatAdd(mainEffectValue)));
@@ -170,7 +177,7 @@ public class AuctionDetailMenu extends BaseGui {
         return item;
     }
 
-    private void createInfoPanel(AuctionListing listing, JsonObject json) {
+    private void createInfoPanel(AuctionListing listing) {
         // オークション種別
         setItem(29, new ItemBuilder()
             .setMaterial(listing.getType() == AuctionType.BIN ? Material.GOLD_BLOCK : Material.CLOCK)
@@ -201,14 +208,20 @@ public class AuctionDetailMenu extends BaseGui {
             return;
         }
 
-        Result<Void> result = manager.purchaseBin(player, listing.getListingId());
-        
-        if (result.isSuccess()) {
-            player.sendMessage("§a購入が完了しました!");
-            player.closeInventory();
-        } else {
-            player.sendMessage("§c" + result.getErrorMessage());
-        }
+        manager.purchaseBin(player, listing.getListingId())
+                .thenAccept(result -> sync(() -> {
+                    if (result.isSuccess()) {
+                        player.sendMessage("§a購入が完了しました!");
+                        player.closeInventory();
+                    } else {
+                        player.sendMessage("§c" + result.getErrorMessage());
+                    }
+                }))
+                .exceptionally(ex -> {
+                    sync(() -> player.sendMessage("§c購入処理に失敗しました。管理者に連絡してください。"));
+                    plugin.getLogger().severe("Purchase failed: " + ex.getMessage());
+                    return null;
+                });
     }
 
     /**
@@ -237,15 +250,20 @@ public class AuctionDetailMenu extends BaseGui {
                         return;
                     }
 
-                    Result<Void> result = manager.placeBid(player, listing.getListingId(), bidAmount);
-
-                    if (result.isSuccess()) {
-                        player.sendMessage("§a$" + formatPrice(bidAmount) + "で入札しました！");
-                    } else {
-                        player.sendMessage("§c" + result.getErrorMessage());
-                    }
-
-                    new AuctionDetailMenu(manager, listingId).open(player);
+                    manager.placeBid(player, listing.getListingId(), bidAmount)
+                            .thenAccept(result -> {
+                                if (result.isSuccess()) {
+                                    player.sendMessage("§a入札が完了しました！");
+                                } else {
+                                    player.sendMessage("§c" + result.getErrorMessage());
+                                }
+                                new AuctionDetailMenu(manager, listingId).open(player);
+                            })
+                            .exceptionally(ex -> {
+                                player.sendMessage("§c入札処理に失敗しました。管理者に連絡してください。");
+                                plugin.getLogger().severe("Bid failed: " + ex.getMessage());
+                                return null;
+                            });
 
                 } catch (NumberFormatException e) {
                     player.sendMessage("§c無効な金額です。数字を入力してください");
