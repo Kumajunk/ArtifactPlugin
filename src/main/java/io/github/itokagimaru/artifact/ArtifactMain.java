@@ -302,6 +302,7 @@ public final class ArtifactMain extends JavaPlugin {
                 getSLF4JLogger().info("Loading artifact file: " + fileName);
             } catch (Exception e){
                 getSLF4JLogger().error("SeriesFile:" + file.getName() +"の読み込みに失敗しました\n" + e.getMessage());
+                e.printStackTrace();
             }
         }
 

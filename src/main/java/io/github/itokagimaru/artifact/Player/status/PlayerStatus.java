@@ -19,8 +19,21 @@ public class PlayerStatus {
         WATER_DMG_REDUCE(11,"WaterDamageReduceRate"),
         NATURE_DMG_REDUCE(12,"NatureDamageReduceRate"),;
         final String text;
+        final int id;
         playerStatus(int id, String text){
+            this.id = id;
             this.text = text;
+        }
+        public static final HashMap<Integer, playerStatus> statusHashMap = new HashMap<>();
+        public static int statusSize = 0;
+        static {
+            for (playerStatus status : values()){
+                statusHashMap.put(status.id,status);
+                statusSize++;
+            }
+        }
+        public static playerStatus fromId(int value){
+            return statusHashMap.get(value);
         }
     }
     ElementStatus baseElement = new ElementStatus();

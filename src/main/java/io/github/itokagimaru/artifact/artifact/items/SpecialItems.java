@@ -14,33 +14,6 @@ import java.util.List;
 
 public class SpecialItems {
 
-    public static final NamespacedKey ARTIFACT_HOLDER_KEY = new NamespacedKey("artifact", "artifact_holder");
-
-    public static ItemStack getArtifactHolder(){
-        ItemStack stack = new ItemStack(Material.WOODEN_HOE);
-        stack.editMeta(meta -> {
-            meta.setItemModel(NamespacedKey.minecraft("bundle"));
-            meta.customName(Component.text("魔法の麻袋").color(NamedTextColor.YELLOW));
-            meta.lore(List.of(
-                    Component.text("中に\"アーティファクト\"を").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
-                    Component.text("入れる事で").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
-                    Component.text("真の力を引き出してくれる").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
-                    Component.text("不思議な麻袋").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
-                    Component.text("一説では伝説の\"錬金術師\"が作ったものと").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
-                    Component.text("されている").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false)
-            ));
-            meta.setMaxStackSize(1);
-            meta.setUnbreakable(true);
-            meta.getPersistentDataContainer().set(ARTIFACT_HOLDER_KEY, PersistentDataType.BYTE, (byte)1);
-        });
-        return stack;
-    }
-
-    public static boolean isArtifactHolder(ItemStack item){
-        if (item == null || !item.hasItemMeta()) return false;
-        return item.getItemMeta().getPersistentDataContainer().has(ARTIFACT_HOLDER_KEY, PersistentDataType.BYTE);
-    }
-
     public static final NamespacedKey UNIDENTIFIED_ARTIFACT_KEY = new NamespacedKey("artifact", "unidentified_artifact");
     public static final NamespacedKey APPRAISED_ARTIFACT_KEY = new NamespacedKey("artifact", "appraised_artifact");
     public static final NamespacedKey TIER_KEY = new NamespacedKey("artifact", "tier");
