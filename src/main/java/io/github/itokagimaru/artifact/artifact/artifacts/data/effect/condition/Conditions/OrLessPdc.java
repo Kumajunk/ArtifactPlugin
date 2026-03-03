@@ -17,17 +17,14 @@ public class OrLessPdc implements ConditionWithoutEvent{
     NamespacedKey key;
     public OrLessPdc(Values values, String key){
         this.values = values;
-        this.key = new NamespacedKey("artifact", key);
+        this.key = new NamespacedKey("artifact_custom", key);
     }
 
     @Override
     public boolean isTrue(UUID uuid) {
         Player player = Bukkit.getPlayer(uuid);
-        Object targetValueObj = player.getPersistentDataContainer().get(key, PersistentDataType.BYTE_ARRAY);
-        if (targetValueObj == null){
-            return false;
-        }
+        Object targetValueObj = player.getPersistentDataContainer().getOrDefault(key, PersistentDataType.BYTE_ARRAY, ByteArrayConverter.toByte(0.0));
         double targetValue = ByteArrayConverter.ByteToDouble((byte[]) targetValueObj);
-        return targetValue >= values.calculate(uuid);
+        return targetValue <= values.calculate(uuid);
     }
 }
