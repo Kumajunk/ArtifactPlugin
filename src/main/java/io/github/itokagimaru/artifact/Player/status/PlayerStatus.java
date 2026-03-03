@@ -5,19 +5,19 @@ import java.util.*;
 
 public class PlayerStatus {
     public enum playerStatus {
-        HP(0,"HitPoint"),
-        ATK(1,"Attack"),
-        DEF(2,"Defense"),
-        AGI(3,"Agility"),
-        VIT(4,"Vitality"),
-        CRI(5,"CriticalRate"),
-        CRIDMG(6,"CriticalDamage"),
-        FIRE_DMG_BONUS(7,"FireDamageBonus"),
-        WATER_DMG_BONUS(8,"WaterDamageBonus"),
-        NATURE_DMG_BONUS(9,"NatureDamageBonus"),
-        FIRE_DMG_REDUCE(10,"FireDamageReduceRate"),
-        WATER_DMG_REDUCE(11,"WaterDamageReduceRate"),
-        NATURE_DMG_REDUCE(12,"NatureDamageReduceRate"),;
+        HP(0,"HP"),
+        ATK(1,"攻撃力"),
+        DEF(2,"防御力"),
+        AGI(3,"移動速度"),
+        VIT(4,"回復補正"),
+        CRI(5,"会心率"),
+        CRIDMG(6,"会心ダメージ"),
+        FIRE_DMG_BONUS(7,"属性ダメージ -火-"),
+        WATER_DMG_BONUS(8,"属性ダメージ -水-"),
+        NATURE_DMG_BONUS(9,"属性ダメージ -木-"),
+        FIRE_DMG_REDUCE(10,"属性軽減 -火-"),
+        WATER_DMG_REDUCE(11,"属性軽減 -水-"),
+        NATURE_DMG_REDUCE(12,"属性軽減 -木-"),;
         final String text;
         final int id;
         playerStatus(int id, String text){
