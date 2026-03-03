@@ -26,11 +26,5 @@ public class ItemUseListener implements Listener {
         if (item.getItemMeta().hasItemModel()) {
             if (ItemData.IS_SKILL_ITEM.get(item) == (byte) 1) EffectStack.runByTrigger(TriggerType.triggerType.ON_SKILL_USE, player.getUniqueId(), event);
         }
-        if (SpecialItems.isArtifactHolder(item)) {
-            // デフォルトの動作をキャンセル
-            event.setCancelled(true);
-            // ArtifactEquipMenuを開く
-            new ArtifactEquipMenu(player).open(player);
-        }
     }
 }
