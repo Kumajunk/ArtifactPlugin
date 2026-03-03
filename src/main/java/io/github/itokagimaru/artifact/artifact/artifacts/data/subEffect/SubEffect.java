@@ -4,15 +4,15 @@ import java.util.HashMap;
 
 public class SubEffect {
     public static enum artifactSubEffect {//MainにはLUKがあるが、Subにはないよ
-        HP(0,"HitPoint"),
-        ATK(1,"Attack"),
-        DEF(2,"Defense"),
-        VIT(3,"Vitality"),
-        CRI(4,"CriticalRate"),
-        CRIDMG(5,"CriticalDamage"),
-        FIRE_DMG_REDUCE(6,"FireDamageReduceRate"),
-        WATER_DMG_REDUCE(7,"WaterDamageReduceRate"),
-        NATURE_DMG_REDUCE(8,"NatureDamageReduceRate");
+        HP(0,"HP"),
+        ATK(1,"攻撃力"),
+        DEF(2,"防御力"),
+        VIT(3,"回復補正"),
+        CRI(4,"会心率"),
+        CRIDMG(5,"会心ダメージ"),
+        FIRE_DMG_REDUCE(6,"属性軽減 -火-"),
+        WATER_DMG_REDUCE(7,"属性軽減 -水-"),
+        NATURE_DMG_REDUCE(8,"属性軽減 -木-");
         public final String getText;
         public int getId = -1;
         artifactSubEffect(int id, String textName){

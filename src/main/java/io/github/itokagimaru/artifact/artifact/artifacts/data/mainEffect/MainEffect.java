@@ -5,16 +5,16 @@ import java.util.HashMap;
 
 public class MainEffect {
     public static enum artifactMainEffect {
-        HP(0,"HitPoint", valueType.MULTIPLY),
-        ATK(1,"Attack", valueType.MULTIPLY),
-        DEF(2,"Defense", valueType.MULTIPLY),
-        AGI(3,"Agility", valueType.MULTIPLY),
-        VIT(4,"Vitality", valueType.MULTIPLY),
-        CRI(5,"CriticalRate", valueType.MULTIPLY),
-        CRIDMG(6,"CriticalDamage", valueType.MULTIPLY),
-        FIRE_DMG_BONUS(7,"FireDamageBonus", valueType.MULTIPLY),
-        WATER_DMG_BONUS(8,"WaterDamageBonus",valueType.MULTIPLY),
-        NATURE_DMG_BONUS(9,"NatureDamageBonus", valueType.MULTIPLY);
+        HP(0,"HP", valueType.MULTIPLY),
+        ATK(1,"攻撃力", valueType.MULTIPLY),
+        DEF(2,"防御力", valueType.MULTIPLY),
+        AGI(3,"移動速度", valueType.MULTIPLY),
+        VIT(4,"回復補正", valueType.MULTIPLY),
+        CRI(5,"会心率", valueType.MULTIPLY),
+        CRIDMG(6,"会心ダメージ", valueType.MULTIPLY),
+        FIRE_DMG_BONUS(7,"属性ダメージ -火-", valueType.MULTIPLY),
+        WATER_DMG_BONUS(8,"属性ダメージ -水-",valueType.MULTIPLY),
+        NATURE_DMG_BONUS(9,"属性ダメージ -木-", valueType.MULTIPLY);
         public final String getText;
         public final int getId;
         public final String getAddTypeText;

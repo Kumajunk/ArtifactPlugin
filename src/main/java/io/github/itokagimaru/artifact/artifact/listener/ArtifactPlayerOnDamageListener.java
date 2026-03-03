@@ -8,7 +8,9 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.EffectStack
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.TriggerType;
 import io.github.itokagimaru.artifact.data.EntityData;
 import io.github.itokagimaru.artifact.utils.ByteArrayConverter;
+import io.github.itokagimaru.artifact.utils.DamageActionBarUtil;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
@@ -23,6 +25,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 public class ArtifactPlayerOnDamageListener implements Listener {
@@ -157,14 +162,10 @@ public class ArtifactPlayerOnDamageListener implements Listener {
         if (baseDmg < 0) baseDmg = 0;
         double finalDmg = baseDmg*damageRate*attackerDamageBonusRate*(1-defenderReduceRate);
         if (damager instanceof Player attackerPlayer) {
-            attackerPlayer.sendMessage(Component.text(attackerPlayer.getName() + " >>>> " + damaged.getName()).color(NamedTextColor.YELLOW));
-            if (criFlag) attackerPlayer.sendMessage(Component.text("critical Hit!!").color(NamedTextColor.YELLOW).decoration(TextDecoration.BOLD, true));
-            attackerPlayer.sendMessage(Component.text(doubleToString(finalDmg)).color(damageColor).decorate(TextDecoration.BOLD).append(Component.text(" Damage").color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, false)));
+            attackerPlayer.sendActionBar(DamageActionBarUtil.buildCenteredDamageBar(attackerPlayer, damaged, doubleToString(finalDmg), damageColor, criFlag));
         }
         if (damaged instanceof Player defenderPlayer) {
-            defenderPlayer.sendMessage(Component.text( damager.getName() + " >>>> " + defenderPlayer.getName()).color(NamedTextColor.YELLOW));
-            if (criFlag) defenderPlayer.sendMessage(Component.text("critical Hit!!").color(NamedTextColor.YELLOW).decoration(TextDecoration.BOLD, true));
-            defenderPlayer.sendMessage(Component.text(doubleToString(finalDmg)).color(damageColor).decorate(TextDecoration.BOLD).append(Component.text(" Damage").color(NamedTextColor.WHITE).decoration(TextDecoration.BOLD, false)));
+            defenderPlayer.sendActionBar(DamageActionBarUtil.buildCenteredDamageBar(damager, defenderPlayer, doubleToString(finalDmg), damageColor, criFlag));
         }
         event.setDamage(finalDmg);
     }
