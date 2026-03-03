@@ -13,7 +13,7 @@ public class ClearCustomPDC {
         if (player == null) return;
         PersistentDataContainer persistentDataContainer = player.getPersistentDataContainer();
         for (NamespacedKey key : persistentDataContainer.getKeys()) {
-            if (key.getNamespace().equals("artifacts_custom")) persistentDataContainer.remove(key);
+            if (key.getNamespace().equals("artifact_custom")) persistentDataContainer.remove(key);
         }
     }
 }
