@@ -24,8 +24,8 @@ public class ArtifactAppraiseMenu extends BaseGui {
     private static final int ARTIFACT_SLOT = 13;
     private static final int CONFIRM_SLOT = 40;
 
-    private ItemStack unidentifiedArtifact;
-    private String artifactSeriesId;
+    private final ItemStack unidentifiedArtifact;
+    private final String artifactSeriesId;
 
     public ArtifactAppraiseMenu() {
         this(null, null);
@@ -114,7 +114,7 @@ public class ArtifactAppraiseMenu extends BaseGui {
                     .addLore("§7 B: §b22.5%")
                     .addLore("§7 C: §765.0%")
                     .setClickAction(ClickType.LEFT, player -> {
-                        if (unidentifiedArtifact == null || artifactSeriesId == null) {
+                        if (artifactSeriesId == null) {
                             player.sendMessage(Utils.parseLegacy("§c未鑑定のアーティファクトがセットされていません！"));
                             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
                             return;

@@ -7,13 +7,11 @@ import io.github.itokagimaru.artifact.artifact.gui.ArtifactEnhanceMenu;
 import io.github.itokagimaru.artifact.artifact.gui.ArtifactEquipMenu;
 import io.github.itokagimaru.artifact.artifact.gui.ArtifactProcessMenu;
 import io.github.itokagimaru.artifact.artifact.gui.ArtifactSellMenu;
-import io.github.itokagimaru.artifact.artifact.items.SpecialItems;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;

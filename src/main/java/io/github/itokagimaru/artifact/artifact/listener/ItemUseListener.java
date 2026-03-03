@@ -4,8 +4,6 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.EffectStack
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.TriggerType;
 import io.github.itokagimaru.artifact.data.ItemData;
 import org.bukkit.Material;
-import io.github.itokagimaru.artifact.artifact.gui.ArtifactEquipMenu;
-import io.github.itokagimaru.artifact.artifact.items.SpecialItems;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

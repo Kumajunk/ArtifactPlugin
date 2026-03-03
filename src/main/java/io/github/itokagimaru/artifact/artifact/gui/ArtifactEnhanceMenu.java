@@ -40,7 +40,7 @@ public class ArtifactEnhanceMenu extends BaseGui {
         setupPlayerInventoryHandler();
     }
 
-    private void setupPlayerInventoryHandler(){
+    private void setupPlayerInventoryHandler() {
         setPlayerInventoryClickHandler((player, slot, item, clickType) -> {
             if (item == null || item.getType() == Material.AIR) {
                 return;
@@ -115,7 +115,7 @@ public class ArtifactEnhanceMenu extends BaseGui {
         });
     }
 
-    private void setupGui(){
+    private void setupGui() {
         fill(new ItemBuilder().setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName(" "));
 
         if (enhanceTarget != null) {
@@ -151,7 +151,9 @@ public class ArtifactEnhanceMenu extends BaseGui {
             } else {
                 setItem(slot, new ItemBuilder()
                         .setMaterial(Material.LIGHT_GRAY_STAINED_GLASS_PANE)
-                        .setName("§e強化素材をセットしてください"));
+                        .setName("§e強化素材にするアーティファクトをセットしてください")
+                        .addLore("§7未強化の完成品アーティファクトのみセットできます")
+                );
             }
         }
 
@@ -188,7 +190,7 @@ public class ArtifactEnhanceMenu extends BaseGui {
         setItem(EXECUTE_BUTTON, new ItemBuilder()
                 .setMaterial(Material.ANVIL)
                 .setName("§a強化を実行する")
-                .addLore("§7確率: %s".formatted(String.format("%.2f", displayProb * 100))+"%")
+                .addLore("§7確率: %s".formatted(String.format("%.2f", displayProb * 100)) + "%")
                 .setClickAction(ClickType.LEFT, player -> {
                     if (enhanceTarget == null) {
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
@@ -231,10 +233,10 @@ public class ArtifactEnhanceMenu extends BaseGui {
         );
     }
 
-    private boolean checkLevelCap(BaseArtifact artifact){
+    private boolean checkLevelCap(BaseArtifact artifact) {
         int lv = artifact.getLv();
         String tier = artifact.getTier().getText;
-        switch (tier){
+        switch (tier) {
             case "C" -> {
                 return lv >= 10;
             }
@@ -256,7 +258,7 @@ public class ArtifactEnhanceMenu extends BaseGui {
         }
     }
 
-    private boolean checkArtifactSeries(BaseArtifact artifact_1, BaseArtifact artifact_2){
+    private boolean checkArtifactSeries(BaseArtifact artifact_1, BaseArtifact artifact_2) {
         if (!ArtifactMain.getGeneralConfig().isSeriesBinding()) {
             return true;
         }
