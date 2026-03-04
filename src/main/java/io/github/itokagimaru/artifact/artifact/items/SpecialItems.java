@@ -1,15 +1,19 @@
 package io.github.itokagimaru.artifact.artifact.items;
 
+import io.github.itokagimaru.artifact.Player.status.PlayerStatus;
+import io.github.itokagimaru.artifact.Player.status.PlayerStatusManager;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SpecialItems {
@@ -106,6 +110,20 @@ public class SpecialItems {
     public static boolean isAugment(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return false;
         return item.getItemMeta().getPersistentDataContainer().has(AUGMENT_KEY, PersistentDataType.BYTE);
+    }
+
+    public static ItemStack getStatViewer(Player player) {
+        PlayerStatus status = PlayerStatusManager.getPlayerStatus(player.getUniqueId());
+        ItemStack statView = new ItemStack(Material.WRITABLE_BOOK);
+        statView.editMeta(meta -> {
+            meta.customName(Component.text("現在ステータス").color(NamedTextColor.YELLOW));
+            meta.setItemModel(NamespacedKey.minecraft("stat_viewer"));
+            List<Component> l = new ArrayList<>(status.getAllStatusComponents());
+            l.add(Component.text("クリックで更新").color(NamedTextColor.YELLOW));
+            meta.lore(l);
+            meta.getPersistentDataContainer().set(new NamespacedKey("artifact", "stat_viewer"), PersistentDataType.BYTE, (byte) 1);
+        });
+        return statView;
     }
 
     // デス時にアイテムを消すタグ
