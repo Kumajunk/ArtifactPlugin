@@ -1,6 +1,7 @@
 package io.github.itokagimaru.artifact.artifact.listener;
 
 import io.github.itokagimaru.artifact.artifact.items.SpecialItems;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -28,6 +29,7 @@ public class PlayerInventoryClickListener implements Listener {
         Byte flag = meta.getPersistentDataContainer()
                 .get(key, PersistentDataType.BYTE);
         if (flag == null || flag != 1) return;
+        if(player.getGameMode() == GameMode.CREATIVE) return;
         event.setCancelled(true);
         Inventory clicked = event.getClickedInventory();
         if (clicked instanceof PlayerInventory) {
