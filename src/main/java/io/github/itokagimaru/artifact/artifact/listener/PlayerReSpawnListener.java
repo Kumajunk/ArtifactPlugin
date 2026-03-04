@@ -5,13 +5,13 @@ import io.github.itokagimaru.artifact.artifact.items.SpecialItems;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 
-public class PlayerJoinListener implements Listener {
+
+public class PlayerReSpawnListener implements Listener {
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent e){
+    public void onPlayerRespawn(PlayerRespawnEvent e) {
         Player player = e.getPlayer();
-
         ArtifactMain.updatePlayerArtifacts(player);
 
         //ステータスを見える化アイテムが存在しなければつけます

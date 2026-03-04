@@ -48,14 +48,13 @@ public class MainEffectUpdater {
     }
 
     private static StatusModifier.ValueType mainEffectValueType(MainEffect.artifactMainEffect mainEffect) {
-        switch (mainEffect.getAddType) {
-            case ADD ->  {
+        switch (mainEffect) {
+            case VIT, CRI, CRIDMG, FIRE_DMG_BONUS, NATURE_DMG_BONUS, WATER_DMG_BONUS ->  {
                 return StatusModifier.ValueType.ADD;
             }
-            case MULTIPLY ->  {
+            default -> {
                 return StatusModifier.ValueType.MULTIPLY;
             }
         }
-        return null;
     }
 }

@@ -16,7 +16,7 @@ public class SubEffectUpdater {
         PlayerStatus playerStatus = PlayerStatusManager.getPlayerStatus(player.getUniqueId());
         for (int i = 0; i < artifact.getSubEffects().length; i++) {
             if (artifact.getSubEffects()[i] == null) continue;
-            playerStatus.addModifier(new StatusModifier(UUID.randomUUID(), subEffectToPlayerStatus(artifact.getSubEffects()[i]), StatusModifier.ValueType.MULTIPLY, artifact.getSubEffectsValue()[i], new EffectSource(EffectSource.EffectSourceType.SUB_EFFECT, artifact.getSeries().getInternalName())));
+            playerStatus.addModifier(new StatusModifier(UUID.randomUUID(), subEffectToPlayerStatus(artifact.getSubEffects()[i]), subEffectValueType(artifact.getSubEffects()[i]), artifact.getSubEffectsValue()[i], new EffectSource(EffectSource.EffectSourceType.SUB_EFFECT, artifact.getSeries().getInternalName())));
         }
         PlayerStatusManager.addPlayerStatus(player.getUniqueId(), playerStatus);
     }
@@ -49,5 +49,16 @@ public class SubEffectUpdater {
             }
         }
         return null;
+    }
+
+    private static StatusModifier.ValueType subEffectValueType(SubEffect.artifactSubEffect subEffect) {
+        switch (subEffect) {
+            case VIT, CRI, CRIDMG, FIRE_DMG_REDUCE, WATER_DMG_REDUCE, NATURE_DMG_REDUCE -> {
+                return StatusModifier.ValueType.ADD;
+            }
+            default -> {
+                return StatusModifier.ValueType.MULTIPLY;
+            }
+        }
     }
 }

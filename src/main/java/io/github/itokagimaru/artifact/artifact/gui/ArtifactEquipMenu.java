@@ -17,6 +17,7 @@ import io.github.itokagimaru.artifact.artifact.artifacts.factory.ArtifactToItem;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.ItemToArtifact;
 import io.github.itokagimaru.artifact.data.ItemData;
 import io.github.itokagimaru.artifact.utils.BaseGui;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -58,45 +59,16 @@ public class ArtifactEquipMenu extends BaseGui {
                 });
             }
         }
+
+
+
         PlayerStatus playerStatus = PlayerStatusManager.getPlayerStatus(player.getUniqueId());
-        List<String> lore = new ArrayList<>();
-        for (MainEffect.artifactMainEffect mainEffect : MainEffect.artifactMainEffect.values()) {
-
-            int id = mainEffect.getId;
-
-            double displayValue = playerStatus.getStatus(
-                    PlayerStatus.playerStatus.fromId(id)
-            );
-            String suffix = "";
-
-            boolean isBaseStat =
-                    mainEffect == MainEffect.artifactMainEffect.HP ||
-                            mainEffect == MainEffect.artifactMainEffect.ATK ||
-                            mainEffect == MainEffect.artifactMainEffect.DEF;
-
-            if (!isBaseStat &&
-                    mainEffect.getAddType == MainEffect.valueType.MULTIPLY) {
-
-                if (mainEffect == MainEffect.artifactMainEffect.AGI) {
-                    displayValue *= 1000;
-                } else {
-                    displayValue *= 100;
-                }
-
-                suffix = "%";
-            }
-
-            lore.add("§7"+mainEffect.getText + ": §f"
-                    + doubleToString(displayValue)
-                    + suffix);
-        }
-
+        List<String> lore = playerStatus.getAllStatusText();
         setItem(8, new ItemBuilder()
                 .setMaterial(Material.BOOK)
                 .setName("プレイヤーステータス")
                 .setLore(lore)
         );
-
     }
 
     private void setupPlayerInventoryHandler() {

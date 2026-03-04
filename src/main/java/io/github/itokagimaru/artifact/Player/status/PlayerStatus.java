@@ -1,5 +1,11 @@
 package io.github.itokagimaru.artifact.Player.status;
 
+import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffect;
+import io.github.itokagimaru.artifact.utils.BaseGui;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Material;
+
 import java.util.*;
 
 
@@ -68,7 +74,7 @@ public class PlayerStatus {
         baseStatus.put(playerStatus.ATK, 10.0);
         baseStatus.put(playerStatus.DEF, 10.0);
         baseStatus.put(playerStatus.AGI, 0.1);
-        baseStatus.put(playerStatus.VIT, 0.05);
+        baseStatus.put(playerStatus.VIT, 0.00);
         baseStatus.put(playerStatus.CRI, 0.05);
         baseStatus.put(playerStatus.CRIDMG, 0.5);
         baseStatus.put(playerStatus.FIRE_DMG_BONUS, 0.0);
@@ -112,4 +118,74 @@ public class PlayerStatus {
         }
         return (baseStatus.get(status) + addTypeModifier) * multiplyTypeModifier;
     }
+
+    public List<String> getAllStatusText(){
+        PlayerStatus playerStatus = this;
+        List<String> lore = new ArrayList<>();
+        for (PlayerStatus.playerStatus status : PlayerStatus.playerStatus.values()) {
+            double displayValue = playerStatus.getStatus(
+                    status
+            );
+            String suffix = "";
+
+            boolean isBaseStat =
+                    status == PlayerStatus.playerStatus.HP ||
+                            status == PlayerStatus.playerStatus.ATK ||
+                            status == PlayerStatus.playerStatus.DEF;
+
+            if (!isBaseStat) {
+                if (status == PlayerStatus.playerStatus.AGI) {
+                    displayValue *= 1000;
+                } else {
+                    displayValue *= 100;
+                }
+
+                suffix = "%";
+            }
+
+
+            lore.add("§7"+status.text + ": §f"
+                    + doubleToString(displayValue)
+                    + suffix);
+        }
+        return lore;
+    }
+
+
+    public List<Component> getAllStatusComponents(){
+        PlayerStatus playerStatus = this;
+        List<Component> lore = new ArrayList<>();
+        for (PlayerStatus.playerStatus status : PlayerStatus.playerStatus.values()) {
+            double displayValue = playerStatus.getStatus(
+                    status
+            );
+            String suffix = "";
+
+            boolean isBaseStat =
+                    status == PlayerStatus.playerStatus.HP ||
+                            status == PlayerStatus.playerStatus.ATK ||
+                            status == PlayerStatus.playerStatus.DEF;
+
+            if (!isBaseStat) {
+                if (status == PlayerStatus.playerStatus.AGI) {
+                    displayValue *= 1000;
+                } else {
+                    displayValue *= 100;
+                }
+
+                suffix = "%";
+            }
+
+            lore.add(Component.text(status.text + ": ").color(NamedTextColor.GRAY).append(Component.text(doubleToString(displayValue)
+                    + suffix)).color(NamedTextColor.WHITE));
+        }
+        return lore;
+    }
+
+
+
+    private String doubleToString(double d){
+        return String.format("%.2f", d);
+    }
+
 }
