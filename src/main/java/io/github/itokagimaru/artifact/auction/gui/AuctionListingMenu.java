@@ -14,6 +14,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -22,6 +23,9 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+
+import static io.github.itokagimaru.artifact.utils.Utils.sync;
 
 /**
  * オークション出品一覧を表示するGUI
@@ -38,19 +42,24 @@ public class AuctionListingMenu extends BaseGui {
         this.manager = manager;
         this.filter = filter != null ? filter : new AuctionSearchFilter();
         this.page = page;
-        setupMenu();
     }
 
-    private void setupMenu() {
-        // 出品を取得
-        List<AuctionListing> listings = manager.search(filter, SortOrder.CREATED_AT_DESC, page, ITEMS_PER_PAGE);
-
-        // 出品アイテムを表示
+    @Override
+    public void open(Player player) {
+        manager.search(this.filter, SortOrder.CREATED_AT_DESC, page, ITEMS_PER_PAGE)
+                .thenAccept(listings -> sync(() -> {
+                    renderMenu(listings);
+                    openGui(player, this);
+                }))
+                .exceptionally(ex -> {
+                    sync(() -> player.sendMessage("§cデータの読み込みに失敗しました"));
+                    return null;
+                });
+    }
+    private void renderMenu(List<AuctionListing> listings) {
         for (int i = 0; i < listings.size() && i < ITEMS_PER_PAGE; i++) {
             AuctionListing listing = listings.get(i);
-            setItem(i, createListingItem(listing), player -> {
-                new AuctionDetailMenu(manager, listing.getListingId()).open(player);
-            });
+            setItem(i, createListingItem(listing), player -> new AuctionDetailMenu(manager, listing.getListingId()).open(player));
         }
 
         // 空きスロットを埋める
@@ -68,9 +77,7 @@ public class AuctionListingMenu extends BaseGui {
             setItem(45, new ItemBuilder()
                 .setMaterial(Material.ARROW)
                 .setName("§a§l前のページ")
-                .setClickAction(ClickType.LEFT, player -> {
-                    new AuctionListingMenu(manager, filter, page - 1).open(player);
-                }));
+                .setClickAction(ClickType.LEFT, player -> new AuctionListingMenu(manager, filter, page - 1).open(player)));
         }
 
         // 次のページ
@@ -78,41 +85,33 @@ public class AuctionListingMenu extends BaseGui {
             setItem(53, new ItemBuilder()
                 .setMaterial(Material.ARROW)
                 .setName("§a§l次のページ")
-                .setClickAction(ClickType.LEFT, player -> {
-                    new AuctionListingMenu(manager, filter, page + 1).open(player);
-                }));
+                .setClickAction(ClickType.LEFT, player -> new AuctionListingMenu(manager, filter, page + 1).open(player)));
         }
 
         // 検索ボタン
         setItem(47, new ItemBuilder()
             .setMaterial(Material.COMPASS)
             .setName("§e§l検索条件を変更")
-            .setClickAction(ClickType.LEFT, player -> {
-                new AuctionSearchMenu(manager).open(player);
-            }));
+            .setClickAction(ClickType.LEFT, player -> new AuctionSearchMenu(manager).open(player)));
 
         // 戻るボタン
         setItem(49, new ItemBuilder()
             .setMaterial(Material.BARRIER)
             .setName("§c§l戻る")
-            .setClickAction(ClickType.LEFT, player -> {
-                new AuctionMainMenu(manager).open(player);
-            }));
+            .setClickAction(ClickType.LEFT, player -> new AuctionMainMenu(manager).open(player)));
 
         // 更新ボタン
         setItem(51, new ItemBuilder()
             .setMaterial(Material.LIME_DYE)
             .setName("§a§l更新")
-            .setClickAction(ClickType.LEFT, player -> {
-                new AuctionListingMenu(manager, filter, page).open(player);
-            }));
+            .setClickAction(ClickType.LEFT, player -> new AuctionListingMenu(manager, filter, page).open(player)));
     }
 
     /**
      * 出品アイテムのItemStackを作成
      */
     private ItemStack createListingItem(AuctionListing listing) {
-        // Attempt to restore the artifact and use the canonical item representation
+        // アーティファクトの復元を試行し、正規のアイテム表現を使用する
         BaseArtifact artifact = JsonConverter.deserializeArtifact(listing.getArtifactData());
         if (artifact != null) {
             ItemStack item = ArtifactToItem.convert(artifact);
@@ -120,29 +119,28 @@ public class AuctionListingMenu extends BaseGui {
             return item;
         }
 
-        // Fallback: if deserialization fails, show a placeholder
+        // フォールバック: デシリアライズに失敗した場合はプレースホルダーを表示
         ItemStack fallback = new ItemStack(Material.BARRIER);
-        fallback.editMeta(meta -> {
-            meta.displayName(Component.text("データ復元失敗").color(NamedTextColor.RED)
-                    .decoration(TextDecoration.ITALIC, false));
-        });
+        fallback.editMeta(meta -> meta.displayName(Component.text("データ復元失敗")
+                .color(NamedTextColor.RED)
+                .decoration(TextDecoration.ITALIC, false)));
         return fallback;
     }
 
     /**
-     * Append auction-specific information to an existing artifact ItemStack's lore.
+     * 既存のアーティファクト ItemStack の lore にオークション固有の情報を追加します。
      */
     private void appendAuctionLore(ItemStack item, AuctionListing listing) {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return;
 
-        List<Component> lore = meta.lore() != null ? new ArrayList<>(meta.lore()) : new ArrayList<>();
+        List<Component> lore = meta.lore() != null ? new ArrayList<>(Objects.requireNonNull(meta.lore())) : new ArrayList<>();
 
-        // Separator
+        // 区切り線
         lore.add(Component.text("━━━━━ AUCTION ━━━━━").color(NamedTextColor.GOLD)
                 .decoration(TextDecoration.ITALIC, false));
 
-        // Price
+        // 価格表示
         String priceStr = formatPrice(listing.getDisplayPrice());
         if (listing.getType() == AuctionType.BIN) {
             lore.add(Utils.parseLegacy("§a即時購入: §f$" + priceStr));
@@ -154,7 +152,7 @@ public class AuctionListingMenu extends BaseGui {
             }
         }
 
-        // Remaining time
+        // 残り時間表示
         long remaining = listing.getRemainingTime();
         lore.add(Utils.parseLegacy("§7残り時間: §f" + formatTime(remaining)));
 

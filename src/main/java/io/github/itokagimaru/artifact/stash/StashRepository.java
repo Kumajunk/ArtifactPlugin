@@ -7,6 +7,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * InventoryStashのデータ永続化を担当するリポジトリクラス
@@ -15,10 +18,15 @@ public class StashRepository {
 
     private final JavaPlugin plugin;
     private final AuctionDatabase database;
+    private final ExecutorService dbExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
     public StashRepository(JavaPlugin plugin, AuctionDatabase database) {
         this.plugin = plugin;
         this.database = database;
+    }
+
+    public void shutdown() {
+        dbExecutor.shutdown();
     }
 
     /**
@@ -62,6 +70,41 @@ public class StashRepository {
         }
     }
 
+    public CompletableFuture<Void> saveAsync(StashItem item) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                save(item);
+            } catch (SQLException e) {
+                plugin.getLogger().severe("Stash保存エラー: " + e.getMessage());
+                throw new RuntimeException(e);
+            }
+        }, dbExecutor);
+    }
+
+    /**
+     * アイテムをStashから削除する
+     */
+    public void delete(UUID itemId) throws SQLException {
+        String sql = "DELETE FROM inventory_stash WHERE id = ?";
+
+        try (Connection conn = database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, itemId.toString());
+            stmt.executeUpdate();
+        }
+    }
+
+    public CompletableFuture<Void> deleteAsync(UUID itemId) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                delete(itemId);
+            } catch (SQLException e) {
+                plugin.getLogger().severe("Stash削除エラー: " + e.getMessage());
+                throw new RuntimeException(e);
+            }
+        }, dbExecutor);
+    }
+
     /**
      * プレイヤーのStashアイテムを取得する
      */
@@ -83,6 +126,17 @@ public class StashRepository {
         }
 
         return items;
+    }
+
+    public CompletableFuture<List<StashItem>> findByPlayerAsync(UUID playerId) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return findByPlayer(playerId);
+            } catch (Exception e) {
+                plugin.getLogger().severe("Stash検索エラー: " + e.getMessage());
+                throw new RuntimeException(e);
+            }
+        }, dbExecutor);
     }
 
     /**
@@ -107,17 +161,15 @@ public class StashRepository {
         return 0;
     }
 
-    /**
-     * アイテムをStashから削除する
-     */
-    public void delete(UUID itemId) throws SQLException {
-        String sql = "DELETE FROM inventory_stash WHERE id = ?";
-
-        try (Connection conn = database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, itemId.toString());
-            stmt.executeUpdate();
-        }
+    public CompletableFuture<Integer> countByPlayerAsync(UUID playerId) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return countByPlayer(playerId);
+            } catch (Exception e){
+                plugin.getLogger().severe(e.getMessage());
+                throw new RuntimeException(e);
+            }
+        }, dbExecutor);
     }
 
     /**
@@ -140,6 +192,17 @@ public class StashRepository {
         }
 
         return null;
+    }
+
+    public CompletableFuture<StashItem> findByIdAsync(UUID itemId) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return findById(itemId);
+            } catch (Exception e) {
+                plugin.getLogger().severe(e.getMessage());
+                throw new RuntimeException(e);
+            }
+        }, dbExecutor);
     }
 
     private StashItem mapResultSet(ResultSet rs) throws SQLException {

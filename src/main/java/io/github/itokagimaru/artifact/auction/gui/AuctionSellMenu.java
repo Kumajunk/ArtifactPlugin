@@ -3,8 +3,6 @@ package io.github.itokagimaru.artifact.auction.gui;
 import io.github.itokagimaru.artifact.artifact.artifacts.artifact.BaseArtifact;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.ItemToArtifact;
 import io.github.itokagimaru.artifact.auction.AuctionManager;
-import io.github.itokagimaru.artifact.auction.Result;
-import io.github.itokagimaru.artifact.auction.model.AuctionListing;
 import io.github.itokagimaru.artifact.auction.model.AuctionType;
 import io.github.itokagimaru.artifact.utils.BaseGui;
 import io.github.itokagimaru.artifact.utils.Utils;
@@ -15,9 +13,10 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 
+import static io.github.itokagimaru.artifact.utils.Utils.sync;
+
 /**
  * 出品画面GUI
- * 
  * プレイヤーがアーティファクトを出品するためのインターフェース。
  * インベントリ内のアイテムをクリックして選択し、出品確定時にのみ消費される。
  */
@@ -29,7 +28,7 @@ public class AuctionSellMenu extends BaseGui {
     
     // 選択されたアイテムの情報
     private ItemStack selectedItem;          // 選択されたアイテムのコピー
-    private int selectedSlotIndex = -1;      // 元アイテムのインベントリ内スロット番号
+    private int selectedSlotIndex;      // 元アイテムのインベントリ内スロット番号
 
     // アイテム表示用スロット番号
     private static final int ITEM_DISPLAY_SLOT = 22;
@@ -91,7 +90,7 @@ public class AuctionSellMenu extends BaseGui {
         this.selectedItem = item;
         this.selectedSlotIndex = slotIndex;
         
-        player.sendMessage("§aアイテムを選択しました！");
+        player.sendMessage("§aアイテムを選択しました!");
         
         // GUIを更新して選択されたアイテムを表示
         new AuctionSellMenu(manager, selectedType, selectedDuration, selectedItem, selectedSlotIndex).open(player);
@@ -199,9 +198,7 @@ public class AuctionSellMenu extends BaseGui {
         setItem(49, new ItemBuilder()
             .setMaterial(Material.ARROW)
             .setName("§7§l戻る")
-            .setClickAction(ClickType.LEFT, player -> {
-                new AuctionMainMenu(manager).open(player);
-            }));
+            .setClickAction(ClickType.LEFT, player -> new AuctionMainMenu(manager).open(player)));
     }
 
     /**
@@ -281,7 +278,7 @@ public class AuctionSellMenu extends BaseGui {
     }
 
     /**
-     * 出品確認を処理する
+     * 出品確認を促し、非同期に出品を送信します。
      */
     private void promptConfirmation(Player player, BaseArtifact artifact, long price) {
         Utils.promptTextInput(
@@ -290,7 +287,7 @@ public class AuctionSellMenu extends BaseGui {
             10,
             input -> {
                 if (input.equalsIgnoreCase("confirm")) {
-                    // 元のスロットにアイテムがまだあるか最終確認
+                    // 最終確認: アイテムが元のスロットにまだあるか確認
                     ItemStack currentItem = player.getInventory().getItem(selectedSlotIndex);
                     if (currentItem == null || !currentItem.isSimilar(selectedItem)) {
                         player.sendMessage("§c選択されたアイテムが見つかりません。再度やり直してください");
@@ -298,27 +295,35 @@ public class AuctionSellMenu extends BaseGui {
                         return;
                     }
 
-                    // 出品実行
-                    Result<AuctionListing> result = manager.createListing(
-                        player, 
-                        artifact, 
-                        selectedType, 
-                        price, 
-                        selectedDuration
-                    );
+                    // 二重配布防止のため、非同期処理の前にアイテムを削除
+                    player.getInventory().setItem(selectedSlotIndex, null);
 
-                    if (result.isSuccess()) {
-                        // 出品成功時、元のスロットからアイテムを削除
-                        player.getInventory().setItem(selectedSlotIndex, null);
-                        player.sendMessage("§a出品が完了しました!");
-                        player.sendMessage("§7出品ID: §f" + result.getData().getListingId());
-                    } else {
-                        player.sendMessage("§c出品に失敗しました: " + result.getErrorMessage());
-                    }
+                    // 非同期に出品を送信
+                    manager.createListing(player, artifact, selectedType, price, selectedDuration)
+                            .thenAccept(result -> sync(() -> {
+                                if (result.isSuccess()) {
+                                    player.sendMessage("§a出品が完了しました!");
+                                    player.sendMessage("§7出品ID: §f" + result.getData().getListingId());
+                                } else {
+                                    // 失敗時にアイテムを返却
+                                    player.getInventory().addItem(selectedItem);
+                                    player.sendMessage("§c出品に失敗しました: " + result.getErrorMessage());
+                                }
+                                new AuctionMainMenu(manager).open(player);
+                            }))
+                            .exceptionally(ex -> {
+                                sync(() -> {
+                                    // 予期せぬエラー時にアイテムを返却
+                                    player.getInventory().addItem(selectedItem);
+                                    player.sendMessage("§c出品処理が失敗しました。管理者に連絡してください");
+                                    new AuctionMainMenu(manager).open(player);
+                                });
+                                return null;
+                            });
                 } else {
                     player.sendMessage("§c出品をキャンセルしました");
+                    new AuctionMainMenu(manager).open(player);
                 }
-                new AuctionMainMenu(manager).open(player);
             }
         );
     }

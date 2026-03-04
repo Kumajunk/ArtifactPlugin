@@ -64,8 +64,7 @@ public final class ArtifactMain extends JavaPlugin {
     private AuctionScheduler auctionScheduler;
     private VaultAPI vaultAPI;
 
-    SeriesRegistry seriesRegistry;
-
+    private StashRepository stashRepository;
     private StashManager stashManager;
     private GeneralConfig generalConfig;
     private DecomposeConfig decomposeConfig;
@@ -162,6 +161,9 @@ public final class ArtifactMain extends JavaPlugin {
             auctionDatabase.close();
         }
 
+        auctionRepository.shutdown();
+        stashRepository.shutdown();
+
         getSLF4JLogger().info("アーティファクトプラグインを無効化しました");
     }
 
@@ -196,7 +198,7 @@ public final class ArtifactMain extends JavaPlugin {
         try {
             // Stashリポジトリ初期化
             // Stashシステム
-            StashRepository stashRepository = new StashRepository(this, auctionDatabase);
+            stashRepository = new StashRepository(this, auctionDatabase);
             stashRepository.initTable();
 
             // Stashマネージャー初期化
@@ -206,7 +208,7 @@ public final class ArtifactMain extends JavaPlugin {
             auctionManager = new AuctionManager(this, auctionRepository, auctionConfig, vaultAPI, stashManager);
 
             // スケジューラー開始
-            auctionScheduler = new AuctionScheduler(this, auctionRepository, auctionConfig, vaultAPI, auctionManager, stashManager);
+            auctionScheduler = new AuctionScheduler(this, auctionRepository, auctionConfig, vaultAPI, stashManager);
             auctionScheduler.start();
 
             getSLF4JLogger().info("Initialized Stash system");

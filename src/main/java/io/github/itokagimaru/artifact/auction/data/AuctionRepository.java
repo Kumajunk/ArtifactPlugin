@@ -12,6 +12,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
@@ -22,7 +25,7 @@ public class AuctionRepository {
     private final JavaPlugin plugin;
     private final AuctionDatabase database;
     private final Gson gson = new Gson();
-
+    private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
     /**
      * コンストラクタ
      *
@@ -32,6 +35,93 @@ public class AuctionRepository {
     public AuctionRepository(JavaPlugin plugin, AuctionDatabase database) {
         this.plugin = plugin;
         this.database = database;
+    }
+
+    public void shutdown() {
+        executor.shutdown();
+    }
+
+    // --- 非同期API ---
+
+    public CompletableFuture<Void> saveAsync(AuctionListing listing) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                save(listing);
+            } catch (SQLException e) {
+                throw new RuntimeException("Save failed", e);
+            }
+        }, executor);
+    }
+
+    public CompletableFuture<Optional<AuctionListing>> findByIdAsync(UUID listingId) {
+        return CompletableFuture.supplyAsync(() -> findById(listingId), executor);
+    }
+
+    public CompletableFuture<List<AuctionListing>> findBySellerAsync(UUID sellerId) {
+        return CompletableFuture.supplyAsync(() -> findBySeller(sellerId), executor);
+    }
+
+    public CompletableFuture<List<AuctionListing>> searchAsync(AuctionSearchFilter filter, SortOrder sortOrder, int limit, int offset) {
+        return CompletableFuture.supplyAsync(() -> search(filter, sortOrder, limit, offset), executor);
+    }
+
+    public CompletableFuture<Void> deleteAsync(UUID listingId) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                delete(listingId);
+            } catch (SQLException e) {
+                throw new RuntimeException("Delete failed", e);
+            }
+        }, executor);
+    }
+
+    public CompletableFuture<Integer> countBySellerAsync(UUID sellerId) {
+        return CompletableFuture.supplyAsync(() -> countBySeller(sellerId), executor);
+    }
+
+    public CompletableFuture<Optional<AuctionListing>> findByArtifactIdAsync(UUID artifactId) {
+        return CompletableFuture.supplyAsync(() -> findByArtifactId(artifactId), executor);
+    }
+
+    public CompletableFuture<List<AuctionListing>> findExpiredAsync() {
+        return CompletableFuture.supplyAsync(this::findExpired, executor);
+    }
+
+    public CompletableFuture<Void> recordBidAsync(UUID listingId, UUID bidderId, long bidAmount) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                recordBid(listingId, bidderId, bidAmount);
+            } catch (SQLException e) {
+                throw new RuntimeException("RecordBid failed", e);
+            }
+        }, executor);
+    }
+
+    /**
+     * 入札情報をアトミックに更新する（楽観的ロック）
+     * 自分が確認した時の入札額(expectedOldAmount)と同じである場合のみ更新します。
+     *
+     * @return 更新に成功（1行更新）した場合はtrue
+     */
+    public CompletableFuture<Boolean> updateBidAtomicAsync(UUID listingId, UUID newBidderId, long newAmount, long expectedOldAmount) {
+        return CompletableFuture.supplyAsync(() -> {
+            String sql = """
+            UPDATE auction_listings
+            SET current_bid = ?, current_bidder_id = ?
+            WHERE listing_id = ? AND current_bid = ?
+        """;
+            try (Connection conn = database.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setLong(1, newAmount);
+                stmt.setString(2, newBidderId.toString());
+                stmt.setString(3, listingId.toString());
+                stmt.setLong(4, expectedOldAmount);
+
+                return stmt.executeUpdate() > 0;
+            } catch (SQLException e) {
+                throw new RuntimeException("入札DB更新エラー", e);
+            }
+        }, executor);
     }
 
     /**
