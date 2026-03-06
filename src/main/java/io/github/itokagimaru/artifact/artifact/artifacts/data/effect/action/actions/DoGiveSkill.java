@@ -1,6 +1,7 @@
 package io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.actions;
 
 import io.github.itokagimaru.artifact.data.ItemData;
+import io.github.itokagimaru.artifact.utils.Utils;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -16,7 +17,7 @@ public class DoGiveSkill extends Action {
     ItemStack skillItem = new ItemStack(Material.WOODEN_HOE);
     public DoGiveSkill(String key, String itemName, String model, List<Component> lore){
         skillItem.editMeta(meta -> {
-            meta.setDisplayName(itemName);
+            meta.customName(Utils.parseLegacy(itemName.replace('&', '§')));
             meta.setItemModel( NamespacedKey.minecraft(model));
             meta.lore(lore);
         });
