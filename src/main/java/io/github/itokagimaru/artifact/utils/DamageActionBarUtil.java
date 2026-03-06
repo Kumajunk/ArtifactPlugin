@@ -44,8 +44,14 @@ public final class DamageActionBarUtil {
                 .color(NamedTextColor.YELLOW)
                 .decorate(TextDecoration.BOLD);
 
-        Component arrow = Component.text(" >> ")
-                .color(NamedTextColor.GRAY)
+        NamedTextColor arrowColor;
+        if (criFlag) {
+            arrowColor = NamedTextColor.YELLOW;
+        } else {
+            arrowColor = NamedTextColor.GRAY;
+        }
+        Component arrow = Component.text(" >>> ")
+                .color(arrowColor)
                 .decorate(TextDecoration.BOLD);
 
         Component leftDamage = Component.text(leftHalf)

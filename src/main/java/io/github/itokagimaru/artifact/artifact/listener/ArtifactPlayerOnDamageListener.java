@@ -54,7 +54,7 @@ public class ArtifactPlayerOnDamageListener implements Listener {
                 ArtifactMain.getInstance().testLog("ダメージソースの取得に失敗");
             }
         }
-        if (damager instanceof Player attackerPlayer) {
+        if (damager instanceof Player attackerPlayer) { //攻撃側の処理
             if (event.getDamageSource().getDamageType() == DamageType.PLAYER_ATTACK) {
                 event.setCancelled(true);
                 return;
@@ -138,7 +138,7 @@ public class ArtifactPlayerOnDamageListener implements Listener {
             }
         }
 
-        if (damaged instanceof Player damagedPlayer){
+        if (damaged instanceof Player damagedPlayer){ //被攻撃側の処理
             EffectStack.runByTrigger(TriggerType.triggerType.ON_DAMAGE, damagedPlayer.getUniqueId());
             PlayerStatus defenderStatus = PlayerStatusManager.getPlayerStatus(damagedPlayer.getUniqueId());
             defenderDEF = defenderStatus.getStatus(PlayerStatus.playerStatus.DEF);
@@ -157,6 +157,8 @@ public class ArtifactPlayerOnDamageListener implements Listener {
                 default -> defenderReduceRate += 0;
             }
         }
+        if (defenderReduceRate >= 1) defenderReduceRate = 0;
+
         baseDmg = (attackerATK/2) - (defenderDEF/4);
         baseDmg = baseDmg*criDMGBonus;
         if (baseDmg < 0) baseDmg = 0;
