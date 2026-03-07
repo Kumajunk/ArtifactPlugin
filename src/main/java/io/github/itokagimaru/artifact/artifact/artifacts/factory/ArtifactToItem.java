@@ -5,6 +5,7 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEff
 import io.github.itokagimaru.artifact.artifact.artifacts.artifact.BaseArtifact;
 import io.github.itokagimaru.artifact.data.ItemData;
 import io.github.itokagimaru.artifact.utils.ByteArrayConverter;
+import io.github.itokagimaru.artifact.utils.Utils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -57,7 +58,7 @@ public class ArtifactToItem {
         return stack;
     }
     private static Component makeName(BaseArtifact artifact){
-        return Component.text("ArtifactSeries <").color(NamedTextColor.GRAY).append(Component.text(artifact.getSeries().getSeriesName()).color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD).append(Component.text(">").color(NamedTextColor.GRAY))).decoration(TextDecoration.ITALIC, false);
+        return Component.text("ArtifactSeries <").color(NamedTextColor.GRAY).append(Utils.parseLegacy(artifact.getSeries().getSeriesName()).color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD).append(Component.text(">").color(NamedTextColor.GRAY))).decoration(TextDecoration.ITALIC, false);
     }
     private static List<Component> makeLore(BaseArtifact artifact){
         List<Component> lore = new java.util.ArrayList<>(List.of(
