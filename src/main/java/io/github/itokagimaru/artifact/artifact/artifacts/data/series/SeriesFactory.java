@@ -7,6 +7,7 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.Effect;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.EffectStack;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.ActionStack;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.actions.*;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.actions.delay.Delay;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.condition.ConditionStack;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.condition.Conditions.*;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.TriggerType;

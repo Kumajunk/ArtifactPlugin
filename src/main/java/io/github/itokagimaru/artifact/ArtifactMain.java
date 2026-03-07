@@ -2,6 +2,7 @@ package io.github.itokagimaru.artifact;
 
 import io.github.itokagimaru.artifact.Player.status.AGIStatUpdater;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.ClearCustomPDC;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.actions.delay.TaskStack;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesFactory;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
@@ -252,6 +253,7 @@ public final class ArtifactMain extends JavaPlugin {
 
     public static void updatePlayerArtifacts(Player player) {
         ClearCustomPDC.clear(player.getUniqueId());
+        TaskStack.cancelTasks(player.getUniqueId());
         Inventory inventory = player.getInventory();
         for(int i = 0; i < inventory.getSize(); i++){
             ItemStack item = inventory.getItem(i);
