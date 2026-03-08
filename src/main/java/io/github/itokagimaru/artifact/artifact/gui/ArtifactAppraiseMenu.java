@@ -143,6 +143,7 @@ public class ArtifactAppraiseMenu extends BaseGui {
 
                         // メニューを閉じる
                         player.closeInventory();
+                        new ArtifactAppraiseMenu().open(player);
                     })
             );
         } else {

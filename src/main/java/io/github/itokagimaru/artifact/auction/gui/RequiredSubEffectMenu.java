@@ -13,7 +13,7 @@ public class RequiredSubEffectMenu extends BaseGui {
 
     private final AuctionManager manager;
     private final AuctionSearchFilter filter;
-    private SortOrder sortOrder;
+    private final SortOrder sortOrder;
 
     public RequiredSubEffectMenu(AuctionManager manager, AuctionSearchFilter filter, SortOrder sortOrder) {
         super(54, "§6必須のSub効果を選択");
@@ -31,17 +31,17 @@ public class RequiredSubEffectMenu extends BaseGui {
         for (SubEffect.artifactSubEffect effect : SubEffect.artifactSubEffect.values()) {
             boolean isSelected = filter.getRequiredSubEffects().contains(effect);
             boolean isExcluded = filter.getExcludedSubEffects().contains(effect);
-            Material mainMaterial = Material.IRON_SWORD;
+            Material mainMaterial = Material.WOODEN_SHOVEL;
             switch(slot) {
                 case 18 -> mainMaterial = Material.APPLE;
-                case 19 -> mainMaterial = Material.BREAD;
-                case 20 -> mainMaterial = Material.CARROT;
-                case 21 -> mainMaterial = Material.POTATO;
-                case 22 -> mainMaterial = Material.BEETROOT;
-                case 23 -> mainMaterial = Material.MELON;
-                case 24 -> mainMaterial = Material.PUMPKIN;
-                case 25 -> mainMaterial = Material.SWEET_BERRIES;
-                case 26 -> mainMaterial = Material.GLOW_BERRIES;
+                case 19 -> mainMaterial = Material.IRON_SWORD;
+                case 20 -> mainMaterial = Material.IRON_CHESTPLATE;
+                case 21 -> mainMaterial = Material.GOLDEN_APPLE;
+                case 22 -> mainMaterial = Material.ECHO_SHARD;
+                case 23 -> mainMaterial = Material.END_CRYSTAL;
+                case 24 -> mainMaterial = Material.LAVA_BUCKET;
+                case 25 -> mainMaterial = Material.WATER_BUCKET;
+                case 26 -> mainMaterial = Material.MOSS_BLOCK;
             }
             Material subMaterial = isSelected ? Material.LIME_DYE : Material.GRAY_DYE;
 
@@ -77,9 +77,7 @@ public class RequiredSubEffectMenu extends BaseGui {
         setItem(49, new ItemBuilder()
                 .setMaterial(Material.BARRIER)
                 .setName("§c§l戻る")
-                .setClickAction(ClickType.LEFT, player -> {
-                    new AuctionSearchMenu(manager, filter, sortOrder).open(player);
-                })
+                .setClickAction(ClickType.LEFT, player -> new AuctionSearchMenu(manager, filter, sortOrder).open(player))
         );
     }
 }
