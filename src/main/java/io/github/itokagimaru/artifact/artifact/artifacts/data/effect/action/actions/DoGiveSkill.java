@@ -15,7 +15,9 @@ import java.util.UUID;
 
 public class DoGiveSkill extends Action {
     ItemStack skillItem = new ItemStack(Material.WOODEN_HOE);
+    String key;
     public DoGiveSkill(String key, String itemName, String model, List<Component> lore){
+        this.key = key;
         skillItem.editMeta(meta -> {
             meta.customName(Utils.parseLegacy(itemName.replace('&', '§')));
             meta.setItemModel( NamespacedKey.minecraft(model));
@@ -24,10 +26,16 @@ public class DoGiveSkill extends Action {
         ItemData.IS_SKILL_ITEM.set(skillItem, (byte) 1);
         ItemData.SKILL_KEY.set(skillItem, key);
     }
+
     @Override
     public void run(UUID playerUuid){
         Player player = Bukkit.getPlayer(playerUuid);
+        if (player == null) return;
         Inventory inventory = player.getInventory();
         inventory.addItem(skillItem);
+    }
+
+    public String getKey() {
+        return key;
     }
 }
