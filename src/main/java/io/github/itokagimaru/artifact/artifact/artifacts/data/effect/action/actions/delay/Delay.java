@@ -26,7 +26,6 @@ public class Delay extends Action {
 
     @Override
     public void run(UUID playerUuid) {
-        Bukkit.getPlayer(playerUuid).sendMessage(delayTime.toString());
         BukkitTask task = Bukkit.getScheduler().runTaskLater(ArtifactMain.getInstance(), () -> {
             if (Bukkit.getPlayer(playerUuid) == null) return;
             if (!delayCondition.isAllTrue(playerUuid, null)) return;
