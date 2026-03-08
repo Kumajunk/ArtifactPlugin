@@ -16,6 +16,7 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.value.Value
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.value.Values;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.exceptionStatus.ExceptionStatus;
 import io.github.itokagimaru.artifact.utils.Utils;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -185,12 +186,14 @@ public class SeriesFactory {
         }
     }
     public static Series makeSeries(YamlConfiguration config) throws Exception{
-
         ConfigurationSection seriesSec = config.getConfigurationSection(Key.SERIES.keyName);
+
         try {
             String internalName = seriesSec.getString(Key.INTERNAL_NAME.keyName);
             String seriesName = seriesSec.get(Key.SERIES_NAME.keyName).toString();
             String model = seriesSec.getString(Key.MODEL.keyName);
+            List<Double> cmd = seriesSec.getDoubleList("cmd");
+            if (cmd.size() != 6) throw new IllegalStateException("cmdは6個入力が必要です");
             List<Component> flavorText = toComponentText(seriesSec.getMapList(Key.FLAVOR_TEXT.keyName));
             ExceptionStatus.artifactExceptionStatus[] exStatus = toExStatusArray(seriesSec.getStringList(Key.EX_STATUS.keyName));
             ConfigurationSection setEffectSec = seriesSec.getConfigurationSection(Key.SET_EFFECT.keyName);
@@ -206,7 +209,7 @@ public class SeriesFactory {
             for (Effect effect : fourSetEffect){
                 EffectStack.addEffect(effect);
             }
-            return new Series(internalName, seriesName, model, exStatus, twoSetEffectDescription, fourSetEffectDescription, flavorText);
+            return new Series(internalName, seriesName, model, cmd.toArray(new Double[0]), exStatus, twoSetEffectDescription, fourSetEffectDescription, flavorText);
         } catch (Exception e) {
             throw new IllegalAccessException(e.getMessage());
         }

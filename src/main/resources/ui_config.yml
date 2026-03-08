@@ -1,0 +1,8 @@
+artifact:
+  material: PAPER
+
+icons:
+  material: WOODEN_SHOVEL
+  cmd:
+    cut: [0,1,2,3,4,5]
+    stat_viewer: 6

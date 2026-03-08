@@ -1,6 +1,7 @@
 package io.github.itokagimaru.artifact;
 
 import io.github.itokagimaru.artifact.Player.status.AGIStatUpdater;
+import io.github.itokagimaru.artifact.artifact.artifacts.config.UiConfig;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.ClearCustomPDC;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.actions.delay.TaskStack;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.Series;
@@ -15,11 +16,12 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.Tri
 import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffectUpdater;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffectUpdater;
+import io.github.itokagimaru.artifact.artifact.artifacts.factory.ArtifactToItem;
 import io.github.itokagimaru.artifact.artifact.listener.*;
 import io.github.itokagimaru.artifact.command.ArtifactCommand;
 import io.github.itokagimaru.artifact.data.ItemData;
 import io.github.itokagimaru.artifact.command.ArtifactOpCommand;
-import io.github.itokagimaru.artifact.artifact.GeneralConfig;
+import io.github.itokagimaru.artifact.artifact.artifacts.config.GeneralConfig;
 import io.github.itokagimaru.artifact.artifact.decompose.DecomposeConfig;
 import io.github.itokagimaru.artifact.auction.AuctionManager;
 import io.github.itokagimaru.artifact.auction.AuctionScheduler;
@@ -70,6 +72,7 @@ public final class ArtifactMain extends JavaPlugin {
     private StashManager stashManager;
     private GeneralConfig generalConfig;
     private DecomposeConfig decomposeConfig;
+    private UiConfig uiConfig;
     public static JavaPlugin plugin;
 
     @Override
@@ -91,6 +94,9 @@ public final class ArtifactMain extends JavaPlugin {
         vaultAPI = new VaultAPI(this);
         generalConfig = new GeneralConfig(this);
         decomposeConfig = new DecomposeConfig(this);
+
+        // uiConfigの初期化
+        uiConfig = new UiConfig(this);
 
         // オークションシステム初期化
         initAuctionSystem();
@@ -141,10 +147,9 @@ public final class ArtifactMain extends JavaPlugin {
                 new ArtifactPlayerOnDamageListener(),
                 new ItemUseListener(),
                 new PlayerDeathListener(),
-                new PlayerJoinListener(),
+                new ArtifactUpdateListener(),
                 new playerItemDropListener(),
-                new PlayerReSpawnListener(),
-                new PlayerInventoryClickListener()
+                new StatViewerUpdateListener(uiConfig)
         );
 
         // artifactSeriesの読み込み
@@ -275,7 +280,7 @@ public final class ArtifactMain extends JavaPlugin {
 
     private void loadArtifactFiles() {
         EffectStack.clear();
-
+        ArtifactToItem.setMaterial(uiConfig.getArtifactMaterial());
         File pluginsDir = getDataFolder().getParentFile();
         File artifactDir = new File(pluginsDir, "artifact/series");
 
@@ -317,6 +322,10 @@ public final class ArtifactMain extends JavaPlugin {
 
     public void testLog(String message) {
         getSLF4JLogger().info(message);
+    }
+
+    public void errorLog(String message) {
+        getSLF4JLogger().error(message);
     }
 
 

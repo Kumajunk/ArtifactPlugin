@@ -10,16 +10,18 @@ public class Series {
     String internalName; // 内部名（レジストリのキーとして使用）
     String seriesName;   // 表示名
     String model;
+    Double[] cmd;
     ExceptionStatus.artifactExceptionStatus[] exStatus;
     List<Component> twoSetDescription;
     List<Component> fourSerDescription;
     List<Component> flavorText;
 
 
-    Series(String internalName, String seriesName, String model, ExceptionStatus.artifactExceptionStatus[] exStatus, List<Component> twoSetDescription, List<Component> fourSerDescription, List<Component> flavorText){
+    Series(String internalName, String seriesName, String model, Double[] cmd, ExceptionStatus.artifactExceptionStatus[] exStatus, List<Component> twoSetDescription, List<Component> fourSerDescription, List<Component> flavorText){
         this.internalName = internalName;
         this.seriesName = seriesName;
         this.model = model;
+        this.cmd = cmd;
         this.exStatus = exStatus;
         this.twoSetDescription = twoSetDescription;
         this.fourSerDescription = fourSerDescription;
@@ -44,6 +46,11 @@ public class Series {
     public String getModel() {
         return model;
     }
+
+    public Double[] getCmd() {
+        return cmd;
+    }
+
     public ExceptionStatus.artifactExceptionStatus[] getExStatus() {
         return exStatus;
     }

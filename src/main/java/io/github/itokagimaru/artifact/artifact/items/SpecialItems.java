@@ -2,6 +2,7 @@ package io.github.itokagimaru.artifact.artifact.items;
 
 import io.github.itokagimaru.artifact.Player.status.PlayerStatus;
 import io.github.itokagimaru.artifact.Player.status.PlayerStatusManager;
+import io.github.itokagimaru.artifact.artifact.artifacts.config.UiConfig;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -11,6 +12,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
@@ -112,12 +114,14 @@ public class SpecialItems {
         return item.getItemMeta().getPersistentDataContainer().has(AUGMENT_KEY, PersistentDataType.BYTE);
     }
 
-    public static ItemStack getStatViewer(Player player) {
+    public static ItemStack getStatViewer(Player player, UiConfig uiConfig) {
         PlayerStatus status = PlayerStatusManager.getPlayerStatus(player.getUniqueId());
-        ItemStack statView = new ItemStack(Material.WRITABLE_BOOK);
+        ItemStack statView = new ItemStack(uiConfig.getUiMaterial());
         statView.editMeta(meta -> {
             meta.customName(Component.text("現在ステータス").color(NamedTextColor.YELLOW));
-            meta.setItemModel(NamespacedKey.minecraft("stat_viewer"));
+            CustomModelDataComponent cmd = meta.getCustomModelDataComponent();
+            cmd.setFloats(List.of(uiConfig.getStatViewerCMD()));
+            meta.setCustomModelDataComponent(cmd);
             List<Component> l = new ArrayList<>(status.getAllStatusComponents());
             l.add(Component.text("クリックで更新").color(NamedTextColor.YELLOW));
             meta.lore(l);
