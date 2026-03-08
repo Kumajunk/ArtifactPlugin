@@ -136,7 +136,8 @@ public class ArtifactProcessMenu extends BaseGui {
                         }
                         player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 1.0f, 2.0f);
                         player.sendMessage("§aアーティファクトの加工が完了しました");
-                        player.getInventory().close();
+                        player.closeInventory();
+                        new ArtifactProcessMenu().open(player);
                     })
             );
         }
