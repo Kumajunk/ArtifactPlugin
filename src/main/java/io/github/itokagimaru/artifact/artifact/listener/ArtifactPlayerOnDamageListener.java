@@ -157,7 +157,7 @@ public class ArtifactPlayerOnDamageListener implements Listener {
                 default -> defenderReduceRate += 0;
             }
         }
-        if (defenderReduceRate >= 1) defenderReduceRate = 0;
+        if (defenderReduceRate >= 1) defenderReduceRate = 1;
 
         baseDmg = (attackerATK/2) - (defenderDEF/4);
         baseDmg = baseDmg*criDMGBonus;

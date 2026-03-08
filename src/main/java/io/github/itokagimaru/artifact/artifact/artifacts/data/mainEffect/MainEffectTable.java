@@ -35,7 +35,7 @@ public class MainEffectTable {
         mainEffectInitialValue.put(MainEffect.artifactMainEffect.ATK,0.1);
         mainEffectInitialValue.put(MainEffect.artifactMainEffect.DEF,0.1);
         mainEffectInitialValue.put(MainEffect.artifactMainEffect.VIT,0.03);
-        mainEffectInitialValue.put(MainEffect.artifactMainEffect.AGI,0.01);
+        mainEffectInitialValue.put(MainEffect.artifactMainEffect.AGI,0.02);
         mainEffectInitialValue.put(MainEffect.artifactMainEffect.CRI,0.03);
         mainEffectInitialValue.put(MainEffect.artifactMainEffect.CRIDMG,0.06);
         mainEffectInitialValue.put(MainEffect.artifactMainEffect.FIRE_DMG_BONUS,0.05);
@@ -50,7 +50,7 @@ public class MainEffectTable {
         mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.ATK,0.04);
         mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.DEF,0.03);
         mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.VIT,0.01);
-        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.AGI,0.005);
+        mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.AGI,0.01);
         mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.CRI,0.01);
         mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.CRIDMG,0.02);
         mainEffectBaseGrowthRate.put(MainEffect.artifactMainEffect.FIRE_DMG_BONUS,0.015);

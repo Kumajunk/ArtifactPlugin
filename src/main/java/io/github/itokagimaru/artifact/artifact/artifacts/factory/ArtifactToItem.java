@@ -18,11 +18,18 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ArtifactToItem {
-    public ArtifactToItem() {
+
+    private static Material material;
+    public static void setMaterial(Material material) {
+        ArtifactToItem.material = material;
+    }
+    public static void setMaterial(String material) {
+        ArtifactToItem.material = Material.matchMaterial(material);
     }
 
+
     public static ItemStack convert(BaseArtifact artifact){
-        ItemStack stack = new ItemStack(Material.PAPER);
+        ItemStack stack = new ItemStack(material);
         ItemData.UUID.set(stack, artifact.getUUID().toString());
         ItemData.TIER.set(stack, artifact.getTier().getId);
         ItemData.SLOT.set(stack, artifact.getSlot().getId);
@@ -50,7 +57,7 @@ public class ArtifactToItem {
             itemMeta.setMaxStackSize(1);
             itemMeta.setItemModel(NamespacedKey.minecraft(artifact.getSeries().getModel()));
             CustomModelDataComponent cmd = itemMeta.getCustomModelDataComponent();
-            cmd.setFloats(List.of((float) artifact.getSlot().getId));
+            cmd.setFloats(List.of(artifact.getSeries().getCmd()[artifact.getSlot().getId].floatValue()));
             itemMeta.setCustomModelDataComponent(cmd);
             itemMeta.customName(makeName(artifact));
             itemMeta.lore(makeLore(artifact));

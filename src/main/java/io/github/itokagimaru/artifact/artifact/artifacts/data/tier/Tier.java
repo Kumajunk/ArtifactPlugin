@@ -1,6 +1,6 @@
 package io.github.itokagimaru.artifact.artifact.artifacts.data.tier;
 
-import io.github.itokagimaru.artifact.artifact.GeneralConfig;
+import io.github.itokagimaru.artifact.artifact.artifacts.config.GeneralConfig;
 
 import java.util.HashMap;
 

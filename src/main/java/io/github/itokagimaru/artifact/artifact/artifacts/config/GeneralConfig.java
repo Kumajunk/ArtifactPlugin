@@ -1,6 +1,8 @@
-package io.github.itokagimaru.artifact.artifact;
+package io.github.itokagimaru.artifact.artifact.artifacts.config;
 
+import io.github.itokagimaru.artifact.ArtifactMain;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.tier.Tier;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -16,6 +18,9 @@ public class GeneralConfig {
 
     private final JavaPlugin plugin;
     private YamlConfiguration config;
+
+    private Material artifactMaterial;
+    private Material uiMaterial;
 
     private boolean isTierScaling;
     private List<TierRecord> tierScalingTiers;
@@ -61,6 +66,7 @@ public class GeneralConfig {
     }
 
     private void cacheValues() {
+
         isTierScaling = config.getBoolean("sell.tier_scaling.enabled", true);
         List<TierRecord> tiers = new ArrayList<>();
         List<Map<?, ?>> tierMapList = config.getMapList("sell.tier_scaling.tiers");
@@ -79,7 +85,7 @@ public class GeneralConfig {
     }
 
     public void reload() {
-        loadConfig();;
+        loadConfig();
     }
 
     public boolean isTierScaling() {
