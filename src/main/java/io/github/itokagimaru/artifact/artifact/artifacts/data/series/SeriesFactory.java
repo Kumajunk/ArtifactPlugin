@@ -8,6 +8,7 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.EffectStack
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.ActionStack;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.actions.*;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.actions.delay.Delay;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.actions.delay.DelayCancel;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.condition.ConditionStack;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.condition.Conditions.*;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.TriggerType;
@@ -138,6 +139,7 @@ public class SeriesFactory {
         DO_REMOVE_SKILL("do-remove-skill"),
         DO_HEAL("do-heal"),
         DELAY("delay"),
+        CANCEL_DELAY("cancel-delay"),
         DO_SET_PDC("do-set-pdc"),
         DO_ADD_PDC("do-add-pdc"),
         DO_SET_ELEMENT("do-set-element"),
@@ -369,6 +371,9 @@ public class SeriesFactory {
             String rawActionKey = entry.getKey().toString();
             Map<?, ?> actionBody = (Map<?, ?>) entry.getValue();
             ActionKey actionKey = ActionKey.fromText(rawActionKey);
+            if (actionBody == null){
+                throw new IllegalStateException(actionKey.toString() + " is null");
+            }
             switch (actionKey){
                 case DO_GIVE_BUFF -> {
                     Map<?, ?> valueMap = (Map<?, ?>) actionBody.get("value");
@@ -409,8 +414,24 @@ public class SeriesFactory {
                     Values values = toValues(valueMap);
                     List<Map<?, ?>> delayCondition = (List<Map<?,?>>) actionBody.get(effectKey.CONDITIONS.key);
                     ConditionStack conditionStack = new ConditionStack(toConditions(delayCondition));
-
-                    return new Delay(new ActionStack(toActions((List<Map<?,?>>) actionBody.get(effectKey.ACTIONS.key))), values, conditionStack);
+                    Object rawKey = actionBody.get("key");
+                    String key;
+                    if (rawKey == null) {
+                        key = "";
+                    } else {
+                        key = rawKey.toString();
+                    }
+                    return new Delay(new ActionStack(toActions((List<Map<?,?>>) actionBody.get(effectKey.ACTIONS.key))), values, conditionStack, key);
+                }
+                case CANCEL_DELAY -> {
+                    Object rawKey = actionBody.get("key");
+                    String key;
+                    if (rawKey == null) {
+                        throw new IllegalStateException("cancel-delayのkeyが設定されていません");
+                    } else {
+                        key = rawKey.toString();
+                    }
+                    return new DelayCancel(key);
                 }
                 case DO_SET_PDC -> {
                     Map<?, ?> valueMap = (Map<?, ?>) actionBody.get("value");

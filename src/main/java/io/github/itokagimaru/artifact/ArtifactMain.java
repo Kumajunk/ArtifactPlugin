@@ -260,7 +260,7 @@ public final class ArtifactMain extends JavaPlugin {
 
     public static void updatePlayerArtifacts(Player player) {
         ClearCustomPDC.clear(player.getUniqueId());
-        TaskStack.cancelTasks(player.getUniqueId());
+        TaskStack.cancelAllTasks(player.getUniqueId());
         Inventory inventory = player.getInventory();
         for(int i = 0; i < inventory.getSize(); i++){
             ItemStack item = inventory.getItem(i);
