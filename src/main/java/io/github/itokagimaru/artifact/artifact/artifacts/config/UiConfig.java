@@ -46,7 +46,7 @@ public class UiConfig {
             ArtifactMain.getInstance().errorLog("ui_config.icons.cmd.cut list size must be 6 (found: " + cutIconCMD.size() + ")");
             plugin.getServer().getPluginManager().disablePlugin(plugin);
         }
-        double statViewerCMD = config.getDouble("icons.cmd.stat_vierer");
+        double statViewerCMD = config.getDouble("icons.cmd.stat_viewer");
         this.statViewerCMD = (float) statViewerCMD;
     }
 

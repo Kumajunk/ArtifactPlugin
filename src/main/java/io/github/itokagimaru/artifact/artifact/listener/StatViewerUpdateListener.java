@@ -19,7 +19,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 public class StatViewerUpdateListener implements Listener {
-    UiConfig uiConfig;
+    UiConfig uiConfig = null;
     public StatViewerUpdateListener(UiConfig uiConfig) {
         this.uiConfig = uiConfig;
     }
