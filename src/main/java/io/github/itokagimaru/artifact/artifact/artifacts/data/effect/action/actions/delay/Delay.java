@@ -14,21 +14,24 @@ public class Delay extends Action {
     ActionStack actions;
     Values delayTime;
     ConditionStack delayCondition;
+    String key;
 
 
-    public Delay(ActionStack actions, Values delayTime, ConditionStack delayCondition) {
+    public Delay(ActionStack actions, Values delayTime, ConditionStack delayCondition, String key) {
         this.actions = actions;
         this.delayTime = delayTime;
         this.delayCondition = delayCondition;
+        this.key = key;
     }
 
     @Override
     public void run(UUID playerUuid) {
+        Bukkit.getPlayer(playerUuid).sendMessage(delayTime.toString());
         BukkitTask task = Bukkit.getScheduler().runTaskLater(ArtifactMain.getInstance(), () -> {
             if (Bukkit.getPlayer(playerUuid) == null) return;
             if (!delayCondition.isAllTrue(playerUuid, null)) return;
             actions.runActions(playerUuid);
         }, (long) delayTime.calculate(playerUuid));
-        TaskStack.setTasks(playerUuid, task);
+        TaskStack.setTasks(playerUuid, new DelayTask(task, key));
     }
 }
