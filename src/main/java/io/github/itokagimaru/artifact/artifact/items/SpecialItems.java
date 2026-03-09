@@ -120,7 +120,7 @@ public class SpecialItems {
         statView.editMeta(meta -> {
             meta.customName(Component.text("現在ステータス").color(NamedTextColor.YELLOW));
             CustomModelDataComponent cmd = meta.getCustomModelDataComponent();
-            cmd.setFloats(List.of(uiConfig.getStatViewerCMD()));
+            cmd.setFloats(List.of((float) uiConfig.getStatViewerCMD()));
             meta.setCustomModelDataComponent(cmd);
             List<Component> l = new ArrayList<>(status.getAllStatusComponents());
             l.add(Component.text("クリックで更新").color(NamedTextColor.YELLOW));

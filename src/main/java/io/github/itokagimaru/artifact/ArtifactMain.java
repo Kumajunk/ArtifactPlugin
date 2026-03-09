@@ -147,8 +147,9 @@ public final class ArtifactMain extends JavaPlugin {
                 new ItemUseListener(),
                 new PlayerDeathListener(),
                 new ArtifactUpdateListener(),
-                new playerItemDropListener(),
-                new StatViewerUpdateListener(uiConfig)
+                new PlayerItemDropListener(),
+                new StatViewerUpdateListener(uiConfig),
+                new SkillExportBlocker()
         );
 
         // artifactSeriesの読み込み
@@ -307,7 +308,7 @@ public final class ArtifactMain extends JavaPlugin {
         for (File file : ymlFiles) {
             YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
             try{
-                Series series = SeriesFactory.makeSeries(config);
+                Series series = SeriesFactory.makeSeries(config, uiConfig);
                 newRegistry.put(series.getInternalName(), series);
                 String fileName = file.getName();
                 getSLF4JLogger().info("Loading artifact file: " + fileName);
