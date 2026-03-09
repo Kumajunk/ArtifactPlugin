@@ -10,19 +10,24 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 
 import java.util.List;
 import java.util.UUID;
 
 public class DoGiveSkill extends Action {
     ItemStack skillItem;
+
     String key;
-    public DoGiveSkill(String key, String itemName, String model, List<Component> lore, UiConfig uiConfig) {
+    public DoGiveSkill(String key, String itemName, String model, float cmd, List<Component> lore, UiConfig uiConfig) {
         skillItem = new ItemStack(uiConfig.getSkillMaterial());
         this.key = key;
         skillItem.editMeta(meta -> {
             meta.customName(Utils.parseLegacy(itemName.replace('&', '§')));
             meta.setItemModel( NamespacedKey.minecraft(model));
+            CustomModelDataComponent cmdc = meta.getCustomModelDataComponent();
+            cmdc.setFloats(List.of(cmd));
+            meta.setCustomModelDataComponent(cmdc);
             meta.lore(lore);
         });
         ItemData.IS_SKILL_ITEM.set(skillItem, (byte) 1);

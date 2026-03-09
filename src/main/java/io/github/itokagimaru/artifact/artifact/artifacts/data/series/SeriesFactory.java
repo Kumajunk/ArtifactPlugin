@@ -409,7 +409,14 @@ public class SeriesFactory {
                     return new DoHeal(values, isMultiply);
                 }
                 case DO_GIVE_SKILL -> {
-                    return new DoGiveSkill(actionBody.get("key").toString(), actionBody.get("skill-name").toString(), actionBody.get("model").toString(), toComponentText((List<Map<?, ?>>) actionBody.get(Key.DESCRIPTION.keyName)), uiConfig);
+                    Object rawCMD = actionBody.get("cmd");
+                    float cmd;
+                    if (rawCMD == null){
+                        cmd = 0;
+                    } else {
+                        cmd = Float.parseFloat(rawCMD.toString());
+                    }
+                    return new DoGiveSkill(actionBody.get("key").toString(), actionBody.get("skill-name").toString(), actionBody.get("model").toString(), cmd, toComponentText((List<Map<?, ?>>) actionBody.get(Key.DESCRIPTION.keyName)), uiConfig);
                 }
                 case DO_REMOVE_SKILL ->  {
                     return new DoRemoveSkill(actionBody.get("key").toString());
