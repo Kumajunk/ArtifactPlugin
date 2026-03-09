@@ -31,6 +31,10 @@ public final class JsonConverter {
         json.addProperty("level", artifact.getLv());
         json.addProperty("mainEffectId", artifact.getMainEffect().getId);
         json.addProperty("mainEffectValue", artifact.getMainEffectValue());
+        
+        // 耐久値データの保存
+        json.addProperty("durability", artifact.getDurability());
+        json.addProperty("maxDurability", artifact.getMaxDurability());
 
         // Sub効果のIDを配列として保存
         StringBuilder subIds = new StringBuilder();
@@ -114,6 +118,15 @@ public final class JsonConverter {
             }
 
             artifact.setStatus(series, slot, tier, level, mainEffect, mainEffectValue, subEffects, subEffectValues);
+            
+            // 耐久値の復元
+            if (json.has("maxDurability")) {
+                artifact.setMaxDurability(json.get("maxDurability").getAsInt());
+            }
+            if (json.has("durability")) {
+                artifact.setDurability(json.get("durability").getAsInt());
+            }
+
             return artifact;
 
         } catch (Exception e) {
