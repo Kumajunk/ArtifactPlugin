@@ -1,5 +1,6 @@
 package io.github.itokagimaru.artifact.artifact.gui;
 
+import io.github.itokagimaru.artifact.ArtifactMain;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.series.SeriesRegistry;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.tier.Tier;
@@ -8,7 +9,6 @@ import io.github.itokagimaru.artifact.artifact.items.SpecialItems;
 import io.github.itokagimaru.artifact.utils.BaseGui;
 import io.github.itokagimaru.artifact.utils.Utils;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
@@ -145,7 +145,7 @@ public class ArtifactProcessMenu extends BaseGui {
     }
 
     private ItemStack buildSlotItem(Slot.artifactSlot slot) {
-        ItemStack item = ItemStack.of(Material.PAPER);
+        ItemStack item = ItemStack.of(ArtifactMain.getUIConfig().getUiMaterial());
 
         String name = switch (slot) {
             case PEAR -> "§aPear Cut";
@@ -158,10 +158,9 @@ public class ArtifactProcessMenu extends BaseGui {
 
         item.editMeta(meta -> {
             meta.customName(Utils.parseLegacy(name));
-            meta.setItemModel(NamespacedKey.minecraft("default"));
 
             CustomModelDataComponent cmd = meta.getCustomModelDataComponent();
-            cmd.setFloats(List.of((float) slot.getId));
+            cmd.setFloats(List.of(ArtifactMain.getUIConfig().getCutIconCMD().get(slot.ordinal())));
             meta.setCustomModelDataComponent(cmd);
         });
 

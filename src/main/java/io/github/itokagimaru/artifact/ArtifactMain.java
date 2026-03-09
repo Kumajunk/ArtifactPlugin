@@ -358,4 +358,8 @@ public final class ArtifactMain extends JavaPlugin {
     public static DecomposeConfig getDecomposeConfig() {
         return getInstance().decomposeConfig;
     }
+
+    public static UiConfig getUIConfig() {
+        return getInstance().uiConfig;
+    }
 }
