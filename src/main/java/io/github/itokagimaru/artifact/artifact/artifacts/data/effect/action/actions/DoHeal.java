@@ -1,5 +1,7 @@
 package io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.actions;
 
+import io.github.itokagimaru.artifact.Player.status.PlayerStatus;
+import io.github.itokagimaru.artifact.Player.status.PlayerStatusManager;
 import io.github.itokagimaru.artifact.Player.status.StatusModifier;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.EffectStack;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.TriggerType;
@@ -23,7 +25,11 @@ public class DoHeal extends Action{
         if(isMultiply){
             playerHp = playerMaxHp * value.calculate(playerUuid);
         } else {
-            playerHp = playerHp + value.calculate(playerUuid);
+            double calculatedValue = value.calculate(playerUuid);
+            PlayerStatus status = PlayerStatusManager.getPlayerStatus(playerUuid);
+            double vit = status.getStatus(PlayerStatus.playerStatus.VIT);
+            if (calculatedValue < 0) playerHp = playerHp + calculatedValue;
+            else playerHp = playerHp + (calculatedValue * (1 + vit));
         }
         if(playerHp < 0) playerHp = 0;
         if (playerHp > playerMaxHp) playerHp = playerMaxHp;
