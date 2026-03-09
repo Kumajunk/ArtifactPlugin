@@ -8,6 +8,7 @@ import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffect;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffectTable;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.tier.Tier;
+import io.github.itokagimaru.artifact.ArtifactMain;
 
 import java.util.*;
 
@@ -22,6 +23,10 @@ public class BaseArtifact {
     protected double[] subEffectsValue;
     protected Slot.artifactSlot slot;
 
+    // 耐久要素
+    protected int maxDurability;
+    protected int durability;
+
     public void setStatus(Series series, Slot.artifactSlot slot, Tier.artifactTier tire, int lv, MainEffect.artifactMainEffect mainEffect, double mainEffectValue, SubEffect.artifactSubEffect[] subEffects, double[] subEffectsValue){
         artifactId = UUID.randomUUID();
         this.series = series;
@@ -34,6 +39,10 @@ public class BaseArtifact {
         this.subEffects = subEffects;
         if (subEffectsValue.length != 4) subEffectsValue = Arrays.copyOf(subEffectsValue,4);
         this.subEffectsValue = subEffectsValue;
+
+        // 初期化時の耐久値設定
+        this.maxDurability = ArtifactMain.getGeneralConfig().getMaxDurability(this.tire);
+        this.durability = this.maxDurability;
     }
     public UUID getUUID() {
         return artifactId;
@@ -61,6 +70,22 @@ public class BaseArtifact {
     }
     public double[] getSubEffectsValue(){
         return subEffectsValue;
+    }
+    
+    public int getMaxDurability() {
+        return maxDurability;
+    }
+    
+    public void setMaxDurability(int maxDurability) {
+        this.maxDurability = maxDurability;
+    }
+    
+    public int getDurability() {
+        return durability;
+    }
+    
+    public void setDurability(int durability) {
+        this.durability = durability;
     }
 
     public void performEnhance(){

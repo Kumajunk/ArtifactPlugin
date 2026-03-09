@@ -72,6 +72,10 @@ public class ArtifactEnhanceMenu extends BaseGui {
                     player.sendMessage("§cアーティファクトの情報が取得できませんでした！");
                     return;
                 }
+                if (artifact.getDurability() <= 0) {
+                    player.sendMessage("§cこのアーティファクトは破損しているため強化対象に設定できません！");
+                    return;
+                }
                 if (artifact.getSeries().getExStatus() != null) {
                     for (ExceptionStatus.artifactExceptionStatus status : artifact.getSeries().getExStatus()) {
                         if (status == ExceptionStatus.artifactExceptionStatus.CANNOT_ENHANCE) {
@@ -95,6 +99,10 @@ public class ArtifactEnhanceMenu extends BaseGui {
                     player.sendMessage("§cアーティファクトの情報が取得できませんでした！");
                     return;
                 }
+                if (artifact.getDurability() <= 0) {
+                    player.sendMessage("§cこのアーティファクトは破損しているため強化素材に設定できません！");
+                    return;
+                }
                 if ((long) enhanceMaterials.size() < 3) {
                     if (!checkArtifactSeries(artifact, targetArtifact)) {
                         player.sendMessage("§c強化素材のシリーズが一致しません！");
@@ -107,7 +115,6 @@ public class ArtifactEnhanceMenu extends BaseGui {
                     player.getInventory().setItem(slot, new ItemStack(Material.AIR));
                     enhanceMaterials.add(item);
                     new ArtifactEnhanceMenu(enhanceTarget, enhanceMaterials, augment).open(player);
-                    return;
                 } else {
                     player.sendMessage("§c強化素材の上限に達しています！");
                 }

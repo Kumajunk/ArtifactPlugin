@@ -25,4 +25,8 @@ public class ItemData {
     public static final IntArrayKey SUB_ID = new IntArrayKey(getKey("sub_id"), () -> new int[4]);
     public static final StringKey UUID = new StringKey(getKey("uuid"), () -> "");
     public static final StringKey SKILL_KEY = new StringKey(getKey("skill_key"), () -> "");
+    
+    // 耐久要素
+    public static final IntKey DURABILITY = new IntKey(getKey("durability"), () -> 0);
+    public static final IntKey MAX_DURABILITY = new IntKey(getKey("max_durability"), () -> 0);
 }

@@ -149,7 +149,8 @@ public final class ArtifactMain extends JavaPlugin {
                 new ArtifactUpdateListener(),
                 new PlayerItemDropListener(),
                 new StatViewerUpdateListener(uiConfig),
-                new SkillExportBlocker()
+                new SkillExportBlocker(),
+                new EquipBrokeListener()
         );
 
         // artifactSeriesの読み込み

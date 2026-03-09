@@ -1,29 +1,18 @@
 package io.github.itokagimaru.artifact.artifact.gui;
 
 import io.github.itokagimaru.artifact.ArtifactMain;
-import io.github.itokagimaru.artifact.Player.status.HpStatUpdater;
 import io.github.itokagimaru.artifact.Player.status.PlayerStatus;
 import io.github.itokagimaru.artifact.Player.status.PlayerStatusManager;
 import io.github.itokagimaru.artifact.artifact.EquipPdc;
 import io.github.itokagimaru.artifact.artifact.JsonConverter;
 import io.github.itokagimaru.artifact.artifact.artifacts.artifact.BaseArtifact;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.EffectStack;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.TriggerType;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffect;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.mainEffect.MainEffectUpdater;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
-import io.github.itokagimaru.artifact.artifact.artifacts.data.subEffect.SubEffectUpdater;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.ArtifactToItem;
 import io.github.itokagimaru.artifact.artifact.artifacts.factory.ItemToArtifact;
-import io.github.itokagimaru.artifact.data.ItemData;
 import io.github.itokagimaru.artifact.utils.BaseGui;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -84,6 +73,10 @@ public class ArtifactEquipMenu extends BaseGui {
                 return;
             }
 
+            if (artifact.get().getDurability() <= 0) {
+                player.sendMessage("§cこのアーティファクトは破損しているため装備できません!");
+                return;
+            }
 
             BaseArtifact isAlreadyEquip = EquipPdc.loadFromPdc(player, artifact.get().getSlot());
             if (isAlreadyEquip != null) {
@@ -97,7 +90,4 @@ public class ArtifactEquipMenu extends BaseGui {
         });
     }
 
-    private String doubleToString(double d){
-        return String.format("%.2f", d);
-    }
 }

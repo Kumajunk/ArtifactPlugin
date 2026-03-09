@@ -6,13 +6,11 @@ import io.github.itokagimaru.artifact.Player.status.PlayerStatus;
 import io.github.itokagimaru.artifact.Player.status.PlayerStatusManager;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.EffectStack;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.TriggerType;
+import io.github.itokagimaru.artifact.artifact.event.EquipBrokeEvent;
 import io.github.itokagimaru.artifact.data.EntityData;
 import io.github.itokagimaru.artifact.utils.ByteArrayConverter;
 import io.github.itokagimaru.artifact.utils.DamageActionBarUtil;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -24,10 +22,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
+import io.github.itokagimaru.artifact.artifact.EquipPdc;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.slot.Slot;
+import io.github.itokagimaru.artifact.artifact.artifacts.artifact.BaseArtifact;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 
 public class ArtifactPlayerOnDamageListener implements Listener {
@@ -86,9 +84,7 @@ public class ArtifactPlayerOnDamageListener implements Listener {
                     damageColor = NamedTextColor.GREEN;
                 }
             }
-            Bukkit.getScheduler().runTask(ArtifactMain.getInstance(),() -> {
-                    attackerStatus.setWeaponElement(ElementStatus.Element.NULL);
-            });
+            Bukkit.getScheduler().runTask(ArtifactMain.getInstance(),() -> attackerStatus.setWeaponElement(ElementStatus.Element.NULL));
 
 
             //ノックバックの計算
@@ -98,11 +94,13 @@ public class ArtifactPlayerOnDamageListener implements Listener {
                 double power = Math.max(0.2, 1.0) * 1.025;
                 Vector knockback = direction.multiply(power).setY(0.3);
                 //素のノックバック体制の保存
-                AttributeInstance attr;
-                if (damaged instanceof Player damagedPlayer) attr = damagedPlayer.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
-                else if (damaged instanceof LivingEntity damagedLivingEntity) attr = damagedLivingEntity.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
-                else if (damaged instanceof Monster damagedMonster) attr = damagedMonster.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
-                else attr = null;
+                AttributeInstance attr = switch (damaged) {
+                    case Player damagedPlayer -> damagedPlayer.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
+                    case Monster damagedMonster -> damagedMonster.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
+                    case LivingEntity damagedLivingEntity ->
+                            damagedLivingEntity.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
+                    default -> null;
+                };
                 if (attr != null) {
                     double baseKnockbackResistance = attr.getBaseValue();
                     //ノックバックを一旦無効化
@@ -163,6 +161,28 @@ public class ArtifactPlayerOnDamageListener implements Listener {
         baseDmg = baseDmg*criDMGBonus;
         if (baseDmg < 0) baseDmg = 0;
         double finalDmg = baseDmg*damageRate*attackerDamageBonusRate*(1-defenderReduceRate);
+        
+        // 被攻撃側がプレイヤーの場合、耐久減少処理を行う
+        if (damaged instanceof Player defenderPlayer && finalDmg > 0) {
+            double multiplierFactor = ArtifactMain.getGeneralConfig().getDurabilityCostMultiplierFactor();
+            for (Slot.artifactSlot slot : Slot.artifactSlot.values()) {
+                BaseArtifact artifact = EquipPdc.loadFromPdc(defenderPlayer, slot);
+                if (artifact != null) {
+                    double costMultiplier = 1.0 + ((double) artifact.getLv() / 30.0) * multiplierFactor;
+                    int cost = (int) Math.max(1, Math.round(costMultiplier));
+                    int currentDurability = artifact.getDurability();
+                    int newDurability = Math.max(0, currentDurability - cost);
+                    if (currentDurability != newDurability) {
+                        artifact.setDurability(newDurability);
+                        EquipPdc.saveToPdc(defenderPlayer, slot, artifact);
+                    }
+                    if (newDurability == 0 && currentDurability > 0) {
+                        Bukkit.getPluginManager().callEvent(new EquipBrokeEvent(defenderPlayer, artifact, slot));
+                    }
+                }
+            }
+        }
+
         if (damager instanceof Player attackerPlayer) {
             attackerPlayer.sendActionBar(DamageActionBarUtil.buildCenteredDamageBar(attackerPlayer, damaged, doubleToString(finalDmg), damageColor, criFlag));
         }
