@@ -308,7 +308,7 @@ public final class ArtifactMain extends JavaPlugin {
         for (File file : ymlFiles) {
             YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
             try{
-                Series series = SeriesFactory.makeSeries(config);
+                Series series = SeriesFactory.makeSeries(config, uiConfig);
                 newRegistry.put(series.getInternalName(), series);
                 String fileName = file.getName();
                 getSLF4JLogger().info("Loading artifact file: " + fileName);

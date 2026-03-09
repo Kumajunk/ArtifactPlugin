@@ -3,6 +3,7 @@ package io.github.itokagimaru.artifact.artifact.artifacts.data.series;
 import io.github.itokagimaru.artifact.Player.status.EffectSource;
 import io.github.itokagimaru.artifact.Player.status.ElementStatus;
 import io.github.itokagimaru.artifact.Player.status.PlayerStatus;
+import io.github.itokagimaru.artifact.artifact.artifacts.config.UiConfig;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.Effect;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.EffectStack;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.ActionStack;
@@ -187,7 +188,11 @@ public class SeriesFactory {
             throw new IllegalAccessException("playerStatusの値が不正です: " + statusText);
         }
     }
-    public static Series makeSeries(YamlConfiguration config) throws Exception{
+
+    static UiConfig uiConfig;
+
+    public static Series makeSeries(YamlConfiguration config, UiConfig uiConfig) throws Exception{
+        SeriesFactory.uiConfig = uiConfig;
         ConfigurationSection seriesSec = config.getConfigurationSection(Key.SERIES.keyName);
 
         try {
@@ -404,7 +409,7 @@ public class SeriesFactory {
                     return new DoHeal(values, isMultiply);
                 }
                 case DO_GIVE_SKILL -> {
-                    return new DoGiveSkill(actionBody.get("key").toString(), actionBody.get("skill-name").toString(), actionBody.get("model").toString(), toComponentText((List<Map<?, ?>>) actionBody.get(Key.DESCRIPTION.keyName)));
+                    return new DoGiveSkill(actionBody.get("key").toString(), actionBody.get("skill-name").toString(), actionBody.get("model").toString(), toComponentText((List<Map<?, ?>>) actionBody.get(Key.DESCRIPTION.keyName)), uiConfig);
                 }
                 case DO_REMOVE_SKILL ->  {
                     return new DoRemoveSkill(actionBody.get("key").toString());

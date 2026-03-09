@@ -1,5 +1,6 @@
 package io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.actions;
 
+import io.github.itokagimaru.artifact.artifact.artifacts.config.UiConfig;
 import io.github.itokagimaru.artifact.data.ItemData;
 import io.github.itokagimaru.artifact.utils.Utils;
 import net.kyori.adventure.text.Component;
@@ -14,9 +15,10 @@ import java.util.List;
 import java.util.UUID;
 
 public class DoGiveSkill extends Action {
-    ItemStack skillItem = new ItemStack(Material.WOODEN_HOE);
+    ItemStack skillItem;
     String key;
-    public DoGiveSkill(String key, String itemName, String model, List<Component> lore){
+    public DoGiveSkill(String key, String itemName, String model, List<Component> lore, UiConfig uiConfig) {
+        skillItem = new ItemStack(uiConfig.getSkillMaterial());
         this.key = key;
         skillItem.editMeta(meta -> {
             meta.customName(Utils.parseLegacy(itemName.replace('&', '§')));

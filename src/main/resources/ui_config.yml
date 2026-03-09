@@ -1,6 +1,9 @@
 artifact:
   material: PAPER
 
+skill:
+  material: IRON_SHOVEL
+
 icons:
   material: WOODEN_SHOVEL
   cmd:

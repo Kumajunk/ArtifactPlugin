@@ -12,6 +12,7 @@ public class UiConfig {
     Plugin plugin;
     YamlConfiguration config;
     private Material artifactMaterial;
+    private Material skillMaterial;
     private Material uiMaterial;
     List<Float> cutIconCMD;
     Float statViewerCMD;
@@ -36,6 +37,11 @@ public class UiConfig {
             artifactMaterial = Material.BARRIER;
             ArtifactMain.getInstance().errorLog("artifacts material is not found");
         }
+        skillMaterial = Material.getMaterial(config.getString("skill.material"));
+        if (skillMaterial == null) {
+            skillMaterial = Material.BARRIER;
+            ArtifactMain.getInstance().errorLog("skill material is not found");
+        }
         uiMaterial = Material.getMaterial(config.getString("icons.material"));
         if (artifactMaterial == null) {
             artifactMaterial = Material.BARRIER;
@@ -52,6 +58,10 @@ public class UiConfig {
 
     public Material getArtifactMaterial() {
         return artifactMaterial;
+    }
+
+    public Material getSkillMaterial() {
+        return skillMaterial;
     }
 
     public Material getUiMaterial() {
