@@ -1,6 +1,8 @@
 package io.github.itokagimaru.artifact.artifact.artifacts.data.effect.action.actions;
 
 import io.github.itokagimaru.artifact.Player.status.StatusModifier;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.EffectStack;
+import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.trigger.TriggerType;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.effect.value.Values;
 import org.bukkit.Bukkit;
 
@@ -26,5 +28,6 @@ public class DoHeal extends Action{
         if(playerHp < 0) playerHp = 0;
         if (playerHp > playerMaxHp) playerHp = playerMaxHp;
         Bukkit.getPlayer(playerUuid).setHealth(playerHp);
+        EffectStack.runByTrigger(TriggerType.triggerType.ON_HEAL, playerUuid);
     }
 }
