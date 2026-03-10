@@ -107,7 +107,7 @@ public class ArtifactRepairMenu extends BaseGui {
                 .addLore("§7耐久値を最大まで回復させますが、")
                 .addLore("§7回復量に応じて最大耐久値が減少します。")
                 .addLore(" ")
-                .addLore("§7修理費用: §e$" + finalCost)
+                .addLore("§7修理費用: §e" + finalCost+ "ゴールド")
                 .setClickAction(ClickType.LEFT, player -> {
                     if (repairTarget == null) {
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
@@ -135,7 +135,7 @@ public class ArtifactRepairMenu extends BaseGui {
                     // 所持金チェック
                     if (ArtifactMain.getVaultAPI().getBalance(player.getUniqueId()) < finalCost) {
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
-                        player.sendMessage("§c修理費用が足りません! (必要: §e$" + finalCost + "§c)");
+                        player.sendMessage("§c修理費用が足りません! (必要: §e" + finalCost + "ゴールド§c)");
                         return;
                     }
                     
