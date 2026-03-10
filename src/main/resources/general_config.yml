@@ -22,3 +22,13 @@ sell:
 enhance:
   series_binding:
     enabled: false
+
+durability:
+  tier_max:
+    SS: 200
+    S: 180
+    A: 150
+    B: 120
+    C: 100
+  cost_multiplier_factor: 0.8
+  repair_penalty_rate: 0.1

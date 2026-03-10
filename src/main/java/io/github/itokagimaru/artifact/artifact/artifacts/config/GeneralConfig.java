@@ -1,6 +1,5 @@
 package io.github.itokagimaru.artifact.artifact.artifacts.config;
 
-import io.github.itokagimaru.artifact.ArtifactMain;
 import io.github.itokagimaru.artifact.artifact.artifacts.data.tier.Tier;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -29,6 +28,15 @@ public class GeneralConfig {
     private double augmentPrice;
 
     private boolean isSeriesBinding;
+
+    // 耐久関連
+    private int maxDurabilitySS;
+    private int maxDurabilityS;
+    private int maxDurabilityA;
+    private int maxDurabilityB;
+    private int maxDurabilityC;
+    private double durabilityCostMultiplierFactor;
+    private double repairPenaltyRate;
 
     /**
      * コンストラクタ
@@ -82,6 +90,15 @@ public class GeneralConfig {
         isSeriesBinding = config.getBoolean("enhance.series_binding.enabled", true);
         augmentPrice = config.getDouble("sell.augment.price", 100.0);
         Tier.artifactTier.reloadTierPriceScale(this);
+
+        // 耐久関連
+        maxDurabilitySS = config.getInt("durability.tier_max.SS", 200);
+        maxDurabilityS = config.getInt("durability.tier_max.S", 180);
+        maxDurabilityA = config.getInt("durability.tier_max.A", 150);
+        maxDurabilityB = config.getInt("durability.tier_max.B", 120);
+        maxDurabilityC = config.getInt("durability.tier_max.C", 100);
+        durabilityCostMultiplierFactor = config.getDouble("durability.cost_multiplier_factor", 0.8);
+        repairPenaltyRate = config.getDouble("durability.repair_penalty_rate", 0.1);
     }
 
     public void reload() {
@@ -114,6 +131,24 @@ public class GeneralConfig {
 
     public boolean isSeriesBinding() {
         return isSeriesBinding;
+    }
+
+    public int getMaxDurability(Tier.artifactTier tier) {
+        return switch (tier) {
+            case SS -> maxDurabilitySS;
+            case S -> maxDurabilityS;
+            case A -> maxDurabilityA;
+            case B -> maxDurabilityB;
+            case C -> maxDurabilityC;
+        };
+    }
+
+    public double getDurabilityCostMultiplierFactor() {
+        return durabilityCostMultiplierFactor;
+    }
+
+    public double getRepairPenaltyRate() {
+        return repairPenaltyRate;
     }
 
     public record TierRecord(String tier, double multiplier) {}

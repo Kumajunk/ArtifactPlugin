@@ -33,7 +33,7 @@ public class ItemToArtifact {
         
         // UUIDが設定されているかで判定
         String uuid = ItemData.UUID.get(item);
-        return uuid != null && !uuid.isEmpty();
+        return !uuid.isEmpty();
     }
 
     /**
@@ -58,6 +58,11 @@ public class ItemToArtifact {
             double mainEffectValue = ByteArrayConverter.ByteToDouble(ItemData.MAIN_VALUE.get(item));
             int[] subEffectIds = ItemData.SUB_ID.get(item);
             double[] subEffectValues = ByteArrayConverter.ByteToDoubleArray(ItemData.SUB_VALUE.get(item));
+            
+            // 耐久値（設定されていない場合はデフォルト0として扱う）
+            Integer durabilityObj = ItemData.DURABILITY.get(item);
+            int durability = durabilityObj;
+            int maxDurability = ItemData.MAX_DURABILITY.get(item);
 
             // シリーズからBaseArtifactを生成（内部名または表示名で検索）
             Series series = SeriesRegistry.getSeriesWithFallback(seriesKey);
@@ -92,6 +97,13 @@ public class ItemToArtifact {
 
             // ステータスを設定
             artifact.setStatus(series, slot, tier, level, mainEffect, mainEffectValue, subEffects, subEffectValues);
+
+            // 耐久値がある場合は上書き（生成直後の初期値をPDCの値로上書き）
+            if (maxDurability > 0) {
+                artifact.setMaxDurability(maxDurability);
+            }
+
+            artifact.setDurability(durability);
 
             return Optional.of(artifact);
 

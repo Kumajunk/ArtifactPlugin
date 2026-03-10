@@ -54,6 +54,16 @@ public class ArtifactDecomposeMenu extends BaseGui {
             }
 
             if (targetArtifact == null) {
+                BaseArtifact artifact = ItemToArtifact.convert(item).orElse(null);
+                if (artifact == null) {
+                    player.sendMessage("§cアーティファクトの情報が取得できませんでした！");
+                    return;
+                }
+                if (artifact.getDurability() <= 0) {
+                    player.sendMessage("§c破損したアーティファクトは分解できません！");
+                    return;
+                }
+
                 // アーティファクトをセット
                 player.getInventory().setItem(slot, new ItemStack(Material.AIR));
                 new ArtifactDecomposeMenu(item).open(player);
@@ -125,11 +135,6 @@ public class ArtifactDecomposeMenu extends BaseGui {
                     .addLore("§7クリックでアーティファクトを分解します")
                     .addLore("§c※この操作は取り消せません！")
                     .setClickAction(ClickType.LEFT, player -> {
-                        if (targetArtifact == null) {
-                            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
-                            player.sendMessage("§c分解するアーティファクトがセットされていません！");
-                            return;
-                        }
 
                         Optional<BaseArtifact> opt = ItemToArtifact.convert(targetArtifact);
                         if (opt.isEmpty()) {
@@ -215,7 +220,7 @@ public class ArtifactDecomposeMenu extends BaseGui {
         double tierMultiplier = ArtifactMain.getGeneralConfig()
                 .getTierMultiplier(artifact.getTier().getText);
         int level = artifact.getLv();
-        
+
         double reward = tierMultiplier * (1 + 0.65 * level);
         return (int) Math.round(reward);
     }

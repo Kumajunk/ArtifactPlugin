@@ -235,6 +235,11 @@ public class AuctionSellMenu extends BaseGui {
         }
 
         BaseArtifact artifact = optArtifact.get();
+
+        if (artifact.getDurability() <= 0) {
+            player.sendMessage("§c破損したアーティファクトはオークションに出品できません");
+            return;
+        }
         
         player.closeInventory();
         

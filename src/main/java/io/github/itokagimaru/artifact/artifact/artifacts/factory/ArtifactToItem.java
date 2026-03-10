@@ -37,6 +37,8 @@ public class ArtifactToItem {
         ItemData.LV.set(stack, artifact.getLv());
         ItemData.MAIN_ID.set(stack, artifact.getMainEffect().getId);
         ItemData.MAIN_VALUE.set(stack, ByteArrayConverter.toByte(artifact.getMainEffectValue()));
+        ItemData.DURABILITY.set(stack, artifact.getDurability());
+        ItemData.MAX_DURABILITY.set(stack, artifact.getMaxDurability());
 
 
         int[] subEffects = new int[4];
@@ -72,6 +74,7 @@ public class ArtifactToItem {
                 Component.text("Tier: ").color(NamedTextColor.GRAY).append(Component.text(artifact.getTier().getText).color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD)).decoration(TextDecoration.ITALIC, false),
                 Component.text("Lv: ").color(NamedTextColor.GRAY).append(Component.text("+" + artifact.getLv()).color(NamedTextColor.WHITE)).decoration(TextDecoration.ITALIC, false),
                 Component.text("Cut: ").color(NamedTextColor.GRAY).append(Component.text(artifact.getSlot().getSlotName).color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD)).decoration(TextDecoration.ITALIC, false),
+                Component.text("Durability: ").color(NamedTextColor.GRAY).append(Component.text(artifact.getDurability() + " / " + artifact.getMaxDurability()).color(NamedTextColor.WHITE)).append(artifact.getDurability() <= 0 ? Component.text("[破損]").color(NamedTextColor.RED) : Component.empty()).decoration(TextDecoration.ITALIC, false),
                 Component.text("-------------------------").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
                 Component.text("MainEffect").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
                 Component.text(artifact.getMainEffect().getText).color(NamedTextColor.GRAY).decorate(TextDecoration.BOLD).append(Component.text(" +").color(NamedTextColor.WHITE).append(Component.text(String.format("%.2f", artifact.getMainEffectValue() * getRate(artifact.getMainEffect().getAddType))).color(NamedTextColor.WHITE).decorate(TextDecoration.BOLD).append(Component.text(artifact.getMainEffect().getAddTypeText).color(NamedTextColor.WHITE)))).decoration(TextDecoration.ITALIC, false),
