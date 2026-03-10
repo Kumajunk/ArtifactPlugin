@@ -60,6 +60,30 @@ public class ArtifactRepairMenu extends BaseGui {
     private void setupGui() {
         fill(new ItemBuilder().setMaterial(Material.GRAY_STAINED_GLASS_PANE).setName(" "));
 
+        int cost = 0;
+        if (repairTarget != null) {
+            Optional<BaseArtifact> artifactOpt = ItemToArtifact.convert(repairTarget);
+            if (artifactOpt.isPresent()) {
+                BaseArtifact artifact = artifactOpt.get();
+                int maxDurability = artifact.getMaxDurability();
+                int currentDurability = artifact.getDurability();
+                
+                if (currentDurability < maxDurability) {
+                    double penaltyRate = ArtifactMain.getGeneralConfig().getRepairPenaltyRate();
+                    int rawRecovered = maxDurability - currentDurability;
+                    int penalty = (int) Math.ceil(rawRecovered * penaltyRate);
+                    
+                    // 実際に増える耐久値 = (以前の最大 - ペナルティ) - 現在
+                    int actualRecovered = Math.max(0, (maxDurability - penalty) - currentDurability);
+                    
+                    if (actualRecovered > 0) {
+                        cost = (int) Math.round((25 * Math.pow(1.12, artifact.getLv())) * actualRecovered);
+                    }
+                }
+            }
+        }
+
+        final int finalCost = cost;
         if (repairTarget != null) {
             setReturnItem(BASE_SLOT, repairTarget, player -> {
                 Map<Integer, ItemStack> remaining = player.getInventory().addItem(repairTarget);
@@ -82,6 +106,8 @@ public class ArtifactRepairMenu extends BaseGui {
                 .setName("§a修理を実行する")
                 .addLore("§7耐久値を最大まで回復させますが、")
                 .addLore("§7回復量に応じて最大耐久値が減少します。")
+                .addLore(" ")
+                .addLore("§7修理費用: §e$" + finalCost)
                 .setClickAction(ClickType.LEFT, player -> {
                     if (repairTarget == null) {
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
@@ -105,6 +131,13 @@ public class ArtifactRepairMenu extends BaseGui {
                         player.sendMessage("§cこのアーティファクトはすでに耐久値が最大です!");
                         return;
                     }
+
+                    // 所持金チェック
+                    if (ArtifactMain.getVaultAPI().getBalance(player.getUniqueId()) < finalCost) {
+                        player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
+                        player.sendMessage("§c修理費用が足りません! (必要: §e$" + finalCost + "§c)");
+                        return;
+                    }
                     
                     double penaltyRate = ArtifactMain.getGeneralConfig().getRepairPenaltyRate();
                     int recoveredAmount = maxDurability - currentDurability;
@@ -112,6 +145,12 @@ public class ArtifactRepairMenu extends BaseGui {
                     
                     // 新しい最大耐久値を計算（0未満にはしない）
                     int newMaxDurability = Math.max(1, maxDurability - penalty);
+
+                    // 所持金を差し引く
+                    if (!ArtifactMain.getVaultAPI().withdraw(player.getUniqueId(), finalCost)) {
+                        player.sendMessage("§c支払いに失敗しました。");
+                        return;
+                    }
                     
                     // 耐久を回復させ、最大耐久値を更新
                     baseArtifact.setMaxDurability(newMaxDurability);
